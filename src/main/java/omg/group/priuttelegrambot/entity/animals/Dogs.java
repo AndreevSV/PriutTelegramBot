@@ -1,8 +1,6 @@
 package omg.group.priuttelegrambot.entity.animals;
 
 import jakarta.persistence.*;
-import omg.group.priuttelegrambot.entity.clients.Clients;
-import omg.group.priuttelegrambot.entity.clients.ClientsCats;
 import omg.group.priuttelegrambot.entity.clients.ClientsDogs;
 
 @Entity

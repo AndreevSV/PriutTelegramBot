@@ -1,7 +1,6 @@
 package omg.group.priuttelegrambot.entity.clients;
 
 import jakarta.persistence.*;
-import omg.group.priuttelegrambot.entity.animals.Cats;
 import omg.group.priuttelegrambot.entity.animals.Dogs;
 
 import java.util.Collection;

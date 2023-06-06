@@ -4,7 +4,6 @@ import jakarta.persistence.*;
 import omg.group.priuttelegrambot.entity.addresses.Addresses;
 
 import java.time.LocalDateTime;
-import java.util.List;
 
 @MappedSuperclass
 public abstract class Clients {
