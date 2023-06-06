@@ -1,11 +1,15 @@
 package omg.group.priuttelegrambot.entity.addresses;
 
 import jakarta.persistence.*;
+import lombok.Data;
+import lombok.RequiredArgsConstructor;
 import omg.group.priuttelegrambot.entity.clients.ClientsCats;
 import omg.group.priuttelegrambot.entity.clients.ClientsDogs;
 
 import java.util.Collection;
 
+@Data
+@RequiredArgsConstructor
 @Entity
 @Table(name = "addresses")
 public class Addresses {

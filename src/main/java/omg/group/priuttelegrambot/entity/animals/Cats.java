@@ -1,8 +1,12 @@
 package omg.group.priuttelegrambot.entity.animals;
 
 import jakarta.persistence.*;
+import lombok.Data;
+import lombok.RequiredArgsConstructor;
 import omg.group.priuttelegrambot.entity.clients.ClientsCats;
 
+@Data
+@RequiredArgsConstructor
 @Entity
 @Table(name = "cats")
 public class Cats extends Animals {
