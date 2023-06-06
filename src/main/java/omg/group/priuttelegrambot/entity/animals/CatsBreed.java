@@ -1,4 +1,5 @@
-//package omg.group.priuttelegrambot.entity.animals;
-//
-//public class CatsBreed {
-//}
+package omg.group.priuttelegrambot.entity.animals;
+
+public enum CatsBreed {
+    cat, cat2
+}

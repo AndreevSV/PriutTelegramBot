@@ -1,10 +1,10 @@
 CREATE TABLE dogs
 (
     id              BIGSERIAL   NOT NULL PRIMARY KEY,
-    type_of_animal  VARCHAR(10) NOT NULL,
+    type_of_animal  SMALLINT    NOT NULL,
     nickname        VARCHAR(20) NOT NULL,
-    date_of_birth   DATE        NOT NULL,
-    breed           VARCHAR(50),
+    birthday        TIMESTAMP   NOT NULL,
+    breed           SMALLINT,
     disabilities    BOOLEAN,
     description     TEXT,
     created_at      TIMESTAMP   NOT NULL,
@@ -18,10 +18,10 @@ CREATE TABLE dogs
 CREATE TABLE cats
 (
     id              BIGSERIAL   NOT NULL PRIMARY KEY,
-    type_of_animal  VARCHAR(10) NOT NULL,
+    type_of_animal  SMALLINT    NOT NULL,
     nickname        VARCHAR(20) NOT NULL,
-    date_of_birth   DATE        NOT NULL,
-    breed           VARCHAR(50),
+    birthday        TIMESTAMP   NOT NULL,
+    breed           SMALLINT,
     disabilities    BOOLEAN,
     description     TEXT,
     created_at      TIMESTAMP   NOT NULL,
@@ -39,7 +39,7 @@ CREATE TABLE clients_dogs
     name             VARCHAR(20),
     surname          VARCHAR(20),
     patronymic       VARCHAR(20),
-    birthday         DATE,
+    birthday         TIMESTAMP,
     telephone        INTEGER,
     email            VARCHAR(40),
     address          BIGINT,
@@ -51,8 +51,8 @@ CREATE TABLE clients_dogs
     volunteer        BOOLEAN   NOT NULL,
     dog_id           BIGINT,
     first_probation  BOOLEAN   NOT NULL,
-    probation_starts DATE      NOT NULL,
-    probation_ends   DATE      NOT NULL,
+    probation_starts TIMESTAMP NOT NULL,
+    probation_ends   TIMESTAMP NOT NULL,
     passed_probation BOOLEAN
 );
 
@@ -63,7 +63,7 @@ CREATE TABLE clients_cats
     name             VARCHAR(20),
     surname          VARCHAR(20),
     patronymic       VARCHAR(20),
-    birthday         DATE,
+    birthday         TIMESTAMP,
     telephone        INTEGER,
     email            VARCHAR(40),
     address          BIGINT,
@@ -75,14 +75,14 @@ CREATE TABLE clients_cats
     volunteer        BOOLEAN   NOT NULL,
     cat_id           BIGINT,
     first_probation  BOOLEAN   NOT NULL,
-    probation_starts DATE      NOT NULL,
-    probation_ends   DATE      NOT NULL,
+    probation_starts TIMESTAMP NOT NULL,
+    probation_ends   TIMESTAMP NOT NULL,
     passed_probation BOOLEAN
 );
 
 CREATE TABLE knowledge_base_dogs
 (
-    id                  INTEGER      NOT NULL PRIMARY KEY,
+    id                  BIGSERIAL      NOT NULL PRIMARY KEY,
     command             VARCHAR(20)  NOT NULL,
     command_description VARCHAR(255) NOT NULL,
     message             TEXT
@@ -114,9 +114,9 @@ CREATE TABLE photo_table_dogs
 (
     id         BIGSERIAL NOT NULL PRIMARY KEY,
     id_client  BIGSERIAL NOT NULL,
-    id_animal     BIGSERIAL NOT NULL,
+    id_animal  BIGSERIAL NOT NULL,
     path       VARCHAR(255),
-    created_at DATE      NOT NULL
+    created_at TIMESTAMP NOT NULL
 );
 
 CREATE TABLE photo_table_cats
@@ -125,12 +125,12 @@ CREATE TABLE photo_table_cats
     id_client  BIGSERIAL NOT NULL,
     id_animal  BIGSERIAL NOT NULL,
     path       VARCHAR(255),
-    created_at DATE      NOT NULL
+    created_at TIMESTAMP NOT NULL
 );
 
 ALTER TABLE dogs
-    ADD CONSTRAINT fk_dogs_clients_dogs FOREIGN KEY (id_volunteer) REFERENCES clients_dogs(id),
-    ADD CONSTRAINT fk_dogs_clients_dogs_2 FOREIGN KEY (clients_dogs_id) REFERENCES clients_dogs(id);
+    ADD CONSTRAINT fk_dogs_clients_dogs FOREIGN KEY (id_volunteer) REFERENCES clients_dogs (id),
+    ADD CONSTRAINT fk_dogs_clients_dogs_2 FOREIGN KEY (clients_dogs_id) REFERENCES clients_dogs (id);
 
 ALTER TABLE cats
     ADD CONSTRAINT fk_cats_clients_cats FOREIGN KEY (id_volunteer) REFERENCES clients_cats (id),
@@ -145,9 +145,9 @@ ALTER TABLE clients_cats
     ADD CONSTRAINT fk_clients_cats_cats FOREIGN KEY (cat_id) REFERENCES cats (id);
 
 ALTER TABLE photo_table_dogs
-    ADD CONSTRAINT fk_photo_table_dogs_clients_dogs FOREIGN KEY (id_client) REFERENCES clients_dogs(id),
-    ADD CONSTRAINT fk_photo_table_dogs_dogs FOREIGN KEY (id_animal) REFERENCES dogs(id);
+    ADD CONSTRAINT fk_photo_table_dogs_clients_dogs FOREIGN KEY (id_client) REFERENCES clients_dogs (id),
+    ADD CONSTRAINT fk_photo_table_dogs_dogs FOREIGN KEY (id_animal) REFERENCES dogs (id);
 
 ALTER TABLE photo_table_cats
-    ADD CONSTRAINT fk_photo_table_cats_clients_cats FOREIGN KEY (id_client) REFERENCES clients_cats(id),
-    ADD CONSTRAINT fk_photo_table_cats_cats FOREIGN KEY (id_animal) REFERENCES cats(id);
+    ADD CONSTRAINT fk_photo_table_cats_clients_cats FOREIGN KEY (id_client) REFERENCES clients_cats (id),
+    ADD CONSTRAINT fk_photo_table_cats_cats FOREIGN KEY (id_animal) REFERENCES cats (id);
