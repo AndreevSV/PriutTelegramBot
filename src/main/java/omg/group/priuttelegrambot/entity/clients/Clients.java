@@ -1,6 +1,7 @@
 package omg.group.priuttelegrambot.entity.clients;
 
 import jakarta.persistence.*;
+import jakarta.validation.constraints.Email;
 import omg.group.priuttelegrambot.entity.addresses.Addresses;
 
 import java.time.LocalDateTime;
@@ -23,6 +24,7 @@ public abstract class Clients {
     @Column(name = "telephone")
     private int telephone;
     @Column(name = "email")
+    @Email()
     private String email;
     @ManyToOne
     @JoinColumn(name = "address", referencedColumnName = "id")
