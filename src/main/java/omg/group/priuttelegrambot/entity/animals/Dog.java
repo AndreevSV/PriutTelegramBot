@@ -4,24 +4,24 @@ import jakarta.persistence.*;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.RequiredArgsConstructor;
-import omg.group.priuttelegrambot.entity.clients.ClientsCats;
+import omg.group.priuttelegrambot.entity.clients.OwnerDog;
 
 @EqualsAndHashCode(callSuper = true)
 @Data
 @RequiredArgsConstructor
 @Entity
-@Table(name = "cats")
-public class Cats extends Animals {
+@Table(name = "dogs")
+public class Dog extends Animal {
 
     @Column(name = "breed")
-    private CatsBreed breed;
+    private DogsBreed breed;
 
     @OneToOne
     @JoinColumn(name = "id_volunteer", referencedColumnName = "id")
-    private ClientsCats volunteer;
+    private OwnerDog volunteer;
 
     @ManyToOne
-    @JoinColumn(name = "clients_cats_id", referencedColumnName = "id")
-    private ClientsCats clientCat;
+    @JoinColumn(name = "clients_dogs_id", referencedColumnName = "id")
+    private OwnerDog clientDog;
 
 }

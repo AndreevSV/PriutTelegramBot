@@ -4,7 +4,7 @@ import lombok.Data;
 import lombok.RequiredArgsConstructor;
 import omg.group.priuttelegrambot.entity.animals.AnimalType;
 import omg.group.priuttelegrambot.entity.animals.CatsBreed;
-import omg.group.priuttelegrambot.entity.clients.ClientsCats;
+import omg.group.priuttelegrambot.entity.clients.OwnerCat;
 
 import java.time.LocalDateTime;
 
@@ -23,6 +23,6 @@ public class AnimalDto {
     private LocalDateTime updatedAt;
     private LocalDateTime dateOutcome;
     private String photoPath;
-    private ClientsCats volunteer;
-    private ClientsCats clientCat;
+    private OwnerCat volunteer;
+    private OwnerCat clientCat;
 }

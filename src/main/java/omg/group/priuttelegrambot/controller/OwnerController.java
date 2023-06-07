@@ -5,5 +5,5 @@ import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 @RequestMapping("/api/animal")
-public class ClientsController {
+public class OwnerController {
 }

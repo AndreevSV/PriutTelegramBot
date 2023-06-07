@@ -2,12 +2,14 @@ package omg.group.priuttelegrambot.entity.clients;
 
 import jakarta.persistence.*;
 import jakarta.validation.constraints.Email;
+import lombok.Data;
 import omg.group.priuttelegrambot.entity.addresses.Addresses;
 
 import java.time.LocalDateTime;
 
+@Data
 @MappedSuperclass
-public abstract class Clients {
+public abstract class Owner {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;

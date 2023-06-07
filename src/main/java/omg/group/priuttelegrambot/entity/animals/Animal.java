@@ -1,11 +1,13 @@
 package omg.group.priuttelegrambot.entity.animals;
 
 import jakarta.persistence.*;
+import lombok.Data;
 
 import java.time.LocalDateTime;
 
+@Data
 @MappedSuperclass
-public abstract class Animals {
+public abstract class Animal {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;

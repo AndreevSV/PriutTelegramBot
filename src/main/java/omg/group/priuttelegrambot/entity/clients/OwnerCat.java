@@ -4,7 +4,7 @@ import jakarta.persistence.*;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.RequiredArgsConstructor;
-import omg.group.priuttelegrambot.entity.animals.Cats;
+import omg.group.priuttelegrambot.entity.animals.Cat;
 
 import java.util.Collection;
 
@@ -13,17 +13,17 @@ import java.util.Collection;
 @RequiredArgsConstructor
 @Entity
 @Table(name = "clients_cats")
-public class ClientsCats extends Clients {
+public class OwnerCat extends Owner {
 
     @Column(name = "cat_id")
     private Long catId;
 
-    @OneToOne
-    @JoinColumn(name = "id", referencedColumnName = "id")
-    private ClientsCats volunteer;
+//    @OneToOne
+//    @JoinColumn(name = "id", referencedColumnName = "id")
+//    private OwnerCat volunteer;
 
     @OneToMany(mappedBy = "clientCat")
-    private Collection<Cats> cats;
+    private Collection<Cat> cats;
 
 
 }

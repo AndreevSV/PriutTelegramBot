@@ -3,7 +3,7 @@ package omg.group.priuttelegrambot.dto;
 import jakarta.validation.constraints.Pattern;
 
 
-public class AddresseDto {
+public class AddressDto {
     private Long id;
     @Pattern(regexp = "d6//.")
     private int index;
