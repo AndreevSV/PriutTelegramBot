@@ -10,7 +10,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 
-import java.util.ArrayList;
 import java.util.List;
 
 @Component
@@ -93,20 +92,40 @@ public class TelegramBotUpdatesListener implements UpdatesListener {
                 inlineKeyboardMarkup.addRow(new InlineKeyboardButton("Как взять животное").callbackData("/dog_take"));
                 inlineKeyboardMarkup.addRow(new InlineKeyboardButton("Прислать отчет о питомце").callbackData("/dog_send_report"));
                 inlineKeyboardMarkup.addRow(new InlineKeyboardButton("Позвать волонтера").callbackData("/dog_volonteer"));
-                telegramBot.execute(new SendMessage(chatId, "Вы выбрали приют для собак. \n " +
+                telegramBot.execute(new SendMessage(chatId, "Вы выбрали приют для кошек. \n " +
                         "Что вы хотите сделать?").replyMarkup(inlineKeyboardMarkup));
 
 
             }
-//            case "/dog_info" -> {
-//
-//            }
-//            case "/dog_about" -> {
-//
-//            }
-//            case "/dog_timetable" -> {
-//
-//            }
+            case "/dog_info" -> {
+// формирование клавиатуры
+                InlineKeyboardMarkup inlineKeyboardMarkup = new InlineKeyboardMarkup();
+                inlineKeyboardMarkup.addRow(new InlineKeyboardButton("Рассказать о приюте").callbackData("/dog_about"));
+                inlineKeyboardMarkup.addRow(new InlineKeyboardButton("Расписание работы приюта и адрес, схему проезда").callbackData("/dog_timetable"));
+                inlineKeyboardMarkup.addRow(new InlineKeyboardButton("Контактные данные охраны для оформления пропуска на машину").callbackData("/dog_admission"));
+                inlineKeyboardMarkup.addRow(new InlineKeyboardButton("Общие рекомендации о технике безопасности на территории приюта").callbackData("/dog_safety_measures"));
+                inlineKeyboardMarkup.addRow(new InlineKeyboardButton("Записать контактные данные для связи").callbackData("/dog_safety_measures"));
+                inlineKeyboardMarkup.addRow(new InlineKeyboardButton("Позвать волонтера").callbackData("/dog_volonteer"));
+                telegramBot.execute(new SendMessage(chatId, "Вы выбрали приют для собак. \n " +
+                        "Что вы хотите сделать?").replyMarkup(inlineKeyboardMarkup));
+
+            }
+            case "/dog_about" -> {
+                sendMessage(chatId, """
+                        Информация о приюте для собак - берется из базы данных.
+                        Метод, считывающий строку базы данных и вставляющий значение.
+                        Ему передается команда со слешем, по этому ключу идет обрашение к базе данных.
+                        """);
+
+            }
+            case "/dog_timetable" -> {
+                sendMessage(chatId, """
+                        Расписание работы приюта и адрес, схему проезда - берется из базы данных.
+                        Метод, считывающий строку базы данных и вставляющий значение.
+                        Ему передается команда со слешем, по этому ключу идет обрашение к базе данных.
+                        """);
+
+            }
 //            case "/dog_admission" -> {
 //
 //            }
@@ -171,17 +190,36 @@ public class TelegramBotUpdatesListener implements UpdatesListener {
                         "Что вы хотите сделать?").replyMarkup(inlineKeyboardMarkup));
 
 
+            }
+            case "/cat_info" -> {
+                InlineKeyboardMarkup inlineKeyboardMarkup = new InlineKeyboardMarkup();
+                inlineKeyboardMarkup.addRow(new InlineKeyboardButton("Рассказать о приюте").callbackData("/cat_about"));
+                inlineKeyboardMarkup.addRow(new InlineKeyboardButton("Расписание работы приюта и адрес, схему проезда").callbackData("/cat_timetable"));
+                inlineKeyboardMarkup.addRow(new InlineKeyboardButton("Контактные данные охраны для оформления пропуска на машину").callbackData("/cat_admission"));
+                inlineKeyboardMarkup.addRow(new InlineKeyboardButton("Общие рекомендации о технике безопасности на территории приюта").callbackData("/cat_safety_measures"));
+                inlineKeyboardMarkup.addRow(new InlineKeyboardButton("Записать контактные данные для связи").callbackData("/cat_safety_measures"));
+                inlineKeyboardMarkup.addRow(new InlineKeyboardButton("Позвать волонтера").callbackData("/cat_volonteer"));
+                telegramBot.execute(new SendMessage(chatId, "Вы выбрали приют для кошек. \n " +
+                        "Что вы хотите сделать?").replyMarkup(inlineKeyboardMarkup));
+            }
+            case "/cat_about" -> {
+                sendMessage(chatId, """
+                        Информация о приюте для кошек - берется из базы данных.
+                        Метод, считывающий строку базы данных и вставляющий значение.
+                        Ему передается команда со слешем, по этому ключу идет обрашение к базе данных.
+                        """);
 
             }
-//            case "/cat_info" -> {
-//
-//            }
-//            case "/cat_about" -> {
-//
-//            }
-//            case "/cat_timetable" -> {
-//
-//            }
+            case "/cat_timetable" -> {
+
+                sendMessage(chatId, """
+                        Расписание работы приюта, адрес, схему проезда - берется из базы данных.
+                        Метод, считывающий строку базы данных и вставляющий значение.
+                        Ему передается команда со слешем, по этому ключу идет обрашение к базе данных.
+                        """);
+
+
+            }
 //            case "/cat_admission" -> {
 //
 //            }
