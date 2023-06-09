@@ -2,10 +2,12 @@ package omg.group.priuttelegrambot.entity.animals;
 
 import jakarta.persistence.*;
 import lombok.Data;
+import lombok.RequiredArgsConstructor;
 
 import java.time.LocalDateTime;
 
 @Data
+@RequiredArgsConstructor
 @MappedSuperclass
 public abstract class Animal {
     @Id

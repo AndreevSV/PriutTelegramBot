@@ -4,11 +4,15 @@ import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Pattern;
+import lombok.Data;
+import lombok.RequiredArgsConstructor;
 import omg.group.priuttelegrambot.entity.addresses.Addresses;
 
 import java.time.LocalDateTime;
 
-public class ClientDto {
+@Data
+@RequiredArgsConstructor
+public class OwnerDto {
 
     private Long id;
     @NotBlank(message = "Field Name couldn't be blank")

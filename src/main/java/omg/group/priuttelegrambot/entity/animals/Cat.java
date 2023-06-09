@@ -1,10 +1,10 @@
 package omg.group.priuttelegrambot.entity.animals;
 
 import jakarta.persistence.*;
-import lombok.Data;
-import lombok.EqualsAndHashCode;
-import lombok.RequiredArgsConstructor;
-import omg.group.priuttelegrambot.entity.clients.OwnerCat;
+import lombok.*;
+import omg.group.priuttelegrambot.entity.owners.OwnerCat;
+
+import java.time.LocalDateTime;
 
 @EqualsAndHashCode(callSuper = true)
 @Data
@@ -24,4 +24,6 @@ public class Cat extends Animal {
     @JoinColumn(name = "clients_cats_id", referencedColumnName = "id")
     private OwnerCat clientCat;
 
+    public Cat(AnimalType animalType, String s, LocalDateTime birthday, Boolean disabilities, String description, String s1) {
+    }
 }

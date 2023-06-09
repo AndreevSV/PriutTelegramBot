@@ -1,4 +1,4 @@
-package omg.group.priuttelegrambot.entity.clients;
+package omg.group.priuttelegrambot.entity.owners;
 
 import jakarta.persistence.*;
 import lombok.Data;

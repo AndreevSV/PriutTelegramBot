@@ -3,8 +3,8 @@ package omg.group.priuttelegrambot.entity.addresses;
 import jakarta.persistence.*;
 import lombok.Data;
 import lombok.RequiredArgsConstructor;
-import omg.group.priuttelegrambot.entity.clients.OwnerCat;
-import omg.group.priuttelegrambot.entity.clients.OwnerDog;
+import omg.group.priuttelegrambot.entity.owners.OwnerCat;
+import omg.group.priuttelegrambot.entity.owners.OwnerDog;
 
 import java.util.Collection;
 
