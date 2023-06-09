@@ -33,38 +33,23 @@ public class TelegramBotUpdatesListener implements UpdatesListener {
 
 
     private void handleUpdate(Update update) {
-
-        if (update.message() != null && update.message().text() != null) {
-
+        if (update.message() != null && update.message().text() != null || update.callbackQuery() != null) {
             processText(update);
-        }
-        if (update.callbackQuery() != null) {
-            processCallbackQuery(update);
-            processText(update);
-
-        }
-//        else {
-//            this.sendMessage(update.message().chat().id(), "Какой-то текст");
-//        }
-
-    }
-
-    private void processCallbackQuery(Update update) {
-        String callbackData = update.callbackQuery().data();
-        if (callbackData.equals("Приют для кошек")) {
-            telegramBot.execute(new SendMessage(update.callbackQuery().from().id(), "/cat"));
-
-        } else if (callbackData.equals("Приют для собак")) {
-            telegramBot.execute(new SendMessage(update.callbackQuery().from().id(), "/dog"));
+        } else {
+            this.sendMessage(update.message().chat().id(), "Какой-то текст");
         }
 
     }
 
     private void processText(Update update) {
+        // текст сообщения от пользователя
         String text = "/start";
+//        id пользователя
         Long chatId = 0L;
+//        имя пользователя
         String userName = " ";
         LOG.info("Получен следующий апдэйт {}", update);
+
         if (update.message() != null) {
             chatId = update.message().chat().id();
             text = update.message().text();
@@ -77,25 +62,26 @@ public class TelegramBotUpdatesListener implements UpdatesListener {
 
 
         switch (text) {
+//            обработка команды /start
             case "/start" -> {
+//                создание Inline клавиатуры с двумя кнопками
                 InlineKeyboardMarkup inlineKeyboardMarkup = new InlineKeyboardMarkup();
                 inlineKeyboardMarkup.addRow(new InlineKeyboardButton("Приют для кошек").callbackData("/cat"),
                         new InlineKeyboardButton("Приют для собак").callbackData("/dog"));
+//                отправка сообщения пользователю с клавиатурой
                 telegramBot.execute(new SendMessage(chatId, "Привет " + userName
                         + "\n Это телеграм бот приюта домашних животных. \n Выберите приют:  ").replyMarkup(inlineKeyboardMarkup));
 
-
             }
             case "/dog" -> {
-
                 InlineKeyboardMarkup inlineKeyboardMarkup = new InlineKeyboardMarkup();
                 inlineKeyboardMarkup.addRow(new InlineKeyboardButton("Информация о приюте").callbackData("/dog_info"));
                 inlineKeyboardMarkup.addRow(new InlineKeyboardButton("Как взять животное").callbackData("/dog_take"));
                 inlineKeyboardMarkup.addRow(new InlineKeyboardButton("Прислать отчет о питомце").callbackData("/dog_send_report"));
                 inlineKeyboardMarkup.addRow(new InlineKeyboardButton("Позвать волонтера").callbackData("/dog_volonteer"));
-                telegramBot.execute(new SendMessage(chatId, "Вы выбрали приют для кошек. \n " +
+                inlineKeyboardMarkup.addRow(new InlineKeyboardButton("назад").callbackData("/start"));
+                telegramBot.execute(new SendMessage(chatId, "Вы выбрали приют для собак. \n " +
                         "Что бы вы хотели узнать?").replyMarkup(inlineKeyboardMarkup));
-
 
             }
             case "/dog_info" -> {
@@ -107,6 +93,7 @@ public class TelegramBotUpdatesListener implements UpdatesListener {
                 inlineKeyboardMarkup.addRow(new InlineKeyboardButton("Общие рекомендации о технике безопасности на территории приюта").callbackData("/dog_safety_measures"));
                 inlineKeyboardMarkup.addRow(new InlineKeyboardButton("Записать контактные данные для связи").callbackData("/dog_receive_contacts"));
                 inlineKeyboardMarkup.addRow(new InlineKeyboardButton("Позвать волонтера").callbackData("/dog_volonteer"));
+                inlineKeyboardMarkup.addRow(new InlineKeyboardButton("назад").callbackData("/dog"));
                 telegramBot.execute(new SendMessage(chatId, "Вы выбрали приют для собак. \n " +
                         "Что вы хотите сделать?").replyMarkup(inlineKeyboardMarkup));
 
@@ -117,6 +104,7 @@ public class TelegramBotUpdatesListener implements UpdatesListener {
                         Метод, считывающий строку базы данных и вставляющий значение.
                         Ему передается команда со слешем, по этому ключу идет обрашение к базе данных.
                         """);
+
 
             }
             case "/dog_timetable" -> {
@@ -192,6 +180,7 @@ public class TelegramBotUpdatesListener implements UpdatesListener {
                 inlineKeyboardMarkup.addRow(new InlineKeyboardButton("Как взять животное").callbackData("/cat_take"));
                 inlineKeyboardMarkup.addRow(new InlineKeyboardButton("Прислать отчет о питомце").callbackData("/cat_send_report"));
                 inlineKeyboardMarkup.addRow(new InlineKeyboardButton("Позвать волонтера").callbackData("/cat_volonteer"));
+                inlineKeyboardMarkup.addRow(new InlineKeyboardButton("назад").callbackData("/start"));
                 telegramBot.execute(new SendMessage(chatId, "Вы выбрали приют для кошек. \n " +
                         "Что бы вы хотели узнать?").replyMarkup(inlineKeyboardMarkup));
 
@@ -205,6 +194,7 @@ public class TelegramBotUpdatesListener implements UpdatesListener {
                 inlineKeyboardMarkup.addRow(new InlineKeyboardButton("Общие рекомендации о технике безопасности на территории приюта").callbackData("/cat_safety_measures"));
                 inlineKeyboardMarkup.addRow(new InlineKeyboardButton("Записать контактные данные для связи").callbackData("/dog_receive_contacts"));
                 inlineKeyboardMarkup.addRow(new InlineKeyboardButton("Позвать волонтера").callbackData("/cat_volonteer"));
+                inlineKeyboardMarkup.addRow(new InlineKeyboardButton("назад").callbackData("/cat"));
                 telegramBot.execute(new SendMessage(chatId, "Вы выбрали приют для кошек. \n " +
                         "Что вы хотите сделать?").replyMarkup(inlineKeyboardMarkup));
             }
@@ -214,6 +204,7 @@ public class TelegramBotUpdatesListener implements UpdatesListener {
                         Метод, считывающий строку базы данных и вставляющий значение.
                         Ему передается команда со слешем, по этому ключу идет обрашение к базе данных.
                         """);
+
 
             }
             case "/cat_timetable" -> {
