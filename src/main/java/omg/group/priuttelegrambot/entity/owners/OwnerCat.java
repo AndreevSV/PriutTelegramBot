@@ -22,7 +22,7 @@ public class OwnerCat extends Owner {
 //    @JoinColumn(name = "id", referencedColumnName = "id")
 //    private OwnerCat volunteer;
 
-    @OneToMany(mappedBy = "clientCat")
+    @OneToMany(mappedBy = "ownerCat")
     private Collection<Cat> cats;
 
 

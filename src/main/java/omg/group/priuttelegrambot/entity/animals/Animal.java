@@ -15,6 +15,8 @@ public abstract class Animal {
     private Long id;
     @Column(name = "type_of_animal")
     private AnimalType animalType;
+    @Column(name = "animal_sex")
+    private Sex sex;
     @Column(name = "nickname")
     private String nickName;
     @Column(name = "birthday")

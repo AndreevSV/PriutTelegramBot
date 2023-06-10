@@ -2,6 +2,7 @@ CREATE TABLE dogs
 (
     id              BIGSERIAL   NOT NULL PRIMARY KEY,
     type_of_animal  SMALLINT    NOT NULL,
+    animal_sex      SMALLINT,
     nickname        VARCHAR(20) NOT NULL,
     birthday        TIMESTAMP   NOT NULL,
     breed           SMALLINT,
@@ -19,6 +20,7 @@ CREATE TABLE cats
 (
     id              BIGSERIAL   NOT NULL PRIMARY KEY,
     type_of_animal  SMALLINT    NOT NULL,
+    animal_sex      SMALLINT,
     nickname        VARCHAR(20) NOT NULL,
     birthday        TIMESTAMP   NOT NULL,
     breed           SMALLINT,
@@ -40,7 +42,7 @@ CREATE TABLE clients_dogs
     surname          VARCHAR(20),
     patronymic       VARCHAR(20),
     birthday         TIMESTAMP,
-    telephone        INTEGER,
+    telephone        VARCHAR(12),
     email            VARCHAR(40),
     address          BIGINT,
     created_at       TIMESTAMP NOT NULL,
@@ -64,7 +66,7 @@ CREATE TABLE clients_cats
     surname          VARCHAR(20),
     patronymic       VARCHAR(20),
     birthday         TIMESTAMP,
-    telephone        INTEGER,
+    telephone        VARCHAR(12),
     email            VARCHAR(40),
     address          BIGINT,
     created_at       TIMESTAMP NOT NULL,
@@ -82,7 +84,7 @@ CREATE TABLE clients_cats
 
 CREATE TABLE knowledge_base_dogs
 (
-    id                  BIGSERIAL      NOT NULL PRIMARY KEY,
+    id                  BIGSERIAL    NOT NULL PRIMARY KEY,
     command             VARCHAR(20)  NOT NULL,
     command_description VARCHAR(255) NOT NULL,
     message             TEXT

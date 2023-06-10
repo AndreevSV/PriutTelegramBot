@@ -22,6 +22,6 @@ public class Dog extends Animal {
 
     @ManyToOne
     @JoinColumn(name = "clients_dogs_id", referencedColumnName = "id")
-    private OwnerDog clientDog;
+    private OwnerDog ownerDog;
 
 }

@@ -22,7 +22,7 @@ public class Cat extends Animal {
 
     @ManyToOne
     @JoinColumn(name = "clients_cats_id", referencedColumnName = "id")
-    private OwnerCat clientCat;
+    private OwnerCat ownerCat;
 
     public Cat(AnimalType animalType, String s, LocalDateTime birthday, Boolean disabilities, String description, String s1) {
     }

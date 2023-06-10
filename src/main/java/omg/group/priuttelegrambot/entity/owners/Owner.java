@@ -24,7 +24,7 @@ public abstract class Owner {
     @Column(name = "birthday")
     private LocalDateTime birthday;
     @Column(name = "telephone")
-    private int telephone;
+    private String telephone;
     @Column(name = "email")
     @Email()
     private String email;
