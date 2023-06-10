@@ -21,7 +21,7 @@ public abstract class Clients {
     @Column(name = "birthday")
     private LocalDateTime birthday;
     @Column(name = "telephone")
-    private int telephone;
+    private String telephone;
     @Column(name = "email")
     private String email;
     @ManyToOne

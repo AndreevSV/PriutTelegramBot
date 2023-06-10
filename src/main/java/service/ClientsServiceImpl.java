@@ -13,8 +13,9 @@ public class ClientsServiceImpl implements ClientsService {
     private static Map<Long, Clients> clientsMap = new HashMap<>();
 
     @Override
-    public void addClient(Clients clients) {
+    public long addClient(Clients clients) {
 
+        return 0;
     }
 
     @Override
@@ -23,7 +24,7 @@ public class ClientsServiceImpl implements ClientsService {
     }
 
     @Override
-    public Clients findClientsByTelephone(Long telephone) {
+    public Clients findClientsByTelephone(String telephone) {
         return null;
     }
 
@@ -43,12 +44,19 @@ public class ClientsServiceImpl implements ClientsService {
     }
 
     @Override
-    public Clients updateClients(long id, Clients clients) {
+    public Clients updateClient(long id, Clients clients) {
         return null;
     }
 
     @Override
-    public Clients deleteClients(long id) {
-        return null;
+    public boolean deleteClient(long id) {
+
+        for (Clients clients : clientsMap.values()) {
+            if (clientsMap.containsKey(id)) {
+                clientsMap.remove(id);
+                return true;
+            }
+        }
+        return false;
     }
 }
