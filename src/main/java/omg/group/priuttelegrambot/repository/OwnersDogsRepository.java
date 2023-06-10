@@ -1,6 +1,5 @@
 package omg.group.priuttelegrambot.repository;
 
-import omg.group.priuttelegrambot.entity.animals.Dog;
 import omg.group.priuttelegrambot.entity.owners.OwnerDog;
 import org.springframework.data.jpa.repository.JpaRepository;
 

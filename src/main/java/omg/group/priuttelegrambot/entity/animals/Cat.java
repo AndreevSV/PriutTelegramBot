@@ -4,8 +4,6 @@ import jakarta.persistence.*;
 import lombok.*;
 import omg.group.priuttelegrambot.entity.owners.OwnerCat;
 
-import java.time.LocalDateTime;
-
 @EqualsAndHashCode(callSuper = true)
 @Data
 @RequiredArgsConstructor
@@ -24,6 +22,4 @@ public class Cat extends Animal {
     @JoinColumn(name = "clients_cats_id", referencedColumnName = "id")
     private OwnerCat ownerCat;
 
-    public Cat(AnimalType animalType, String s, LocalDateTime birthday, Boolean disabilities, String description, String s1) {
-    }
 }
