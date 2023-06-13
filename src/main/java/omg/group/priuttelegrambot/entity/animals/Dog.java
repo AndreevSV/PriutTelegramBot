@@ -4,6 +4,7 @@ import jakarta.persistence.*;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.RequiredArgsConstructor;
+import omg.group.priuttelegrambot.entity.animals.enimalsenum.DogsBreed;
 import omg.group.priuttelegrambot.entity.owners.OwnerDog;
 
 @EqualsAndHashCode(callSuper = true)

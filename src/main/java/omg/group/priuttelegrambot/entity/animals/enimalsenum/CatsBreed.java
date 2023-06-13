@@ -1,4 +1,4 @@
-package omg.group.priuttelegrambot.entity.animals;
+package omg.group.priuttelegrambot.entity.animals.enimalsenum;
 
 public enum CatsBreed {
     Outbred,

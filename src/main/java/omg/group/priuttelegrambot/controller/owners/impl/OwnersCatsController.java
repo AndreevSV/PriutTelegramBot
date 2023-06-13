@@ -1,4 +1,4 @@
-package omg.group.priuttelegrambot.controller;
+package omg.group.priuttelegrambot.controller.owners.impl;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -80,74 +80,75 @@ public class OwnersCatsController {
         return ResponseEntity.ok().body(ownersCatsService.updateById(id, ownerCatDto));
     }
 
-//    @GetMapping
-//    @Operation(
-//            summary = "Получение данных о клиенте приюта кошек",
-//            description =
-//                    "Информацию о клиенте можно получить путем ввода одного или нескольких " +
-//                            "параметров - фамилии, телефона, логина в Telegram и/или идентификатора"
-//    )
-//    @Parameters(value = {
-//            @Parameter(
-//                    name = "surname", example = "Иванов"
-//            ),
-//            @Parameter(
-//                    name = "telephone", example = "+71231234567"
-//            ),
-//            @Parameter(
-//                    name = "username", example = "leleka"
-//            ),
-//            @Parameter(
-//                    name = "id", example = "целое число, большее либо равное 0, например, 5"
-//            ),
-//    })
-//    @ApiResponses(value = {
-//            @ApiResponse(
-//                    responseCode = "200",
-//                    description = "Информация о клиенте по заданным параметрам получена",
-//                    content = {
-//                            @Content(
-//                                    mediaType = MediaType.APPLICATION_JSON_VALUE,
-//                                    array = @ArraySchema(schema = @Schema(implementation = OwnerCat.class))
-//                            )
-//                    }
-//            ),
-//            @ApiResponse(
-//                    responseCode = "400",
-//                    description = "Параметры запроса отсутствуют или имеют некорректный формат"
-//
-//            ),
-//            @ApiResponse(
-//                    responseCode = "404",
-//                    description = "Клиент с такими данными отсутствует в клиентской базе приюта"
-//
-//            ),
-//            @ApiResponse(
-//                    responseCode = "500",
-//                    description = "Произошла ошибка, не зависящая от вызывающей стороны"
-//
-//            )
-//    })
-//    public ResponseEntity<List<OwnerCatDto>> findByIdUsernameSurnameTelephone(@RequestParam(required = false) Long id,
-//                                                        @RequestParam(required = false) String username,
-//                                                        @RequestParam(required = false) String surname,
-//                                                        @RequestParam(required = false) String telephone) {
-//
-//        if (id != null &&) {
-//        }
-//
-//        if (surname != null && !surname.isBlank()) {
-//            return ResponseEntity.ok(ownersCatsService.findBySurname(surname));
-//        }
-//        if (telephone != null && !telephone.isBlank()) {
-//            return ResponseEntity.ok(ownersCatsService.findByTelephone(telephone));
-//        }
-//        if (username != null && !username.isBlank()) {
-//            return ResponseEntity.ok(ownersCatsService.findByUsername(username));
-//        }
-//
-//
-//    }
+    @GetMapping
+    @Operation(
+            summary = "Получение данных о клиенте приюта кошек",
+            description =
+                    "Информацию о клиенте можно получить путем ввода одного или нескольких " +
+                            "параметров - фамилии, телефона, логина в Telegram и/или идентификатора"
+    )
+    @Parameters(value = {
+            @Parameter(
+                    name = "surname", example = "Иванов"
+            ),
+            @Parameter(
+                    name = "telephone", example = "+71231234567"
+            ),
+            @Parameter(
+                    name = "username", example = "leleka"
+            ),
+            @Parameter(
+                    name = "id", example = "целое число, большее либо равное 0, например, 5"
+            ),
+    })
+    @ApiResponses(value = {
+            @ApiResponse(
+                    responseCode = "200",
+                    description = "Информация о клиенте по заданным параметрам получена",
+                    content = {
+                            @Content(
+                                    mediaType = MediaType.APPLICATION_JSON_VALUE,
+                                    array = @ArraySchema(schema = @Schema(implementation = OwnerCat.class))
+                            )
+                    }
+            ),
+            @ApiResponse(
+                    responseCode = "400",
+                    description = "Параметры запроса отсутствуют или имеют некорректный формат"
+
+            ),
+            @ApiResponse(
+                    responseCode = "404",
+                    description = "Клиент с такими данными отсутствует в клиентской базе приюта"
+
+            ),
+            @ApiResponse(
+                    responseCode = "500",
+                    description = "Произошла ошибка, не зависящая от вызывающей стороны"
+
+            )
+    })
+    public ResponseEntity<List<OwnerCatDto>> findByIdUsernameSurnameTelephone(
+            @RequestParam(required = false) Long id,
+            @RequestParam(required = false) String username,
+            @RequestParam(required = false) String surname,
+            @RequestParam(required = false) String telephone) {
+
+        if (id != null) {
+            return ResponseEntity.ok().body(ownersCatsService.findById(id));
+        }
+        if (username != null && !username.isBlank()) {
+            return ResponseEntity.ok(ownersCatsService.findByUsername(username));
+        }
+        if (surname != null && !surname.isBlank()) {
+            return ResponseEntity.ok(ownersCatsService.findBySurname(surname));
+        }
+        if (telephone != null && !telephone.isBlank()) {
+            return ResponseEntity.ok(ownersCatsService.findByTelephone(telephone));
+        } else {
+            throw new NullPointerException("Клиент с такими параметрами не найден");
+        }
+    }
 
     @RequestMapping("/all")
     public ResponseEntity<List<OwnerCatDto>> getAll() {
@@ -175,6 +176,5 @@ public class OwnersCatsController {
     public ResponseEntity<HttpStatus> deleteById(@PathVariable Long id) {
         return ResponseEntity.ok().body(ownersCatsService.deleteById(id));
     }
-
 
 }

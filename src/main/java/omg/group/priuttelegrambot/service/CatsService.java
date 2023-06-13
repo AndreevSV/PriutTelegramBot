@@ -1,63 +1,37 @@
 package omg.group.priuttelegrambot.service;
 
-import lombok.Data;
-import lombok.RequiredArgsConstructor;
 import omg.group.priuttelegrambot.dto.animals.CatDto;
 import omg.group.priuttelegrambot.entity.animals.Cat;
-import omg.group.priuttelegrambot.repository.CatsRepository;
+import omg.group.priuttelegrambot.entity.animals.enimalsenum.Sex;
 import org.springframework.http.HttpStatus;
-import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
-import java.util.Optional;
+import java.util.List;
 
-@Service
-@Data
-@RequiredArgsConstructor
-public class CatsService {
+public interface CatsService {
 
-    private final CatsRepository catsRepository;
+    HttpStatus add(CatDto catDto);
 
-    public HttpStatus save(CatDto catDto) {
-        Cat cat = constructCat(catDto);
-        catsRepository.save(cat);
-        return HttpStatus.CREATED;
-    }
+    HttpStatus updateById(Long id, CatDto catDto);
 
-    public HttpStatus delete(CatDto catDto) {
-        Cat cat = constructCat(catDto);
-        catsRepository.delete(cat);
-        return HttpStatus.NO_CONTENT;
-    }
+    List<CatDto> findById(Long id);
 
-    public Optional<CatDto> findById(Long id) {
+    List<CatDto> findBySex(Sex sex);
 
-        Optional<Cat> cat = catsRepository.findById(id);
+    List<CatDto> findByNickname(String nickname);
 
-        CatDto catDto = new CatDto();
+    List<CatDto> findByBreed(String breed);
 
-        catDto.setId(cat.get().getId());
-        catDto.setAnimalType(cat.get().getAnimalType());
-        catDto.setSex(cat.get().getSex());
-        catDto.setNickName(cat.get().getNickName());
-        catDto.setBirthday(cat.get().getBirthday());
-        catDto.setBreed(cat.get().getBreed());
-        catDto.setDisabilities(cat.get().getDisabilities());
-        catDto.setDescription(cat.get().getDescription());
-        catDto.setPhotoPath(cat.get().getPhotoPath());
-        catDto.setVolunteer(cat.get().getVolunteer());
-        catDto.setOwner(cat.get().getOwnerCat());
+    List<CatDto> findByBirthdayBetweenDates(LocalDateTime startDate, LocalDateTime endDate);
 
-        return Optional.of(catDto);
-    }
+    List<CatDto> getAll();
 
-    public HttpStatus deleteById(Long id) {
-        catsRepository.deleteById(id);
-        return HttpStatus.OK;
-    }
+    HttpStatus deleteById(Long id);
 
-    private Cat constructCat(CatDto catDto) {
+    default Cat constructCatFromCatDto(CatDto catDto) {
+
         Cat cat = new Cat();
+
         cat.setAnimalType(catDto.getAnimalType());
         cat.setSex(catDto.getSex());
         cat.setNickName(catDto.getNickName());
@@ -65,10 +39,34 @@ public class CatsService {
         cat.setBreed(catDto.getBreed());
         cat.setDisabilities(catDto.getDisabilities());
         cat.setDescription(catDto.getDescription());
-        cat.setCreatedAt(LocalDateTime.now());
+        cat.setCreatedAt(catDto.getCreatedAt());
+        cat.setUpdatedAt(catDto.getUpdatedAt());
+        cat.setDateOutcome(catDto.getDateOutcome());
         cat.setPhotoPath(catDto.getPhotoPath());
+        cat.setVolunteer(catDto.getVolunteer());
+        cat.setOwnerCat(catDto.getOwner());
 
         return cat;
     }
+
+    default CatDto constructCatDtoFromCat(Cat cat) {
+
+        CatDto catDto = new CatDto();
+
+        catDto.setId(cat.getId());
+        catDto.setAnimalType(cat.getAnimalType());
+        catDto.setSex(cat.getSex());
+        catDto.setNickName(cat.getNickName());
+        catDto.setBirthday(cat.getBirthday());
+        catDto.setBreed(cat.getBreed());
+        catDto.setDisabilities(cat.getDisabilities());
+        catDto.setDescription(cat.getDescription());
+        catDto.setPhotoPath(cat.getPhotoPath());
+        catDto.setVolunteer(cat.getVolunteer());
+        catDto.setOwner(cat.getOwnerCat());
+
+        return catDto;
+    }
+
 
 }

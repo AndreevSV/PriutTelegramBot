@@ -1,9 +1,8 @@
 package omg.group.priuttelegrambot.dto.animals;
 
 import lombok.Data;
-import omg.group.priuttelegrambot.entity.animals.AnimalType;
-import omg.group.priuttelegrambot.entity.animals.Sex;
-import omg.group.priuttelegrambot.entity.owners.Owner;
+import omg.group.priuttelegrambot.entity.animals.enimalsenum.AnimalType;
+import omg.group.priuttelegrambot.entity.animals.enimalsenum.Sex;
 
 import java.time.LocalDateTime;
 
@@ -20,6 +19,5 @@ public class AnimalDto {
         private LocalDateTime updatedAt;
         private LocalDateTime dateOutcome;
         private String photoPath;
-        private Owner volunteer;
-        private Owner owner;
+
 }

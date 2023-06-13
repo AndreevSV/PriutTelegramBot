@@ -18,9 +18,9 @@ public class OwnerCat extends Owner {
     @Column(name = "cat_id")
     private Long catId;
 
-//    @OneToOne
-//    @JoinColumn(name = "id", referencedColumnName = "id")
-//    private OwnerCat volunteer;
+    @OneToOne
+    @JoinColumn(name = "id", referencedColumnName = "id")
+    private OwnerCat volunteer;
 
     @OneToMany(mappedBy = "ownerCat")
     private Collection<Cat> cats;

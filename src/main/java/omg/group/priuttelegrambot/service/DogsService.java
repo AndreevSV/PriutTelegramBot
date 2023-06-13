@@ -1,56 +1,71 @@
 package omg.group.priuttelegrambot.service;
 
-import lombok.Data;
-import lombok.RequiredArgsConstructor;
+import omg.group.priuttelegrambot.dto.animals.CatDto;
 import omg.group.priuttelegrambot.dto.animals.DogDto;
 import omg.group.priuttelegrambot.entity.animals.Dog;
-import omg.group.priuttelegrambot.repository.DogsRepository;
+import omg.group.priuttelegrambot.entity.animals.enimalsenum.Sex;
 import org.springframework.http.HttpStatus;
-import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
-import java.util.Optional;
+import java.util.List;
 
-@Service
-@Data
-@RequiredArgsConstructor
-public class DogsService {
+public interface DogsService {
 
-    private final DogsRepository dogsRepository;
+    HttpStatus add(DogDto dogDto);
 
-    public HttpStatus save(DogDto dogDto) {
-        Dog dog = constructDog(dogDto);
-        dogsRepository.save(dog);
-        return HttpStatus.CREATED;
-    }
+    HttpStatus updateById(Long id, DogDto dogDto);
 
-    public HttpStatus delete(DogDto dogDto) {
-        Dog dog = constructDog(dogDto);
-        dogsRepository.delete(dog);
-        return HttpStatus.NO_CONTENT;
-    }
+    List<DogDto> findById(Long id);
 
-    public Optional<Dog> findById(Long id) {
-        return dogsRepository.findById(id);
-    }
+    List<DogDto> findBySex(Sex sex);
 
-    public HttpStatus deleteById(Long id) {
-        dogsRepository.deleteById(id);
-        return HttpStatus.OK;
-    }
+    List<DogDto> findByNickname(String nickname);
 
-    private Dog constructDog(DogDto dogDto) {
+    List<DogDto> findByBreed(String breed);
+
+    List<DogDto> findByBirthdayBetweenDates(LocalDateTime startDate, LocalDateTime endDate);
+
+    List<DogDto> getAll();
+
+    HttpStatus deleteById(Long id);
+
+    default Dog constructDogFromDogDto(DogDto dogDto) {
+
         Dog dog = new Dog();
+
         dog.setAnimalType(dogDto.getAnimalType());
+        dog.setSex(dogDto.getSex());
         dog.setNickName(dogDto.getNickName());
         dog.setBirthday(dogDto.getBirthday());
         dog.setBreed(dogDto.getBreed());
         dog.setDisabilities(dogDto.getDisabilities());
         dog.setDescription(dogDto.getDescription());
-        dog.setCreatedAt(LocalDateTime.now());
+        dog.setCreatedAt(dogDto.getCreatedAt());
+        dog.setUpdatedAt(dogDto.getUpdatedAt());
+        dog.setDateOutcome(dogDto.getDateOutcome());
         dog.setPhotoPath(dogDto.getPhotoPath());
+        dog.setVolunteer(dogDto.getVolunteer());
+        dog.setOwnerDog(dogDto.getOwner());
 
         return dog;
     }
 
+    default DogDto constructDogDtoFromCat(Dog dog) {
+
+        DogDto dogDto = new DogDto();
+
+        dogDto.setId(dog.getId());
+        dogDto.setAnimalType(dog.getAnimalType());
+        dogDto.setSex(dog.getSex());
+        dogDto.setNickName(dog.getNickName());
+        dogDto.setBirthday(dog.getBirthday());
+        dogDto.setBreed(dog.getBreed());
+        dogDto.setDisabilities(dog.getDisabilities());
+        dogDto.setDescription(dog.getDescription());
+        dogDto.setPhotoPath(dog.getPhotoPath());
+        dogDto.setVolunteer(dog.getVolunteer());
+        dogDto.setOwner(dog.getOwnerDog());
+
+        return dogDto;
+    }
 }

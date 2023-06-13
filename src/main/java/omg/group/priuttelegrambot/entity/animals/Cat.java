@@ -2,6 +2,7 @@ package omg.group.priuttelegrambot.entity.animals;
 
 import jakarta.persistence.*;
 import lombok.*;
+import omg.group.priuttelegrambot.entity.animals.enimalsenum.CatsBreed;
 import omg.group.priuttelegrambot.entity.owners.OwnerCat;
 
 @EqualsAndHashCode(callSuper = true)

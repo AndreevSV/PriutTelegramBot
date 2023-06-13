@@ -3,6 +3,8 @@ package omg.group.priuttelegrambot.entity.animals;
 import jakarta.persistence.*;
 import lombok.Data;
 import lombok.RequiredArgsConstructor;
+import omg.group.priuttelegrambot.entity.animals.enimalsenum.AnimalType;
+import omg.group.priuttelegrambot.entity.animals.enimalsenum.Sex;
 
 import java.time.LocalDateTime;
 

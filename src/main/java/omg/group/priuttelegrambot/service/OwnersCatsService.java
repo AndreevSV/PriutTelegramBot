@@ -1,106 +1,78 @@
 package omg.group.priuttelegrambot.service;
 
-import lombok.RequiredArgsConstructor;
 import omg.group.priuttelegrambot.dto.owners.OwnerCatDto;
 import omg.group.priuttelegrambot.entity.owners.OwnerCat;
-import omg.group.priuttelegrambot.repository.OwnersCatsRepository;
 import org.springframework.http.HttpStatus;
-import org.springframework.stereotype.Service;
 
-import java.time.LocalDateTime;
-import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
-import java.util.stream.Collectors;
 
-@Service
-@RequiredArgsConstructor
-public class OwnersCatsService {
+public interface OwnersCatsService {
 
-    private final OwnersCatsRepository ownersCatsRepository;
+    HttpStatus add(OwnerCatDto ownerDto);
 
-    public HttpStatus add(OwnerCatDto ownerCatDto) {
+    HttpStatus updateById(Long id, OwnerCatDto ownerDto);
 
-        OwnerCat owner = constructOwner(ownerCatDto);
-        owner.setCreatedAt(LocalDateTime.now());
+    List<OwnerCatDto> findById(Long id);
 
-        ownersCatsRepository.save(owner);
-        return HttpStatus.CREATED;
-    }
+    List<OwnerCatDto> findByUsername(String username);
 
-    public HttpStatus updateById(Long id, OwnerCatDto ownerCatDto) {
+    List<OwnerCatDto> findBySurname(String surname);
 
-        OwnerCat owner = constructOwner(ownerCatDto);
-        owner.setUpdatedAt(LocalDateTime.now());
+    List<OwnerCatDto> findByTelephone(String telephone);
 
-        if (ownersCatsRepository.existsById(id)) {
-            ownersCatsRepository.save(owner);
-            return HttpStatus.OK;
-        } else {
-            throw new RuntimeException(String.format("Клиент с id %d не найден", id));
-        }
-    }
+    List<OwnerCatDto> getAll();
 
-    public Optional<OwnerCat> findById(Long id) {
-        return ownersCatsRepository.findById(id);
-    }
+    HttpStatus deleteById(Long id);
 
-    public List<OwnerCatDto> getAll() {
-        return ownersCatsRepository.findAll().stream()
-                .map(ownerCat -> {
+    default OwnerCat constructOwner(OwnerCatDto ownerDto) {
 
-                    OwnerCatDto ownerCatDto = new OwnerCatDto();
-
-                    ownerCatDto.setId(ownerCat.getId());
-                    ownerCatDto.setUserName(ownerCat.getUserName());
-                    ownerCatDto.setName(ownerCat.getName());
-                    ownerCatDto.setSurname(ownerCat.getSurname());
-                    ownerCatDto.setPatronymic(ownerCat.getPatronymic());
-                    ownerCatDto.setTelephone(ownerCat.getTelephone());
-                    ownerCatDto.setEmail(ownerCat.getEmail());
-                    ownerCatDto.setAddress(ownerCat.getAddress());
-                    ownerCatDto.setBecameClient(ownerCat.getBecameClient());
-                    ownerCatDto.setVolunteer(ownerCat.getVolunteer());
-                    ownerCatDto.setCatId(ownerCat.getCatId());
-
-                    return ownerCatDto;
-
-                })
-                .collect(Collectors.toList());
-    }
-
-
-    public HttpStatus deleteById(Long id) {
-        if (ownersCatsRepository.existsById(id)) {
-            ownersCatsRepository.deleteById(id);
-            return HttpStatus.NO_CONTENT;
-        } else {
-            throw new RuntimeException(String.format("Клиент с id %d не найден", id));
-        }
-    }
-
-    private OwnerCat constructOwner(OwnerCatDto ownerCatDto) {
         OwnerCat owner = new OwnerCat();
-        owner.setUserName(ownerCatDto.getUserName());
-        owner.setSurname(ownerCatDto.getSurname());
-        owner.setPatronymic(ownerCatDto.getPatronymic());
-        owner.setBirthday(ownerCatDto.getBirthday());
-        owner.setTelephone(ownerCatDto.getTelephone());
-        owner.setEmail(ownerCatDto.getEmail());
-        owner.setAddress(ownerCatDto.getAddress());
-//        owner.setCreatedAt(ownerCatDto.getCreatedAt());
-//        owner.setUpdatedAt(ownerCatDto.getUpdatedAt());
-//        owner.setDateIncome(ownerCatDto.getDateIncome());
-//        owner.setDateOutcome(ownerCatDto.getDateOutcome());
-        owner.setBecameClient(ownerCatDto.getBecameClient());
-        owner.setVolunteer(ownerCatDto.getVolunteer());
-        owner.setCatId(ownerCatDto.getCatId());
-        owner.setFirstProbation(ownerCatDto.getFirstProbation());
-        owner.setProbationStarts(ownerCatDto.getProbationStarts());
-        owner.setProbationEnds(ownerCatDto.getProbationEnds());
-        owner.setPassedProbation(ownerCatDto.getPassedProbation());
+
+        owner.setUserName(ownerDto.getUserName());
+        owner.setSurname(ownerDto.getSurname());
+        owner.setPatronymic(ownerDto.getPatronymic());
+        owner.setBirthday(ownerDto.getBirthday());
+        owner.setTelephone(ownerDto.getTelephone());
+        owner.setEmail(ownerDto.getEmail());
+        owner.setAddress(ownerDto.getAddress());
+        owner.setCreatedAt(ownerDto.getCreatedAt());
+        owner.setUpdatedAt(ownerDto.getUpdatedAt());
+        owner.setDateIncome(ownerDto.getDateIncome());
+        owner.setDateOutcome(ownerDto.getDateOutcome());
+        owner.setBecameClient(ownerDto.getBecameClient());
+        owner.setVolunteer(ownerDto.getVolunteer());
+        owner.setCatId(ownerDto.getCatId());
+        owner.setFirstProbation(ownerDto.getFirstProbation());
+        owner.setProbationStarts(ownerDto.getProbationStarts());
+        owner.setProbationEnds(ownerDto.getProbationEnds());
+        owner.setPassedProbation(ownerDto.getPassedProbation());
 
         return owner;
     }
 
+    default OwnerCatDto constructOwnerDto(OwnerCat owner) {
+
+        OwnerCatDto ownerDto = new OwnerCatDto();
+
+        ownerDto.setUserName(owner.getUserName());
+        ownerDto.setSurname(owner.getSurname());
+        ownerDto.setPatronymic(owner.getPatronymic());
+        ownerDto.setBirthday(owner.getBirthday());
+        ownerDto.setTelephone(owner.getTelephone());
+        ownerDto.setEmail(owner.getEmail());
+        ownerDto.setAddress(owner.getAddress());
+        ownerDto.setCreatedAt(owner.getCreatedAt());
+        ownerDto.setUpdatedAt(owner.getUpdatedAt());
+        ownerDto.setDateIncome(owner.getDateIncome());
+        ownerDto.setDateOutcome(owner.getDateOutcome());
+        ownerDto.setBecameClient(owner.getBecameClient());
+        ownerDto.setVolunteer(owner.getVolunteer());
+        ownerDto.setCatId(owner.getCatId());
+        ownerDto.setFirstProbation(owner.getFirstProbation());
+        ownerDto.setProbationStarts(owner.getProbationStarts());
+        ownerDto.setProbationEnds(owner.getProbationEnds());
+        ownerDto.setPassedProbation(owner.getPassedProbation());
+
+        return ownerDto;
+    }
 }
