@@ -1,4 +1,4 @@
-package omg.group.priuttelegrambot.dto;
+package omg.group.priuttelegrambot.dto.animals;
 
 import lombok.Data;
 import omg.group.priuttelegrambot.entity.animals.AnimalType;

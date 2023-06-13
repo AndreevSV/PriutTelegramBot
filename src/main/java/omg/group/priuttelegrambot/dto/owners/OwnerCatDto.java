@@ -1,4 +1,4 @@
-package omg.group.priuttelegrambot.dto;
+package omg.group.priuttelegrambot.dto.owners;
 
 import lombok.Data;
 import lombok.EqualsAndHashCode;

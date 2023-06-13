@@ -2,7 +2,7 @@ package omg.group.priuttelegrambot.service;
 
 
 import lombok.RequiredArgsConstructor;
-import omg.group.priuttelegrambot.dto.OwnerDogDto;
+import omg.group.priuttelegrambot.dto.owners.OwnerDogDto;
 import omg.group.priuttelegrambot.entity.owners.OwnerDog;
 import omg.group.priuttelegrambot.repository.OwnersDogsRepository;
 import org.springframework.http.HttpStatus;

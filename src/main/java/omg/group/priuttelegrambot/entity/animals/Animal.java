@@ -33,7 +33,4 @@ public abstract class Animal {
     private LocalDateTime dateOutcome;
     @Column(name = "photo_path")
     private String photoPath;
-
-
-
 }

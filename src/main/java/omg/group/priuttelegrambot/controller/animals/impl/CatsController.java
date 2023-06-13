@@ -1,6 +1,6 @@
 package omg.group.priuttelegrambot.controller.animals.impl;
 
-import omg.group.priuttelegrambot.dto.CatDto;
+import omg.group.priuttelegrambot.dto.animals.CatDto;
 import omg.group.priuttelegrambot.service.CatsService;
 import org.springframework.http.HttpStatusCode;
 import org.springframework.http.ResponseEntity;
