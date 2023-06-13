@@ -7,7 +7,10 @@ import omg.group.priuttelegrambot.repository.OwnersCatsRepository;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -15,25 +18,59 @@ public class OwnersCatsService {
 
     private final OwnersCatsRepository ownersCatsRepository;
 
-    public HttpStatus save(OwnerCatDto ownerCatDto) {
+    public HttpStatus add(OwnerCatDto ownerCatDto) {
         OwnerCat owner = constructOwner(ownerCatDto);
         ownersCatsRepository.save(owner);
         return HttpStatus.CREATED;
     }
 
-    public HttpStatus delete(OwnerCatDto ownerCatDto) {
-        OwnerCat owner = constructOwner(ownerCatDto);
-        ownersCatsRepository.delete(owner);
-        return HttpStatus.NO_CONTENT;
+    public HttpStatus updateById(Long id, OwnerCatDto ownerCatDto) {
+        OwnerCat ownerCat = constructOwner(ownerCatDto);
+        if (ownersCatsRepository.existsById(id)) {
+            ownersCatsRepository.save(ownerCat);
+            return HttpStatus.OK;
+        } else {
+            throw new RuntimeException(String.format("Клиент с id %d не найден", id));
+        }
     }
+
 
     public Optional<OwnerCat> findById(Long id) {
         return ownersCatsRepository.findById(id);
     }
 
+    public List<OwnerCatDto> getAll() {
+        return ownersCatsRepository.findAll().stream()
+                .map(ownerCat -> {
+
+                    OwnerCatDto ownerCatDto = new OwnerCatDto();
+
+                    ownerCatDto.setId(ownerCat.getId());
+                    ownerCatDto.setUserName(ownerCat.getUserName());
+                    ownerCatDto.setName(ownerCat.getName());
+                    ownerCatDto.setSurname(ownerCat.getSurname());
+                    ownerCatDto.setPatronymic(ownerCat.getPatronymic());
+                    ownerCatDto.setTelephone(ownerCat.getTelephone());
+                    ownerCatDto.setEmail(ownerCat.getEmail());
+                    ownerCatDto.setAddress(ownerCat.getAddress());
+                    ownerCatDto.setBecameClient(ownerCat.getBecameClient());
+                    ownerCatDto.setVolunteer(ownerCat.getVolunteer());
+                    ownerCatDto.setCatId(ownerCat.getCatId());
+
+                    return ownerCatDto;
+
+                })
+                .collect(Collectors.toList());
+    }
+
+
     public HttpStatus deleteById(Long id) {
-        ownersCatsRepository.deleteById(id);
-        return HttpStatus.OK;
+        if (ownersCatsRepository.existsById(id)) {
+            ownersCatsRepository.deleteById(id);
+            return HttpStatus.NO_CONTENT;
+        } else {
+            throw new RuntimeException(String.format("Клиент с id %d не найден", id));
+        }
     }
 
     private OwnerCat constructOwner(OwnerCatDto ownerCatDto) {

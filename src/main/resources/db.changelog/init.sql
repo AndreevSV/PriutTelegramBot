@@ -53,8 +53,8 @@ CREATE TABLE clients_dogs
     volunteer        BOOLEAN   NOT NULL,
     dog_id           BIGINT,
     first_probation  BOOLEAN   NOT NULL,
-    probation_starts TIMESTAMP NOT NULL,
-    probation_ends   TIMESTAMP NOT NULL,
+    probation_starts TIMESTAMP,
+    probation_ends   TIMESTAMP,
     passed_probation BOOLEAN
 );
 
@@ -77,8 +77,8 @@ CREATE TABLE clients_cats
     volunteer        BOOLEAN   NOT NULL,
     cat_id           BIGINT,
     first_probation  BOOLEAN   NOT NULL,
-    probation_starts TIMESTAMP NOT NULL,
-    probation_ends   TIMESTAMP NOT NULL,
+    probation_starts TIMESTAMP,
+    probation_ends   TIMESTAMP,
     passed_probation BOOLEAN
 );
 
@@ -87,7 +87,7 @@ CREATE TABLE knowledge_base_dogs
     id                  BIGSERIAL    NOT NULL PRIMARY KEY,
     command             VARCHAR(20)  NOT NULL,
     command_description VARCHAR(255) NOT NULL,
-    message             TEXT
+    message             TEXT NOT NULL
 );
 
 CREATE TABLE knowledge_base_cats
@@ -95,7 +95,7 @@ CREATE TABLE knowledge_base_cats
     id                  BIGSERIAL    NOT NULL PRIMARY KEY,
     command             VARCHAR(20)  NOT NULL,
     command_description VARCHAR(255) NOT NULL,
-    message             TEXT
+    message             TEXT NOT NULL
 );
 
 CREATE TABLE addresses

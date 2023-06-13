@@ -1,5 +1,6 @@
 package omg.group.priuttelegrambot.controller.animals.impl;
 
+import io.swagger.v3.oas.annotations.tags.Tag;
 import omg.group.priuttelegrambot.dto.animals.CatDto;
 import omg.group.priuttelegrambot.service.CatsService;
 import org.springframework.http.HttpStatusCode;
@@ -10,6 +11,7 @@ import java.util.Optional;
 
 @RestController
 @RequestMapping("/api/animals/cats")
+@Tag(name = "Контроллер для работы с кошками", description = "CRUD-операции для работы с кошками")
 public class CatsController {
 
     private final CatsService catsService;
