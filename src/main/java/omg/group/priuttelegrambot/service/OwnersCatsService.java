@@ -7,6 +7,7 @@ import omg.group.priuttelegrambot.repository.OwnersCatsRepository;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -19,21 +20,26 @@ public class OwnersCatsService {
     private final OwnersCatsRepository ownersCatsRepository;
 
     public HttpStatus add(OwnerCatDto ownerCatDto) {
+
         OwnerCat owner = constructOwner(ownerCatDto);
+        owner.setCreatedAt(LocalDateTime.now());
+
         ownersCatsRepository.save(owner);
         return HttpStatus.CREATED;
     }
 
     public HttpStatus updateById(Long id, OwnerCatDto ownerCatDto) {
-        OwnerCat ownerCat = constructOwner(ownerCatDto);
+
+        OwnerCat owner = constructOwner(ownerCatDto);
+        owner.setUpdatedAt(LocalDateTime.now());
+
         if (ownersCatsRepository.existsById(id)) {
-            ownersCatsRepository.save(ownerCat);
+            ownersCatsRepository.save(owner);
             return HttpStatus.OK;
         } else {
             throw new RuntimeException(String.format("Клиент с id %d не найден", id));
         }
     }
-
 
     public Optional<OwnerCat> findById(Long id) {
         return ownersCatsRepository.findById(id);
@@ -82,10 +88,10 @@ public class OwnersCatsService {
         owner.setTelephone(ownerCatDto.getTelephone());
         owner.setEmail(ownerCatDto.getEmail());
         owner.setAddress(ownerCatDto.getAddress());
-        owner.setCreatedAt(ownerCatDto.getCreatedAt());
-        owner.setUpdatedAt(ownerCatDto.getUpdatedAt());
-        owner.setDateIncome(ownerCatDto.getDateIncome());
-        owner.setDateOutcome(ownerCatDto.getDateOutcome());
+//        owner.setCreatedAt(ownerCatDto.getCreatedAt());
+//        owner.setUpdatedAt(ownerCatDto.getUpdatedAt());
+//        owner.setDateIncome(ownerCatDto.getDateIncome());
+//        owner.setDateOutcome(ownerCatDto.getDateOutcome());
         owner.setBecameClient(ownerCatDto.getBecameClient());
         owner.setVolunteer(ownerCatDto.getVolunteer());
         owner.setCatId(ownerCatDto.getCatId());
