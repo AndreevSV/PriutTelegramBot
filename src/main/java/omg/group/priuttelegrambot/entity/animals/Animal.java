@@ -1,16 +1,22 @@
 package omg.group.priuttelegrambot.entity.animals;
 
 import jakarta.persistence.*;
+import lombok.Data;
+import lombok.RequiredArgsConstructor;
 
 import java.time.LocalDateTime;
 
+@Data
+@RequiredArgsConstructor
 @MappedSuperclass
-public abstract class Animals {
+public abstract class Animal {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
     @Column(name = "type_of_animal")
     private AnimalType animalType;
+    @Column(name = "animal_sex")
+    private Sex sex;
     @Column(name = "nickname")
     private String nickName;
     @Column(name = "birthday")
@@ -27,7 +33,4 @@ public abstract class Animals {
     private LocalDateTime dateOutcome;
     @Column(name = "photo_path")
     private String photoPath;
-
-
-
 }

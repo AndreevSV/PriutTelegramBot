@@ -1,12 +1,15 @@
-package omg.group.priuttelegrambot.entity.clients;
+package omg.group.priuttelegrambot.entity.owners;
 
 import jakarta.persistence.*;
+import jakarta.validation.constraints.Email;
+import lombok.Data;
 import omg.group.priuttelegrambot.entity.addresses.Addresses;
 
 import java.time.LocalDateTime;
 
+@Data
 @MappedSuperclass
-public abstract class Clients {
+public abstract class Owner {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
@@ -21,8 +24,9 @@ public abstract class Clients {
     @Column(name = "birthday")
     private LocalDateTime birthday;
     @Column(name = "telephone")
-    private int telephone;
+    private String telephone;
     @Column(name = "email")
+    @Email()
     private String email;
     @ManyToOne
     @JoinColumn(name = "address", referencedColumnName = "id")

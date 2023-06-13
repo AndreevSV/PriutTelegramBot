@@ -1,23 +1,25 @@
 package omg.group.priuttelegrambot.entity.animals;
 
 import jakarta.persistence.*;
-import lombok.Data;
-import lombok.RequiredArgsConstructor;
-import omg.group.priuttelegrambot.entity.clients.ClientsCats;
+import lombok.*;
+import omg.group.priuttelegrambot.entity.owners.OwnerCat;
 
+@EqualsAndHashCode(callSuper = true)
 @Data
 @RequiredArgsConstructor
 @Entity
 @Table(name = "cats")
-public class Cats extends Animals {
+public class Cat extends Animal {
+
     @Column(name = "breed")
     private CatsBreed breed;
 
     @OneToOne
-    @JoinColumn(name = "id", referencedColumnName = "id")
-    private ClientsCats volunteer;
+    @JoinColumn(name = "id_volunteer", referencedColumnName = "id")
+    private OwnerCat volunteer;
+
     @ManyToOne
     @JoinColumn(name = "clients_cats_id", referencedColumnName = "id")
-    private ClientsCats clientCat;
+    private OwnerCat ownerCat;
 
 }

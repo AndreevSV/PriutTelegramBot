@@ -3,8 +3,8 @@ package omg.group.priuttelegrambot.entity.addresses;
 import jakarta.persistence.*;
 import lombok.Data;
 import lombok.RequiredArgsConstructor;
-import omg.group.priuttelegrambot.entity.clients.ClientsCats;
-import omg.group.priuttelegrambot.entity.clients.ClientsDogs;
+import omg.group.priuttelegrambot.entity.owners.OwnerCat;
+import omg.group.priuttelegrambot.entity.owners.OwnerDog;
 
 import java.util.Collection;
 
@@ -37,9 +37,9 @@ public class Addresses {
     private int flat;
 
     @OneToMany(mappedBy = "address")
-    private Collection<ClientsDogs> clientsDogs;
+    private Collection<OwnerDog> clientsDogs;
 
     @OneToMany(mappedBy = "address")
-    private Collection<ClientsCats> clientsCats;
+    private Collection<OwnerCat> clientsCats;
 
 }
