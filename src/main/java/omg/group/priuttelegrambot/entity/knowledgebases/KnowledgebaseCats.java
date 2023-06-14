@@ -13,4 +13,5 @@ import lombok.RequiredArgsConstructor;
 @Table(name = "knowledge_base_cats")
 public class KnowledgebaseCats extends Knowledgebase{
 
+
 }

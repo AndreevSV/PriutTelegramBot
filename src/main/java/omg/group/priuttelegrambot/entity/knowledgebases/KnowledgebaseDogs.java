@@ -10,7 +10,8 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 @Entity
 @Table(name = "knowledge_base_dogs")
-public class KnowledgebaseDogs extends Knowledgebase {
+public class KnowledgebaseDogs extends Knowledgebase{
+
 
 
 }

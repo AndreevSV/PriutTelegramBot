@@ -7,7 +7,7 @@ import omg.group.priuttelegrambot.repository.KnowledgebaseCatsRepository;
 import omg.group.priuttelegrambot.service.KnowledgebaseCatsService;
 import org.springframework.stereotype.Service;
 
-import java.util.List;
+import java.util.Optional;
 
 @Data
 @Service
@@ -18,14 +18,13 @@ public class KnowledgebaseCatsServiceImpl implements KnowledgebaseCatsService {
 
     @Override
     public String findMessageByCommand(String command) {
-        List<KnowledgebaseCats> knowledge = knowledgebaseCatsRepository.findAll();
+        Optional<KnowledgebaseCats> knowledge = knowledgebaseCatsRepository.findByCommand(command);
         System.out.println(knowledge);
-//        if (knowledge.isPresent()) {
-//            return knowledge.;
-//        } else {
-//            throw new NullPointerException("Такая команда не найдена");
-//        }
-        return command;
+        if (knowledge.isPresent()) {
+            return knowledge.get().getMessage();
+        } else {
+            throw new NullPointerException("Такая команда не найдена");
+        }
     }
 
 }

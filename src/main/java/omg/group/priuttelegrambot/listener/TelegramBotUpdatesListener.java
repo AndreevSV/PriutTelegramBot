@@ -121,12 +121,11 @@ public class TelegramBotUpdatesListener implements UpdatesListener {
 
             case "/dog_about" -> {
 
-                String message = knowledgebaseCatsService.findMessageByCommand(text);
+                String message = knowledgebaseDogsService.findMessageByCommand(text);
 
                 System.out.println(message);
-//                String message = catsService.
 
-                sendMessage(chatId, "Какой-то текст");
+                sendMessage(chatId, message);
 
 
             }
