@@ -18,9 +18,9 @@ public class OwnerDog extends Owner {
     @Column(name = "dog_id")
     private Long dogId;
 
-//    @OneToOne
-//    @JoinColumn(name = "id", referencedColumnName = "id")
-//    private OwnerDog volunteer;
+    @OneToOne
+    @JoinColumn(name = "id", referencedColumnName = "id")
+    private OwnerDog volunteer;
 
     @OneToMany(mappedBy = "ownerDog")
     private Collection<Dog> dogs;

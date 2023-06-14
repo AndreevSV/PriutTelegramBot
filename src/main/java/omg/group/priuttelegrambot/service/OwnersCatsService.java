@@ -40,7 +40,7 @@ public interface OwnersCatsService {
         owner.setDateIncome(ownerDto.getDateIncome());
         owner.setDateOutcome(ownerDto.getDateOutcome());
         owner.setBecameClient(ownerDto.getBecameClient());
-        owner.setVolunteer(ownerDto.getVolunteer());
+        owner.setIsVolunteer(ownerDto.getIsVolunteer());
         owner.setCatId(ownerDto.getCatId());
         owner.setFirstProbation(ownerDto.getFirstProbation());
         owner.setProbationStarts(ownerDto.getProbationStarts());
@@ -66,7 +66,7 @@ public interface OwnersCatsService {
         ownerDto.setDateIncome(owner.getDateIncome());
         ownerDto.setDateOutcome(owner.getDateOutcome());
         ownerDto.setBecameClient(owner.getBecameClient());
-        ownerDto.setVolunteer(owner.getVolunteer());
+        ownerDto.setIsVolunteer(owner.getIsVolunteer());
         ownerDto.setCatId(owner.getCatId());
         ownerDto.setFirstProbation(owner.getFirstProbation());
         ownerDto.setProbationStarts(owner.getProbationStarts());

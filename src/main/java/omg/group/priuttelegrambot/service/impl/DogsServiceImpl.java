@@ -4,6 +4,7 @@ import lombok.Data;
 import lombok.RequiredArgsConstructor;
 import omg.group.priuttelegrambot.dto.animals.DogDto;
 import omg.group.priuttelegrambot.entity.animals.Dog;
+import omg.group.priuttelegrambot.entity.animals.enimalsenum.DogsBreed;
 import omg.group.priuttelegrambot.entity.animals.enimalsenum.Sex;
 import omg.group.priuttelegrambot.repository.DogsRepository;
 import omg.group.priuttelegrambot.service.DogsService;
@@ -12,6 +13,7 @@ import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
 import java.util.Collections;
+import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -78,8 +80,8 @@ public class DogsServiceImpl implements DogsService {
     }
 
     @Override
-    public List<DogDto> findByBreed(String breed) {
-        List<Dog> dogsList = dogsRepository.findByBreedContainingIgnoreCase(breed);
+    public List<DogDto> findByBreed(DogsBreed breed) {
+        List<Dog> dogsList = dogsRepository.findByBreedContaining(breed);
         return dogsList.stream()
                 .map(this::constructDogDtoFromCat)
                 .collect(Collectors.toList());
@@ -87,7 +89,7 @@ public class DogsServiceImpl implements DogsService {
 
 
     @Override
-    public List<DogDto> findByBirthdayBetweenDates(LocalDateTime startDate, LocalDateTime endDate) {
+    public List<DogDto> findByBirthdayBetweenDates(Date startDate, Date endDate) {
         List<Dog> dogsList = dogsRepository.findByBirthdayBetween(startDate, endDate);
         return dogsList.stream()
                 .map(this::constructDogDtoFromCat)

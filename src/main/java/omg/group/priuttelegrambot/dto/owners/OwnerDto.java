@@ -9,6 +9,7 @@ import lombok.RequiredArgsConstructor;
 import omg.group.priuttelegrambot.entity.addresses.Addresses;
 
 import java.time.LocalDateTime;
+import java.util.Date;
 
 @Data
 @RequiredArgsConstructor
@@ -22,7 +23,7 @@ public class OwnerDto {
     private String surname;
     private String patronymic;
     @Pattern(regexp = "", message = "Date in format: dd:MM:yyyy") //!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-    private LocalDateTime birthday;
+    private Date birthday;
     @Pattern(regexp = "", message = "Date in format: dd:MM:yyyy") //!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
     private String telephone;
     @Email(message = "This is email field and you have to write correct email")
@@ -33,7 +34,7 @@ public class OwnerDto {
     private LocalDateTime dateIncome;
     private LocalDateTime dateOutcome;
     private Boolean becameClient;
-    private Boolean volunteer;
+    private Boolean isVolunteer;
 
     private Boolean firstProbation;
     @Pattern(regexp = "") //!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!

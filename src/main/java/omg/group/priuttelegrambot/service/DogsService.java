@@ -1,12 +1,12 @@
 package omg.group.priuttelegrambot.service;
 
-import omg.group.priuttelegrambot.dto.animals.CatDto;
 import omg.group.priuttelegrambot.dto.animals.DogDto;
 import omg.group.priuttelegrambot.entity.animals.Dog;
+import omg.group.priuttelegrambot.entity.animals.enimalsenum.DogsBreed;
 import omg.group.priuttelegrambot.entity.animals.enimalsenum.Sex;
 import org.springframework.http.HttpStatus;
 
-import java.time.LocalDateTime;
+import java.util.Date;
 import java.util.List;
 
 public interface DogsService {
@@ -21,9 +21,9 @@ public interface DogsService {
 
     List<DogDto> findByNickname(String nickname);
 
-    List<DogDto> findByBreed(String breed);
+    List<DogDto> findByBreed(DogsBreed breed);
 
-    List<DogDto> findByBirthdayBetweenDates(LocalDateTime startDate, LocalDateTime endDate);
+    List<DogDto> findByBirthdayBetweenDates(Date startDate, Date endDate);
 
     List<DogDto> getAll();
 

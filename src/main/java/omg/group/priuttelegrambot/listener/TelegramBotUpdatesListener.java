@@ -6,6 +6,10 @@ import com.pengrad.telegrambot.model.Update;
 import com.pengrad.telegrambot.model.request.InlineKeyboardButton;
 import com.pengrad.telegrambot.model.request.InlineKeyboardMarkup;
 import com.pengrad.telegrambot.request.SendMessage;
+import lombok.Data;
+import omg.group.priuttelegrambot.service.CatsService;
+import omg.group.priuttelegrambot.service.KnowledgebaseCatsService;
+import omg.group.priuttelegrambot.service.KnowledgebaseDogsService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
@@ -13,16 +17,30 @@ import org.springframework.stereotype.Component;
 import java.util.List;
 
 @Component
+@Data
 public class TelegramBotUpdatesListener implements UpdatesListener {
 
     private static final Logger LOG = LoggerFactory.getLogger(TelegramBotUpdatesListener.class);
 
     private final TelegramBot telegramBot;
 
+    private final KnowledgebaseCatsService knowledgebaseCatsService;
 
-    public TelegramBotUpdatesListener(TelegramBot telegramBot) {
+    private final KnowledgebaseDogsService knowledgebaseDogsService;
+
+    private final CatsService catsService;
+
+
+    public TelegramBotUpdatesListener(TelegramBot telegramBot,
+                                      KnowledgebaseDogsService knowledgebaseDogsService,
+                                      KnowledgebaseCatsService knowledgebaseCatsService,
+    CatsService catsService) {
+        this.knowledgebaseCatsService = knowledgebaseCatsService;
+        this.knowledgebaseDogsService = knowledgebaseDogsService;
+        this.catsService = catsService;
         this.telegramBot = telegramBot;
         this.telegramBot.setUpdatesListener(this);
+
     }
 
     @Override
@@ -36,9 +54,8 @@ public class TelegramBotUpdatesListener implements UpdatesListener {
         if (update.message() != null && update.message().text() != null || update.callbackQuery() != null) {
             processText(update);
         } else {
-            this.sendMessage(update.message().chat().id(), "Какой-то текст");
+            this.sendMessage(update.message().chat().id(), "Нет такой команды. Попробуйте /help");
         }
-
     }
 
     private void processText(Update update) {
@@ -66,13 +83,14 @@ public class TelegramBotUpdatesListener implements UpdatesListener {
             case "/start" -> {
 //                создание Inline клавиатуры с двумя кнопками
                 InlineKeyboardMarkup inlineKeyboardMarkup = new InlineKeyboardMarkup();
-                inlineKeyboardMarkup.addRow(new InlineKeyboardButton("Приют для кошек").callbackData("/cat"),
+                inlineKeyboardMarkup.addRow(
+                        new InlineKeyboardButton("Приют для кошек").callbackData("/cat"),
                         new InlineKeyboardButton("Приют для собак").callbackData("/dog"));
 //                отправка сообщения пользователю с клавиатурой
                 telegramBot.execute(new SendMessage(chatId, "Привет " + userName
                         + "\n Это телеграм бот приюта домашних животных. \n Выберите приют:  ").replyMarkup(inlineKeyboardMarkup));
-
             }
+
             case "/dog" -> {
                 InlineKeyboardMarkup inlineKeyboardMarkup = new InlineKeyboardMarkup();
                 inlineKeyboardMarkup.addRow(new InlineKeyboardButton("Информация о приюте").callbackData("/dog_info"));
@@ -80,10 +98,12 @@ public class TelegramBotUpdatesListener implements UpdatesListener {
                 inlineKeyboardMarkup.addRow(new InlineKeyboardButton("Прислать отчет о питомце").callbackData("/dog_send_report"));
                 inlineKeyboardMarkup.addRow(new InlineKeyboardButton("Позвать волонтера").callbackData("/dog_volonteer"));
                 inlineKeyboardMarkup.addRow(new InlineKeyboardButton("назад").callbackData("/start"));
+
                 telegramBot.execute(new SendMessage(chatId, "Вы выбрали приют для собак. \n " +
                         "Что бы вы хотели узнать?").replyMarkup(inlineKeyboardMarkup));
 
             }
+
             case "/dog_info" -> {
 // формирование клавиатуры
                 InlineKeyboardMarkup inlineKeyboardMarkup = new InlineKeyboardMarkup();
@@ -98,12 +118,15 @@ public class TelegramBotUpdatesListener implements UpdatesListener {
                         "Что вы хотите сделать?").replyMarkup(inlineKeyboardMarkup));
 
             }
+
             case "/dog_about" -> {
-                sendMessage(chatId, """
-                        Информация о приюте для собак - берется из базы данных.
-                        Метод, считывающий строку базы данных и вставляющий значение.
-                        Ему передается команда со слешем, по этому ключу идет обрашение к базе данных.
-                        """);
+
+                String message = knowledgebaseCatsService.findMessageByCommand(text);
+
+                System.out.println(message);
+//                String message = catsService.
+
+                sendMessage(chatId, "Какой-то текст");
 
 
             }

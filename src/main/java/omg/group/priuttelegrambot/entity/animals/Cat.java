@@ -13,6 +13,7 @@ import omg.group.priuttelegrambot.entity.owners.OwnerCat;
 public class Cat extends Animal {
 
     @Column(name = "breed")
+    @Enumerated(EnumType.ORDINAL)
     private CatsBreed breed;
 
     @OneToOne
