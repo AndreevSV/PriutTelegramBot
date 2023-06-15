@@ -2,6 +2,7 @@ package omg.group.priuttelegrambot.service.impl;
 
 import lombok.Data;
 import lombok.RequiredArgsConstructor;
+import omg.group.priuttelegrambot.dto.knowledgebase.KnowledgebaseDto;
 import omg.group.priuttelegrambot.entity.knowledgebases.KnowledgebaseCats;
 import omg.group.priuttelegrambot.repository.KnowledgebaseCatsRepository;
 import omg.group.priuttelegrambot.service.KnowledgebaseCatsService;
@@ -16,15 +17,20 @@ public class KnowledgebaseCatsServiceImpl implements KnowledgebaseCatsService {
 
     private final KnowledgebaseCatsRepository knowledgebaseCatsRepository;
 
+
     @Override
     public String findMessageByCommand(String command) {
         Optional<KnowledgebaseCats> knowledge = knowledgebaseCatsRepository.findByCommand(command);
-        System.out.println(knowledge);
         if (knowledge.isPresent()) {
-            return knowledge.get().getMessage();
+            KnowledgebaseDto knowledgebaseDto = new KnowledgebaseDto();
+            knowledgebaseDto.setCommand(knowledge.get().getCommand());
+            knowledgebaseDto.setMessage(knowledge.get().getMessage());
+            return knowledgebaseDto.getMessage();
         } else {
             throw new NullPointerException("Такая команда не найдена");
         }
     }
+
+
 
 }
