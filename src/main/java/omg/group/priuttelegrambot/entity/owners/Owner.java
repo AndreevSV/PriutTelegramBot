@@ -3,7 +3,6 @@ package omg.group.priuttelegrambot.entity.owners;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.Email;
 import lombok.Data;
-import omg.group.priuttelegrambot.entity.addresses.Addresses;
 import org.springframework.format.annotation.DateTimeFormat;
 
 import java.time.LocalDateTime;
@@ -40,10 +39,6 @@ public abstract class Owner {
     @Email()
     private String email;
 
-    @ManyToOne
-    @JoinColumn(name = "address", referencedColumnName = "id")
-    private Addresses address;
-
     @Column(name = "created_at")
     private LocalDateTime createdAt;
 
@@ -73,7 +68,5 @@ public abstract class Owner {
 
     @Column(name = "passed_probation")
     private Boolean passedProbation;
-
-
 
 }

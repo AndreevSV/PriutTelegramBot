@@ -1,3 +1,63 @@
 databaseChangeLog:
   - include:
       file: db.changelog/init.sql
+
+  - changeSet:
+      id: 1
+      author: AndreevSV
+      changes:
+        - sqlFile:
+            path: db.changelog/init2.sql
+
+  - changeSet:
+      id: 2
+      author: AndreevSV
+      changes:
+        - sqlFile:
+            path: db.changelog/init3.sql
+
+  - changeSet:
+      id: 3
+      author: AndreevSV
+      changes:
+        - renameTable:
+            catalogName: priut_telegrambot
+            newTableName: reports_cats
+            oldTableName: photo_table_cats
+            schemaName: public
+        - renameTable:
+            catalogName: priut_telegrambot
+            newTableName: reports_dogs
+            oldTableName: photo_table_dogs
+            schemaName: public
+        - addColumn:
+            tableName: reports_cats
+            columns:
+              - column:
+                  name: updated_at
+                  type: TIMESTAMP
+              - column:
+                  name: ration
+                  type: text
+              - column:
+                  name: feeling
+                  type: text
+              - column:
+                  name: changes
+                  type: text
+        - addColumn:
+            tableName: reports_dogs
+            columns:
+              - column:
+                  name: updated_at
+                  type: TIMESTAMP
+              - column:
+                  name: ration
+                  type: text
+              - column:
+                  name: feeling
+                  type: text
+              - column:
+                  name: changes
+                  type: text
+

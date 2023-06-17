@@ -22,8 +22,8 @@
         <mapping class="omg.group.priuttelegrambot.entity.owners.OwnerDog"/>
         <mapping class="omg.group.priuttelegrambot.entity.knowledgebases.KnowledgebaseCats"/>
         <mapping class="omg.group.priuttelegrambot.entity.knowledgebases.KnowledgebaseDogs"/>
-        <mapping class="omg.group.priuttelegrambot.entity.photo.CatsPhotos"/>
-        <mapping class="omg.group.priuttelegrambot.entity.photo.DogsPhotos"/>
+        <mapping class="omg.group.priuttelegrambot.entity.report.CatsReport"/>
+        <mapping class="omg.group.priuttelegrambot.entity.report.DogsReport"/>
 
         <!-- DB schema will be updated if needed -->
         <!-- <property name="hibernate.hbm2ddl.auto">update</property> -->

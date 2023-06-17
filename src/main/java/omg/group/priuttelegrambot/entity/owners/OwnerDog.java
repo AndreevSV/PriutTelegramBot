@@ -4,6 +4,7 @@ import jakarta.persistence.*;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.RequiredArgsConstructor;
+import omg.group.priuttelegrambot.entity.addresses.AddressesOwnersDogs;
 import omg.group.priuttelegrambot.entity.animals.Dog;
 
 import java.util.Collection;
@@ -18,12 +19,15 @@ public class OwnerDog extends Owner {
     @Column(name = "dog_id")
     private Long dogId;
 
+    @ManyToOne
+    @JoinColumn(name = "address", referencedColumnName = "id")
+    private AddressesOwnersDogs address;
+
     @OneToOne
     @JoinColumn(name = "id", referencedColumnName = "id")
     private OwnerDog volunteer;
 
     @OneToMany(mappedBy = "ownerDog")
     private Collection<Dog> dogs;
-
 
 }
