@@ -15,7 +15,8 @@
         <property name="current_session_context_class">thread</property>
         <property name="hibernate.dialect">org.hibernate.dialect.PostgreSQLDialect</property>
 
-        <mapping class="omg.group.priuttelegrambot.entity.addresses.Addresses"/>
+        <mapping class="omg.group.priuttelegrambot.entity.addresses.AddressesOwnersCats"/>
+        <mapping class="omg.group.priuttelegrambot.entity.addresses.AddressesOwnersDogs"/>
         <mapping class="omg.group.priuttelegrambot.entity.animals.Cat"/>
         <mapping class="omg.group.priuttelegrambot.entity.animals.Dog"/>
         <mapping class="omg.group.priuttelegrambot.entity.owners.OwnerCat"/>

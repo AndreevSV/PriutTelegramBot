@@ -60,4 +60,6 @@ databaseChangeLog:
               - column:
                   name: changes
                   type: text
+#  - changeSet:
+#      id: 4
 

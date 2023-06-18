@@ -87,81 +87,52 @@ public class TelegramBotUpdatesListener implements UpdatesListener {
                         new InlineKeyboardButton("Приют для кошек").callbackData("/cat"),
                         new InlineKeyboardButton("Приют для собак").callbackData("/dog"));
 //                отправка сообщения пользователю с клавиатурой
-                telegramBot.execute(new SendMessage(chatId, "Привет " + userName + "!" +
-                        "\n Это телеграм бот приюта домашних животных. \n Выберите приют:  ")
-                        .replyMarkup(inlineKeyboardMarkup));
+                telegramBot
+                        .execute(new SendMessage(
+                                chatId,
+                                String.format(
+                                        """
+                                                Привет %s
+                                                Вы запустили бот приютов собак и кошек.
+                                                Выберите необходимый приют ниже:
+                                                """, userName))
+                                .replyMarkup(inlineKeyboardMarkup));
             }
-
-            case "/dog" -> {
-                InlineKeyboardMarkup inlineKeyboardMarkup = new InlineKeyboardMarkup();
-                inlineKeyboardMarkup.addRow(new InlineKeyboardButton("Информация о приюте").callbackData("/dog_info"));
-                inlineKeyboardMarkup.addRow(new InlineKeyboardButton("Как взять животное").callbackData("/dog_take"));
-                inlineKeyboardMarkup.addRow(new InlineKeyboardButton("Прислать отчет о питомце").callbackData("/dog_send_report"));
-                inlineKeyboardMarkup.addRow(new InlineKeyboardButton("Позвать волонтера").callbackData("/dog_volunteer"));
-                inlineKeyboardMarkup.addRow(new InlineKeyboardButton("назад").callbackData("/start"));
-
-                telegramBot.execute(new SendMessage(chatId, "Вы выбрали приют для собак. \n " +
-                        "Что бы вы хотели узнать?").replyMarkup(inlineKeyboardMarkup));
-
-            }
-
-            case "/dog_info" -> executeCommandAndshowMenuDogAbout(chatId, text);
-
-            case "/dog_about" -> executeCommandAndshowMenuDogAbout(chatId, text);
-            case "/dog_timetable" -> executeCommandAndshowMenuDogAbout(chatId, text);
-            case "/dog_admission" -> executeCommandAndshowMenuDogAbout(chatId, text);
-            case "/dog_safety_measures" -> executeCommandAndshowMenuDogAbout(chatId, text);
-
-            case "/dog_take" -> executeCommandAndshowMenuDogAbout(chatId, text);
-
-            case "/dog_connection_rules" -> executeCommandAndshowMenuDogTake(chatId, text);
-            case "/dog_documents" -> executeCommandAndshowMenuDogTake(chatId, text);
-            case "/dog_transportation" -> executeCommandAndshowMenuDogTake(chatId, text);
-            case "/dog_puppy_at_home" -> executeCommandAndshowMenuDogTake(chatId, text);
-            case "/dog_at_home" -> executeCommandAndshowMenuDogTake(chatId, text);
-            case "/dog_disability" -> executeCommandAndshowMenuDogTake(chatId, text);
-            case "/dog_refusal_reasons" -> executeCommandAndshowMenuDogTake(chatId, text);
-
-
-            case "/dog_send_report" -> executeCommandAndShowMenuDogSendReport(chatId, text);
-            case "/dog_send_photo" -> executeCommandAndShowMenuDogSendReport(chatId, text);
-            case "/dog_send_ration" -> executeCommandAndShowMenuDogSendReport(chatId, text);
-            case "/dog_send_feeling" -> executeCommandAndShowMenuDogSendReport(chatId, text);
-            case "/dog_send_changes" -> executeCommandAndShowMenuDogSendReport(chatId, text);
-
-            case "/dog_back" -> executeCommandAndShowMenuDogSendReport(chatId, text);
-            case "/dog_volunteer" -> executeCommandAndShowMenuDogSendReport(chatId, text);
-            case "/dog_receive_contacts" -> executeCommandAndShowMenuDogSendReport(chatId, text);
-
 
             case "/cat" -> {
                 InlineKeyboardMarkup inlineKeyboardMarkup = new InlineKeyboardMarkup();
-                inlineKeyboardMarkup.addRow(new InlineKeyboardButton("Информация о приюте").callbackData("/cat_info"));
-                inlineKeyboardMarkup.addRow(new InlineKeyboardButton("Как взять животное").callbackData("/cat_take"));
-                inlineKeyboardMarkup.addRow(new InlineKeyboardButton("Прислать отчет о питомце").callbackData("/cat_send_report"));
+                inlineKeyboardMarkup.addRow(new InlineKeyboardButton("Информация новому клиенту").callbackData("/cat_info"));
+                inlineKeyboardMarkup.addRow(new InlineKeyboardButton("Консультация хозяина").callbackData("/cat_take"));
+                inlineKeyboardMarkup.addRow(new InlineKeyboardButton("Отослать отчет").callbackData("/cat_send_report"));
                 inlineKeyboardMarkup.addRow(new InlineKeyboardButton("Позвать волонтера").callbackData("/cat_volunteer"));
                 inlineKeyboardMarkup.addRow(new InlineKeyboardButton("назад").callbackData("/start"));
-
-                telegramBot.execute(new SendMessage(
-                        chatId,
-                        "Вы выбрали приют для кошек. \n " +
-                                "Что бы вы хотели узнать?").replyMarkup(inlineKeyboardMarkup));
+                telegramBot
+                        .execute(new SendMessage(
+                                chatId,
+                                String.format(
+                                        """
+                                                Привет %s
+                                                Вы запустили бот приют кошек.
+                                                Выберите что вас интересует:
+                                                """, userName))
+                                .replyMarkup(inlineKeyboardMarkup));
             }
-
             case "/cat_info" -> {
                 InlineKeyboardMarkup inlineKeyboardMarkup = new InlineKeyboardMarkup();
                 inlineKeyboardMarkup.addRow(new InlineKeyboardButton("Рассказать о приюте").callbackData("/cat_about"));
-                inlineKeyboardMarkup.addRow(new InlineKeyboardButton("Расписание работы приюта и адрес, схему проезда").callbackData("/cat_timetable"));
-                inlineKeyboardMarkup.addRow(new InlineKeyboardButton("Контактные данные охраны для оформления пропуска на машину").callbackData("/cat_admission"));
-                inlineKeyboardMarkup.addRow(new InlineKeyboardButton("Общие рекомендации о технике безопасности на территории приюта").callbackData("/cat_safety_measures"));
-                inlineKeyboardMarkup.addRow(new InlineKeyboardButton("Записать контактные данные для связи").callbackData("/dog_receive_contacts"));
+                inlineKeyboardMarkup.addRow(new InlineKeyboardButton("Расписание работы, адрес, схема проезда").callbackData("/cat_timetable"));
+                inlineKeyboardMarkup.addRow(new InlineKeyboardButton("Оформление пропуска на машину").callbackData("/cat_admission"));
+                inlineKeyboardMarkup.addRow(new InlineKeyboardButton("Техника безопасности").callbackData("/cat_safety_measures"));
+                inlineKeyboardMarkup.addRow(new InlineKeyboardButton("Оставить контактные данные").callbackData("/dog_receive_contacts"));
                 inlineKeyboardMarkup.addRow(new InlineKeyboardButton("Позвать волонтера").callbackData("/cat_volunteer"));
                 inlineKeyboardMarkup.addRow(new InlineKeyboardButton("назад").callbackData("/cat"));
 
-                telegramBot.execute(new SendMessage(
-                        chatId,
-                        "Вы выбрали приют для кошек. \n " +
-                                "Что вы хотите сделать?").replyMarkup(inlineKeyboardMarkup));
+                telegramBot
+                        .execute(new SendMessage(chatId,
+                                """ 
+                                        Вы выбрали приют для кошек.
+                                        Что вы хотите сделать?""")
+                                .replyMarkup(inlineKeyboardMarkup));
             }
             case "/cat_about" -> executeCommandAndShowMenuCatAbout(chatId, text);
             case "/cat_timetable" -> executeCommandAndShowMenuCatAbout(chatId, text);
@@ -187,6 +158,50 @@ public class TelegramBotUpdatesListener implements UpdatesListener {
             case "/cat_volunteer" -> executeCommandAndShowMenuCatSendReport(chatId, text);
             case "/cat_receive_contacts" -> executeCommandAndShowMenuCatTake(chatId, text); ///!!!!!!!!!!!!!!!!!!!
 
+
+            case "/dog" -> {
+                InlineKeyboardMarkup inlineKeyboardMarkup = new InlineKeyboardMarkup();
+                inlineKeyboardMarkup.addRow(new InlineKeyboardButton("Информация новому клиенту").callbackData("/dog_info"));
+                inlineKeyboardMarkup.addRow(new InlineKeyboardButton("Консультация хозяина").callbackData("/dog_take"));
+                inlineKeyboardMarkup.addRow(new InlineKeyboardButton("Отослать отчет").callbackData("/dog_send_report"));
+                inlineKeyboardMarkup.addRow(new InlineKeyboardButton("Позвать волонтера").callbackData("/dog_volunteer"));
+                inlineKeyboardMarkup.addRow(new InlineKeyboardButton("назад").callbackData("/start"));
+                telegramBot
+                        .execute(new SendMessage(
+                                chatId,
+                                String.format(
+                                        """
+                                                Привет %s
+                                                Вы запустили бот приюта собак.
+                                                Выберите что вас интересует:
+                                                """, userName))
+                                .replyMarkup(inlineKeyboardMarkup));
+            }
+
+            case "/dog_about" -> executeCommandAndshowMenuDogAbout(chatId, text);
+            case "/dog_timetable" -> executeCommandAndshowMenuDogAbout(chatId, text);
+            case "/dog_admission" -> executeCommandAndshowMenuDogAbout(chatId, text);
+            case "/dog_safety_measures" -> executeCommandAndshowMenuDogAbout(chatId, text);
+
+            case "/dog_take" -> executeCommandAndshowMenuDogTake(chatId, text);
+            case "/dog_connection_rules" -> executeCommandAndshowMenuDogTake(chatId, text);
+            case "/dog_documents" -> executeCommandAndshowMenuDogTake(chatId, text);
+            case "/dog_transportation" -> executeCommandAndshowMenuDogTake(chatId, text);
+            case "/dog_puppy_at_home" -> executeCommandAndshowMenuDogTake(chatId, text);
+            case "/dog_at_home" -> executeCommandAndshowMenuDogTake(chatId, text);
+            case "/dog_disability" -> executeCommandAndshowMenuDogTake(chatId, text);
+            case "/dog_refusal_reasons" -> executeCommandAndshowMenuDogTake(chatId, text);
+
+            case "/dog_send_report" -> executeCommandAndShowMenuDogSendReport(chatId, text);
+            case "/dog_send_photo" -> executeCommandAndShowMenuDogSendReport(chatId, text);
+            case "/dog_send_ration" -> executeCommandAndShowMenuDogSendReport(chatId, text);
+            case "/dog_send_feeling" -> executeCommandAndShowMenuDogSendReport(chatId, text);
+            case "/dog_send_changes" -> executeCommandAndShowMenuDogSendReport(chatId, text);
+
+            case "/dog_back" -> executeCommandAndShowMenuDogSendReport(chatId, text);
+            case "/dog_volunteer" -> executeCommandAndShowMenuDogSendReport(chatId, text);
+            case "/dog_receive_contacts" -> executeCommandAndshowMenuDogTake(chatId, text);
+
             default -> sendMessage(chatId, "Нет такой команды");
         }
     }
@@ -198,10 +213,10 @@ public class TelegramBotUpdatesListener implements UpdatesListener {
         InlineKeyboardMarkup inlineKeyboardMarkup = new InlineKeyboardMarkup();
 
         inlineKeyboardMarkup.addRow(new InlineKeyboardButton("Рассказать о приюте").callbackData("/dog_about"));
-        inlineKeyboardMarkup.addRow(new InlineKeyboardButton("Расписание работы приюта и адрес, схему проезда").callbackData("/dog_timetable"));
-        inlineKeyboardMarkup.addRow(new InlineKeyboardButton("Контактные данные охраны для оформления пропуска на машину").callbackData("/dog_admission"));
-        inlineKeyboardMarkup.addRow(new InlineKeyboardButton("Общие рекомендации о технике безопасности на территории приюта").callbackData("/dog_safety_measures"));
-        inlineKeyboardMarkup.addRow(new InlineKeyboardButton("Записать контактные данные для связи").callbackData("/dog_receive_contacts"));
+        inlineKeyboardMarkup.addRow(new InlineKeyboardButton("Расписание работы, адрес, схема проезда").callbackData("/dog_timetable"));
+        inlineKeyboardMarkup.addRow(new InlineKeyboardButton("Оформление пропуска на машину").callbackData("/dog_admission"));
+        inlineKeyboardMarkup.addRow(new InlineKeyboardButton("Техника безопасности").callbackData("/dog_safety_measures"));
+        inlineKeyboardMarkup.addRow(new InlineKeyboardButton("Оставить контактные данные").callbackData("/dog_receive_contacts"));
         inlineKeyboardMarkup.addRow(new InlineKeyboardButton("Позвать волонтера").callbackData("/dog_volunteer"));
         inlineKeyboardMarkup.addRow(new InlineKeyboardButton("назад").callbackData("/dog"));
 
@@ -214,24 +229,30 @@ public class TelegramBotUpdatesListener implements UpdatesListener {
 
         InlineKeyboardMarkup inlineKeyboardMarkup = new InlineKeyboardMarkup();
 
-        inlineKeyboardMarkup.addRow(new InlineKeyboardButton("Сообщение от раздела - Консультация нового хозяина").callbackData("/dog_take"));
-        inlineKeyboardMarkup.addRow(new InlineKeyboardButton("Правила знакомста с животным").callbackData("/dog_connection_rules"));
-        inlineKeyboardMarkup.addRow(new InlineKeyboardButton("Список документов, чтобы забрать животное").callbackData("/dog_documents"));
-        inlineKeyboardMarkup.addRow(new InlineKeyboardButton("Список рекомендаций по транспортировке животного.").callbackData("/dog_transportation"));
-        inlineKeyboardMarkup.addRow(new InlineKeyboardButton("Список рекомендаций по обустройству дома для щенка.").callbackData("/dog_puppy_at_home"));
-        inlineKeyboardMarkup.addRow(new InlineKeyboardButton("Список рекомендаций по обустройству дома для взрослого животного.").callbackData("/dog_at_home"));
-        inlineKeyboardMarkup.addRow(new InlineKeyboardButton("Список рекомендаций по обустройству дома для животного сограниченными возможностями (зрение, передвижение)").callbackData("/dog_disability"));
-        inlineKeyboardMarkup.addRow(new InlineKeyboardButton("Советы кинолога по первичному общению с собакой").callbackData("/dog_recommendations"));
-        inlineKeyboardMarkup.addRow(new InlineKeyboardButton("Рекомендации по проверенным кинологам для дальнейшего обращения к ним").callbackData("/dog_cynologist"));
-        inlineKeyboardMarkup.addRow(new InlineKeyboardButton("Список причин, почему могут отказать и не дать забрать животное из приюта.").callbackData("/dog_refusal_reasons"));
-        inlineKeyboardMarkup.addRow(new InlineKeyboardButton("Сообщение о записи контактных данные для связи.").callbackData("/dog_receive_contacts"));
+        inlineKeyboardMarkup.addRow(new InlineKeyboardButton("Консультация нового хозяина").callbackData("/dog_take"));
+        inlineKeyboardMarkup.addRow(new InlineKeyboardButton("Правила знакомста").callbackData("/dog_connection_rules"));
+        inlineKeyboardMarkup.addRow(new InlineKeyboardButton("Необходимые документы").callbackData("/dog_documents"));
+        inlineKeyboardMarkup.addRow(new InlineKeyboardButton("Транспортировка животного").callbackData("/dog_transportation"));
+        inlineKeyboardMarkup.addRow(new InlineKeyboardButton("Обустройство дома для щенка.").callbackData("/dog_puppy_at_home"));
+        inlineKeyboardMarkup.addRow(new InlineKeyboardButton("Обустройство дома для взрослого животного.").callbackData("/dog_at_home"));
+        inlineKeyboardMarkup.addRow(new InlineKeyboardButton("Обустройство дома для животного с ограниченными возможностями").callbackData("/dog_disability"));
+        inlineKeyboardMarkup.addRow(new InlineKeyboardButton("Советы кинолога").callbackData("/dog_recommendations"));
+        inlineKeyboardMarkup.addRow(new InlineKeyboardButton("Рекомендуемые кинологи").callbackData("/dog_cynologist"));
+        inlineKeyboardMarkup.addRow(new InlineKeyboardButton("Причины отказа").callbackData("/dog_refusal_reasons"));
+        inlineKeyboardMarkup.addRow(new InlineKeyboardButton("Оставить контактные данные").callbackData("/dog_receive_contacts"));
         inlineKeyboardMarkup.addRow(new InlineKeyboardButton("Позвать волонтера").callbackData("/dog_vulonteer"));
 
         inlineKeyboardMarkup.addRow(new InlineKeyboardButton("назад").callbackData("/dog"));
 
-        telegramBot.execute(new SendMessage(chatId, message + "Вы выбрали раздел: Консультация хозяина. \n " +
-                "Выберете команду").replyMarkup(inlineKeyboardMarkup));
-
+        telegramBot
+                .execute(new SendMessage(
+                        chatId,
+                        message +
+                                """ 
+                                            Вы выбрали раздел: Консультация нового хозяина.
+                                            Выберете команду:
+                                        """)
+                        .replyMarkup(inlineKeyboardMarkup));
     }
 
     private void executeCommandAndShowMenuDogSendReport(Long chatId, String text) {
@@ -249,9 +270,15 @@ public class TelegramBotUpdatesListener implements UpdatesListener {
 
         inlineKeyboardMarkup.addRow(new InlineKeyboardButton("назад").callbackData("/dog"));
 
-        telegramBot.execute(new SendMessage(chatId, message + "Вы выбрали раздел: Ведение питомца. \n " +
-                "Выберете команду").replyMarkup(inlineKeyboardMarkup));
-
+        telegramBot
+                .execute(new SendMessage(
+                        chatId,
+                        message +
+                                """
+                                        Вы выбрали раздел: Ведение питомца.
+                                        Выберете команду
+                                        """)
+                        .replyMarkup(inlineKeyboardMarkup));
     }
 
     private void executeCommandAndShowMenuCatAbout(Long chatId, String text) {
@@ -277,24 +304,26 @@ public class TelegramBotUpdatesListener implements UpdatesListener {
 
         InlineKeyboardMarkup inlineKeyboardMarkup = new InlineKeyboardMarkup();
 
-        inlineKeyboardMarkup.addRow(new InlineKeyboardButton("Сообщение от раздела - Консультация нового хозяина").callbackData("/cat_take"));
-        inlineKeyboardMarkup.addRow(new InlineKeyboardButton("Правила знакомста с животным").callbackData("/cat_connection_rules"));
-        inlineKeyboardMarkup.addRow(new InlineKeyboardButton("Список документов, чтобы забрать животное").callbackData("/cat_documents"));
-        inlineKeyboardMarkup.addRow(new InlineKeyboardButton("Список рекомендаций по транспортировке животного.").callbackData("/cat_transportation"));
-        inlineKeyboardMarkup.addRow(new InlineKeyboardButton("Список рекомендаций по обустройству дома для щенка.").callbackData("/cat_puppy_at_home"));
-        inlineKeyboardMarkup.addRow(new InlineKeyboardButton("Список рекомендаций по обустройству дома для взрослого животного.").callbackData("/cat_at_home"));
-        inlineKeyboardMarkup.addRow(new InlineKeyboardButton("Список рекомендаций по обустройству дома для животного сограниченными возможностями (зрение, передвижение)").callbackData("/cat_disability"));
-        inlineKeyboardMarkup.addRow(new InlineKeyboardButton("Список причин, почему могут отказать и не дать забрать животное из приюта.").callbackData("/cat_refusal_reasons"));
-
-        inlineKeyboardMarkup.addRow(new InlineKeyboardButton("Сообщение о записи контактных данные для связи.").callbackData("/cat_receive_contacts"));
-
+        inlineKeyboardMarkup.addRow(new InlineKeyboardButton("Консультация нового хозяина").callbackData("/cat_take"));
+        inlineKeyboardMarkup.addRow(new InlineKeyboardButton("Знакомство с животным").callbackData("/cat_connection_rules"));
+        inlineKeyboardMarkup.addRow(new InlineKeyboardButton("Необходимые документы").callbackData("/cat_documents"));
+        inlineKeyboardMarkup.addRow(new InlineKeyboardButton("Транспортировка").callbackData("/cat_transportation"));
+        inlineKeyboardMarkup.addRow(new InlineKeyboardButton("Обустройство дома для щенка.").callbackData("/cat_puppy_at_home"));
+        inlineKeyboardMarkup.addRow(new InlineKeyboardButton("Обустройство дома для взрослого животного.").callbackData("/cat_at_home"));
+        inlineKeyboardMarkup.addRow(new InlineKeyboardButton("Животные с сограниченными возможностями").callbackData("/cat_disability"));
+        inlineKeyboardMarkup.addRow(new InlineKeyboardButton("Причины отказа").callbackData("/cat_refusal_reasons"));
+        inlineKeyboardMarkup.addRow(new InlineKeyboardButton("Оставить контактные данные").callbackData("/cat_receive_contacts"));
         inlineKeyboardMarkup.addRow(new InlineKeyboardButton("Позвать волонтера").callbackData("/cat_volunteer"));
 
         inlineKeyboardMarkup.addRow(new InlineKeyboardButton("назад").callbackData("/cat"));
 
-        telegramBot.execute(new SendMessage(chatId, message + "Вы выбрали раздел: Консультация хозяина. \n " +
-                "Выберете команду").replyMarkup(inlineKeyboardMarkup));
-
+        telegramBot
+                .execute(new SendMessage(chatId,
+                        message +
+                                """
+                                        Вы выбрали раздел: Консультация хозяина.
+                                        Выберете команду""")
+                        .replyMarkup(inlineKeyboardMarkup));
     }
 
     private void executeCommandAndShowMenuCatSendReport(Long chatId, String text) {
@@ -303,17 +332,23 @@ public class TelegramBotUpdatesListener implements UpdatesListener {
 
         InlineKeyboardMarkup inlineKeyboardMarkup = new InlineKeyboardMarkup();
 
-        inlineKeyboardMarkup.addRow(new InlineKeyboardButton("Сообщение об отчете о животном").callbackData("/cat_send_report"));
-        inlineKeyboardMarkup.addRow(new InlineKeyboardButton("Сообщение об отсылке фото").callbackData("/cat_send_photo"));
-        inlineKeyboardMarkup.addRow(new InlineKeyboardButton("Сообщение об отсылке рациона").callbackData("/cat_send_ration"));
-        inlineKeyboardMarkup.addRow(new InlineKeyboardButton("Сообщение об отсылке самочувствия").callbackData("/cat_send_feeling"));
-        inlineKeyboardMarkup.addRow(new InlineKeyboardButton("Сообщение об отсылке изменений").callbackData("/cat_send_changes"));
+        inlineKeyboardMarkup.addRow(new InlineKeyboardButton("Отправить ежедневный отчет о животном").callbackData("/cat_send_report"));
+        inlineKeyboardMarkup.addRow(new InlineKeyboardButton("Отправить фото").callbackData("/cat_send_photo"));
+        inlineKeyboardMarkup.addRow(new InlineKeyboardButton("Отправить рацион").callbackData("/cat_send_ration"));
+        inlineKeyboardMarkup.addRow(new InlineKeyboardButton("Отправить самочувствие").callbackData("/cat_send_feeling"));
+        inlineKeyboardMarkup.addRow(new InlineKeyboardButton("Отправить изменение").callbackData("/cat_send_changes"));
         inlineKeyboardMarkup.addRow(new InlineKeyboardButton("Позвать волонтера").callbackData("/cat_volunteer"));
 
         inlineKeyboardMarkup.addRow(new InlineKeyboardButton("назад").callbackData("/cat"));
 
-        telegramBot.execute(new SendMessage(chatId, message + "Вы выбрали раздел: Ведение питомца. \n " +
-                "Выберете команду").replyMarkup(inlineKeyboardMarkup));
+        telegramBot
+                .execute(new SendMessage(chatId,
+                        message +
+                                """
+                                        Вы выбрали раздел: Ведение питомца.
+                                        Выберете команду:
+                                        """)
+                        .replyMarkup(inlineKeyboardMarkup));
     }
 
 
