@@ -1,4 +1,4 @@
-package omg.group.priuttelegrambot.service;
-
-public interface ReportService {
-}
+//package omg.group.priuttelegrambot.service;
+//
+//public interface ReportService {
+//}
