@@ -86,6 +86,11 @@
             <artifactId>spring-orm</artifactId>
             <version>6.0.9</version>
         </dependency>
+        <dependency>
+            <groupId>org.springdoc</groupId>
+            <artifactId>springdoc-openapi-starter-webmvc-ui</artifactId>
+            <version>2.1.0</version>
+        </dependency>
         <!-- https://mvnrepository.com/artifact/io.swagger.core.v3/swagger-annotations -->
         <dependency>
             <groupId>io.swagger.core.v3</groupId>
@@ -99,11 +104,6 @@
             <version>2.2.11</version>
         </dependency>
         <!-- https://mvnrepository.com/artifact/org.springdoc/springdoc-openapi-ui -->
-        <dependency>
-            <groupId>org.springdoc</groupId>
-            <artifactId>springdoc-openapi-ui</artifactId>
-            <version>1.7.0</version>
-        </dependency>
 
     </dependencies>
 

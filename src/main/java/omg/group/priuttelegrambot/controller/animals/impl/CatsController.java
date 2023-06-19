@@ -8,7 +8,7 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import omg.group.priuttelegrambot.dto.animals.CatDto;
-import omg.group.priuttelegrambot.entity.animals.Cat;
+
 import omg.group.priuttelegrambot.entity.animals.enimalsenum.CatsBreed;
 import omg.group.priuttelegrambot.entity.animals.enimalsenum.Sex;
 import omg.group.priuttelegrambot.service.CatsService;
