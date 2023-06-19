@@ -43,7 +43,7 @@ public class CatsController {
                     content = {
                             @Content(
                                     mediaType = "application/json",
-                                    array = @ArraySchema(schema = @Schema(implementation = Cat.class))
+                                    array = @ArraySchema(schema = @Schema(implementation = CatDto.class))
                             )
                     }
             ),
@@ -74,7 +74,7 @@ public class CatsController {
                     content = {
                             @Content(
                                     mediaType = "application/json",
-                                    array = @ArraySchema(schema = @Schema(implementation = Cat.class))
+                                    array = @ArraySchema(schema = @Schema(implementation = CatDto.class))
                             )
                     }
             )
@@ -98,7 +98,7 @@ public class CatsController {
                     content = {
                             @Content(
                                     mediaType = "application/json",
-                                    array = @ArraySchema(schema = @Schema(implementation = Cat.class))
+                                    array = @ArraySchema(schema = @Schema(implementation = CatDto.class))
                             )
                     }
             ),
@@ -130,7 +130,7 @@ public class CatsController {
                     content = {
                             @Content(
                                     mediaType = "application/json",
-                                    array = @ArraySchema(schema = @Schema(implementation = Cat.class))
+                                    array = @ArraySchema(schema = @Schema(implementation = CatDto.class))
                             )
                     }
             ),
@@ -180,7 +180,7 @@ public class CatsController {
                     content = {
                             @Content(
                                     mediaType = "application/json",
-                                    array = @ArraySchema(schema = @Schema(implementation = Cat.class))
+                                    array = @ArraySchema(schema = @Schema(implementation = CatDto.class))
                             )
                     }
             ),
@@ -217,7 +217,7 @@ public class CatsController {
                     content = {
                             @Content(
                                     mediaType = "application/json",
-                                    array = @ArraySchema(schema = @Schema(implementation = Cat.class))
+                                    array = @ArraySchema(schema = @Schema(implementation = CatDto.class))
                             )
                     }
             )
@@ -239,7 +239,7 @@ public class CatsController {
                     content = {
                             @Content(
                                     mediaType = "application/json",
-                                    array = @ArraySchema(schema = @Schema(implementation = Cat.class))
+                                    array = @ArraySchema(schema = @Schema(implementation = CatDto.class))
                             )
                     }
             ),

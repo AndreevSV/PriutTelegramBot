@@ -11,7 +11,6 @@ import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import omg.group.priuttelegrambot.dto.owners.OwnerCatDto;
-import omg.group.priuttelegrambot.entity.owners.OwnerCat;
 import omg.group.priuttelegrambot.service.OwnersCatsService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -40,7 +39,7 @@ public class OwnersCatsController {
                     content = {
                             @Content(
                                     mediaType = "application/json",
-                                    array = @ArraySchema(schema = @Schema(implementation = OwnerCat.class))
+                                    array = @ArraySchema(schema = @Schema(implementation = OwnerCatDto.class))
                             )
                     }
             ),
@@ -71,7 +70,7 @@ public class OwnersCatsController {
                     content = {
                             @Content(
                                     mediaType = "application/json",
-                                    array = @ArraySchema(schema = @Schema(implementation = OwnerCat.class))
+                                    array = @ArraySchema(schema = @Schema(implementation = OwnerCatDto.class))
                             )
                     }
             )
@@ -108,7 +107,7 @@ public class OwnersCatsController {
                     content = {
                             @Content(
                                     mediaType = MediaType.APPLICATION_JSON_VALUE,
-                                    array = @ArraySchema(schema = @Schema(implementation = OwnerCat.class))
+                                    array = @ArraySchema(schema = @Schema(implementation = OwnerCatDto.class))
                             )
                     }
             ),
@@ -150,7 +149,23 @@ public class OwnersCatsController {
         }
     }
 
-    @RequestMapping("/all")
+    @GetMapping("/all")
+    @Operation(
+            summary = "Получение списка всех клиентов",
+            description = "Для получения списка всех клиентов ничего не надо вводить"
+    )
+    @ApiResponses(value = {
+            @ApiResponse(
+                    responseCode = "200",
+                    description = "Список всех клиентов приюта кошек получен",
+                    content = {
+                            @Content(
+                                    mediaType = "application/json",
+                                    array = @ArraySchema(schema = @Schema(implementation = OwnerCatDto.class))
+                            )
+                    }
+            )
+    })
     public ResponseEntity<List<OwnerCatDto>> getAll() {
         return ResponseEntity.ok(ownersCatsService.getAll());
     }
@@ -168,7 +183,7 @@ public class OwnersCatsController {
                     content = {
                             @Content(
                                     mediaType = "application/json",
-                                    array = @ArraySchema(schema = @Schema(implementation = OwnerCat.class))
+                                    array = @ArraySchema(schema = @Schema(implementation = OwnerCatDto.class))
                             )
                     }
             )

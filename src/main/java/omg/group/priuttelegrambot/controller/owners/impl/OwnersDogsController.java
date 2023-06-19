@@ -11,7 +11,6 @@ import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import omg.group.priuttelegrambot.dto.owners.OwnerDogDto;
-import omg.group.priuttelegrambot.entity.owners.OwnerDog;
 import omg.group.priuttelegrambot.service.OwnersDogsService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -40,7 +39,7 @@ public class OwnersDogsController {
                     content = {
                             @Content(
                                     mediaType = "application/json",
-                                    array = @ArraySchema(schema = @Schema(implementation = OwnerDog.class))
+                                    array = @ArraySchema(schema = @Schema(implementation = OwnerDogDto.class))
                             )
                     }
             ),
@@ -71,7 +70,7 @@ public class OwnersDogsController {
                     content = {
                             @Content(
                                     mediaType = "application/json",
-                                    array = @ArraySchema(schema = @Schema(implementation = OwnerDog.class))
+                                    array = @ArraySchema(schema = @Schema(implementation = OwnerDogDto.class))
                             )
                     }
             )
@@ -108,7 +107,7 @@ public class OwnersDogsController {
                     content = {
                             @Content(
                                     mediaType = MediaType.APPLICATION_JSON_VALUE,
-                                    array = @ArraySchema(schema = @Schema(implementation = OwnerDog.class))
+                                    array = @ArraySchema(schema = @Schema(implementation = OwnerDogDto.class))
                             )
                     }
             ),
@@ -150,7 +149,23 @@ public class OwnersDogsController {
         }
     }
 
-    @RequestMapping("/all")
+    @GetMapping("/all")
+    @Operation(
+            summary = "Получение списка всех клиентов-владельцев собак",
+            description = "Для получения списка всех клиентов-владельцев собак ничего не надо вводить"
+    )
+    @ApiResponses(value = {
+            @ApiResponse(
+                    responseCode = "200",
+                    description = "Список всех клиентов приюта собак получен",
+                    content = {
+                            @Content(
+                                    mediaType = "application/json",
+                                    array = @ArraySchema(schema = @Schema(implementation = OwnerDogDto.class))
+                            )
+                    }
+            )
+    })
     public ResponseEntity<List<OwnerDogDto>> getAll() {
         return ResponseEntity.ok(ownersDogsService.getAll());
     }
@@ -168,7 +183,7 @@ public class OwnersDogsController {
                     content = {
                             @Content(
                                     mediaType = "application/json",
-                                    array = @ArraySchema(schema = @Schema(implementation = OwnerDog.class))
+                                    array = @ArraySchema(schema = @Schema(implementation = OwnerDogDto.class))
                             )
                     }
             )

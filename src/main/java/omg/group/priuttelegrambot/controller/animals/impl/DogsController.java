@@ -8,7 +8,6 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import omg.group.priuttelegrambot.dto.animals.DogDto;
-import omg.group.priuttelegrambot.entity.animals.Dog;
 import omg.group.priuttelegrambot.entity.animals.enimalsenum.DogsBreed;
 import omg.group.priuttelegrambot.entity.animals.enimalsenum.Sex;
 import omg.group.priuttelegrambot.service.DogsService;
@@ -42,7 +41,7 @@ public class DogsController {
                     content = {
                             @Content(
                                     mediaType = "application/json",
-                                    array = @ArraySchema(schema = @Schema(implementation = Dog.class))
+                                    array = @ArraySchema(schema = @Schema(implementation = DogDto.class))
                             )
                     }
             ),
@@ -74,7 +73,7 @@ public class DogsController {
                     content = {
                             @Content(
                                     mediaType = "application/json",
-                                    array = @ArraySchema(schema = @Schema(implementation = Dog.class))
+                                    array = @ArraySchema(schema = @Schema(implementation = DogDto.class))
                             )
                     }
             )
@@ -98,7 +97,7 @@ public class DogsController {
                     content = {
                             @Content(
                                     mediaType = "application/json",
-                                    array = @ArraySchema(schema = @Schema(implementation = Dog.class))
+                                    array = @ArraySchema(schema = @Schema(implementation = DogDto.class))
                             )
                     }
             ),
@@ -131,7 +130,7 @@ public class DogsController {
                     content = {
                             @Content(
                                     mediaType = "application/json",
-                                    array = @ArraySchema(schema = @Schema(implementation = Dog.class))
+                                    array = @ArraySchema(schema = @Schema(implementation = DogDto.class))
                             )
                     }
             ),
@@ -181,7 +180,7 @@ public class DogsController {
                     content = {
                             @Content(
                                     mediaType = "application/json",
-                                    array = @ArraySchema(schema = @Schema(implementation = Dog.class))
+                                    array = @ArraySchema(schema = @Schema(implementation = DogDto.class))
                             )
                     }
             ),
@@ -218,7 +217,7 @@ public class DogsController {
                     content = {
                             @Content(
                                     mediaType = "application/json",
-                                    array = @ArraySchema(schema = @Schema(implementation = Dog.class))
+                                    array = @ArraySchema(schema = @Schema(implementation = DogDto.class))
                             )
                     }
             )
@@ -240,7 +239,7 @@ public class DogsController {
                     content = {
                             @Content(
                                     mediaType = "application/json",
-                                    array = @ArraySchema(schema = @Schema(implementation = Dog.class))
+                                    array = @ArraySchema(schema = @Schema(implementation = DogDto.class))
                             )
                     }
             ),
