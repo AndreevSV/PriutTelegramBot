@@ -59,6 +59,14 @@ public class OwnersCatsServiceImpl implements OwnersCatsService {
     }
 
     @Override
+    public Boolean findByChatId(Long chatId) {
+
+        Optional<OwnerCat> ownerCatOptional = ownersCatsRepository.findByChatId(chatId);
+
+        return ownerCatOptional.isPresent();
+    }
+
+    @Override
     public List<OwnerCatDto> findByUsername(String username) {
         List<OwnerCat> ownerList = ownersCatsRepository.findByUserNameContainingIgnoreCase(username);
         return ownerList.stream()

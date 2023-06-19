@@ -3,12 +3,14 @@ package omg.group.priuttelegrambot.entity.owners;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.Email;
 import lombok.Data;
+import lombok.RequiredArgsConstructor;
 import org.springframework.format.annotation.DateTimeFormat;
 
 import java.time.LocalDateTime;
 import java.util.Date;
 
 @Data
+@RequiredArgsConstructor
 @MappedSuperclass
 public abstract class Owner {
     @Id
@@ -68,5 +70,10 @@ public abstract class Owner {
 
     @Column(name = "passed_probation")
     private Boolean passedProbation;
+
+    @Column(name = "chat_id")
+    private Long chatId;
+
+
 
 }

@@ -13,6 +13,8 @@ public interface OwnersDogsService {
 
     List<OwnerDogDto> findById(Long id);
 
+    Boolean findByChatId(Long chatId);
+
     List<OwnerDogDto> findByUsername(String username);
 
     List<OwnerDogDto> findBySurname(String surname);
@@ -28,6 +30,7 @@ public interface OwnersDogsService {
         OwnerDog owner = new OwnerDog();
 
         owner.setUserName(ownerDto.getUserName());
+        owner.setName(ownerDto.getName());
         owner.setSurname(ownerDto.getSurname());
         owner.setPatronymic(ownerDto.getPatronymic());
         owner.setBirthday(ownerDto.getBirthday());
@@ -45,6 +48,7 @@ public interface OwnersDogsService {
         owner.setProbationStarts(ownerDto.getProbationStarts());
         owner.setProbationEnds(ownerDto.getProbationEnds());
         owner.setPassedProbation(ownerDto.getPassedProbation());
+        owner.setChatId(ownerDto.getChatId());
 
         return owner;
     }
@@ -54,6 +58,7 @@ public interface OwnersDogsService {
         OwnerDogDto ownerDto = new OwnerDogDto();
 
         ownerDto.setUserName(owner.getUserName());
+        ownerDto.setName(owner.getName());
         ownerDto.setSurname(owner.getSurname());
         ownerDto.setPatronymic(owner.getPatronymic());
         ownerDto.setBirthday(owner.getBirthday());
@@ -71,6 +76,7 @@ public interface OwnersDogsService {
         ownerDto.setProbationStarts(owner.getProbationStarts());
         ownerDto.setProbationEnds(owner.getProbationEnds());
         ownerDto.setPassedProbation(owner.getPassedProbation());
+        ownerDto.setChatId(owner.getChatId());
 
         return ownerDto;
     }

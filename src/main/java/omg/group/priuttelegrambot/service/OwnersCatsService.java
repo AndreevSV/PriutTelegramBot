@@ -14,6 +14,8 @@ public interface OwnersCatsService {
 
     List<OwnerCatDto> findById(Long id);
 
+    Boolean findByChatId(Long chatId);
+
     List<OwnerCatDto> findByUsername(String username);
 
     List<OwnerCatDto> findBySurname(String surname);
@@ -29,6 +31,7 @@ public interface OwnersCatsService {
         OwnerCat owner = new OwnerCat();
 
         owner.setUserName(ownerDto.getUserName());
+        owner.setName(ownerDto.getName());
         owner.setSurname(ownerDto.getSurname());
         owner.setPatronymic(ownerDto.getPatronymic());
         owner.setBirthday(ownerDto.getBirthday());
@@ -46,6 +49,7 @@ public interface OwnersCatsService {
         owner.setProbationStarts(ownerDto.getProbationStarts());
         owner.setProbationEnds(ownerDto.getProbationEnds());
         owner.setPassedProbation(ownerDto.getPassedProbation());
+        owner.setChatId(ownerDto.getChatId());
 
         return owner;
     }
@@ -55,6 +59,7 @@ public interface OwnersCatsService {
         OwnerCatDto ownerDto = new OwnerCatDto();
 
         ownerDto.setUserName(owner.getUserName());
+        ownerDto.setName(owner.getName());
         ownerDto.setSurname(owner.getSurname());
         ownerDto.setPatronymic(owner.getPatronymic());
         ownerDto.setBirthday(owner.getBirthday());
@@ -72,6 +77,7 @@ public interface OwnersCatsService {
         ownerDto.setProbationStarts(owner.getProbationStarts());
         ownerDto.setProbationEnds(owner.getProbationEnds());
         ownerDto.setPassedProbation(owner.getPassedProbation());
+        ownerDto.setChatId(owner.getChatId());
 
         return ownerDto;
     }

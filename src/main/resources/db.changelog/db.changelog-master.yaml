@@ -60,6 +60,19 @@ databaseChangeLog:
               - column:
                   name: changes
                   type: text
-#  - changeSet:
-#      id: 4
-
+  - changeSet:
+      id: 4
+      author: AndreevSV
+      changes:
+        - addColumn:
+            tableName: clients_cats
+            columns:
+              column:
+                name: chat_id
+                type: BIGINT
+        - addColumn:
+            tableName: clients_dogs
+            columns:
+              column:
+                name: chat_id
+                type: BIGINT

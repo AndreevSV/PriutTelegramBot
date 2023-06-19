@@ -12,6 +12,10 @@ import java.util.Optional;
 public interface OwnersDogsRepository extends JpaRepository<OwnerDog, Long> {
     @NotNull
     Optional<OwnerDog> findById(@NotNull Long id);
+
+    @NotNull
+    Optional<OwnerDog> findByChatId(@NotNull Long chatId);
+
     List<OwnerDog> findByUserNameContainingIgnoreCase(String username);
 
     List<OwnerDog> findBySurnameContainingIgnoreCase(String surname);

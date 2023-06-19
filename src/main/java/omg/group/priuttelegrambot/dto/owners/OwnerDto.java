@@ -57,4 +57,6 @@ public class OwnerDto {
 
     private Boolean passedProbation;
 
+    private Long chatId;
+
 }

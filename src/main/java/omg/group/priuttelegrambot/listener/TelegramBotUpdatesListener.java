@@ -7,9 +7,9 @@ import com.pengrad.telegrambot.model.request.InlineKeyboardButton;
 import com.pengrad.telegrambot.model.request.InlineKeyboardMarkup;
 import com.pengrad.telegrambot.request.SendMessage;
 import lombok.Data;
-import omg.group.priuttelegrambot.service.CatsService;
-import omg.group.priuttelegrambot.service.KnowledgebaseCatsService;
-import omg.group.priuttelegrambot.service.KnowledgebaseDogsService;
+import omg.group.priuttelegrambot.dto.owners.OwnerCatDto;
+import omg.group.priuttelegrambot.dto.owners.OwnerDogDto;
+import omg.group.priuttelegrambot.service.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
@@ -20,6 +20,16 @@ import java.util.List;
 @Data
 public class TelegramBotUpdatesListener implements UpdatesListener {
 
+    private String text;
+    //        id пользователя
+    private Long chatId;
+    //        имя пользователя
+    private String userName;
+
+    private String firstName;
+
+    private String lastName;
+
     private static final Logger LOG = LoggerFactory.getLogger(TelegramBotUpdatesListener.class);
 
     private final TelegramBot telegramBot;
@@ -28,19 +38,23 @@ public class TelegramBotUpdatesListener implements UpdatesListener {
 
     private final KnowledgebaseDogsService knowledgebaseDogsService;
 
-    private final CatsService catsService;
+    private final OwnersDogsService ownersDogsService;
+
+    private final OwnersCatsService ownersCatsService;
+
 
 
     public TelegramBotUpdatesListener(TelegramBot telegramBot,
                                       KnowledgebaseDogsService knowledgebaseDogsService,
                                       KnowledgebaseCatsService knowledgebaseCatsService,
-                                      CatsService catsService) {
-        this.knowledgebaseCatsService = knowledgebaseCatsService;
-        this.knowledgebaseDogsService = knowledgebaseDogsService;
-        this.catsService = catsService;
+                                      OwnersCatsService ownersCatsService,
+                                      OwnersDogsService ownersDogsService) {
         this.telegramBot = telegramBot;
         this.telegramBot.setUpdatesListener(this);
-
+        this.knowledgebaseCatsService = knowledgebaseCatsService;
+        this.knowledgebaseDogsService = knowledgebaseDogsService;
+        this.ownersCatsService = ownersCatsService;
+        this.ownersDogsService = ownersDogsService;
     }
 
     @Override
@@ -48,7 +62,6 @@ public class TelegramBotUpdatesListener implements UpdatesListener {
         updates.stream().filter(update -> update.message() != null || update.callbackQuery() != null).forEach(this::handleUpdate);
         return CONFIRMED_UPDATES_ALL;
     }
-
 
     private void handleUpdate(Update update) {
         if (update.message() != null && update.message().text() != null || update.callbackQuery() != null) {
@@ -60,27 +73,27 @@ public class TelegramBotUpdatesListener implements UpdatesListener {
 
     private void processText(Update update) {
         // текст сообщения от пользователя
-        String text = "/start";
-//        id пользователя
-        Long chatId = 0L;
-//        имя пользователя
-        String userName = " ";
+
+
         LOG.info("Получен следующий апдэйт {}", update);
 
         if (update.message() != null) {
             chatId = update.message().chat().id();
             text = update.message().text();
             userName = update.message().from().username();
+            firstName = update.message().from().firstName();
+            lastName = update.message().from().lastName();
         } else if (update.callbackQuery() != null) {
             chatId = update.callbackQuery().message().chat().id();
             text = update.callbackQuery().data();
             userName = update.callbackQuery().from().username();
+            firstName = update.callbackQuery().from().firstName();
+            lastName = update.callbackQuery().from().lastName();
         }
 
         switch (text) {
 //            обработка команды /start
             case "/start" -> {
-
 //                создание Inline клавиатуры с двумя кнопками
                 InlineKeyboardMarkup inlineKeyboardMarkup = new InlineKeyboardMarkup();
                 inlineKeyboardMarkup.addRow(
@@ -116,6 +129,7 @@ public class TelegramBotUpdatesListener implements UpdatesListener {
                                                 Выберите что вас интересует:
                                                 """, userName))
                                 .replyMarkup(inlineKeyboardMarkup));
+                newOwnerCatsRegister(chatId, userName, firstName, lastName);
             }
             case "/cat_info" -> {
                 InlineKeyboardMarkup inlineKeyboardMarkup = new InlineKeyboardMarkup();
@@ -176,6 +190,7 @@ public class TelegramBotUpdatesListener implements UpdatesListener {
                                                 Выберите что вас интересует:
                                                 """, userName))
                                 .replyMarkup(inlineKeyboardMarkup));
+                newOwnerDogsRegister(chatId, userName, firstName, lastName);
             }
 
             case "/dog_about" -> executeCommandAndshowMenuDogAbout(chatId, text);
@@ -351,10 +366,38 @@ public class TelegramBotUpdatesListener implements UpdatesListener {
                         .replyMarkup(inlineKeyboardMarkup));
     }
 
-
     private void sendMessage(Long chatId, String text) {
         this.telegramBot.execute(new SendMessage(chatId, text));
     }
 
+    private void newOwnerCatsRegister(Long chatId, String userName, String firstName, String lastName) {
+
+        if (!ownersCatsService.findByChatId(chatId)) {
+            OwnerCatDto ownerCatDto = new OwnerCatDto();
+            ownerCatDto.setChatId(chatId);
+            ownerCatDto.setUserName(userName);
+            ownerCatDto.setName(firstName);
+            ownerCatDto.setSurname(lastName);
+            ownerCatDto.setIsVolunteer(false);
+            ownerCatDto.setFirstProbation(false);
+
+            ownersCatsService.add(ownerCatDto);
+        }
+    }
+
+    private void newOwnerDogsRegister(Long chatId, String userName, String firstName, String lastName) {
+
+        if (!ownersDogsService.findByChatId(chatId)) {
+            OwnerDogDto ownerDogDto = new OwnerDogDto();
+            ownerDogDto.setChatId(chatId);
+            ownerDogDto.setUserName(userName);
+            ownerDogDto.setName(firstName);
+            ownerDogDto.setSurname(lastName);
+            ownerDogDto.setIsVolunteer(false);
+            ownerDogDto.setFirstProbation(false);
+
+            ownersDogsService.add(ownerDogDto);
+        }
+    }
 
 }
