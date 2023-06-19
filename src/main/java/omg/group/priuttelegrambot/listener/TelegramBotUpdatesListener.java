@@ -393,6 +393,7 @@ public class TelegramBotUpdatesListener implements UpdatesListener {
             ownerDogDto.setUserName(userName);
             ownerDogDto.setName(firstName);
             ownerDogDto.setSurname(lastName);
+
             ownerDogDto.setIsVolunteer(false);
             ownerDogDto.setFirstProbation(false);
 
