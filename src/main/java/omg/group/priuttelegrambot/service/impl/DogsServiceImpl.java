@@ -2,6 +2,7 @@ package omg.group.priuttelegrambot.service.impl;
 
 import lombok.Data;
 import lombok.RequiredArgsConstructor;
+import omg.group.priuttelegrambot.Exception.DogNotFoundException;
 import omg.group.priuttelegrambot.dto.animals.DogDto;
 import omg.group.priuttelegrambot.entity.animals.Dog;
 import omg.group.priuttelegrambot.entity.animals.enimalsenum.DogsBreed;
@@ -45,7 +46,7 @@ public class DogsServiceImpl implements DogsService {
             dogsRepository.save(dog);
             return HttpStatus.OK;
         } else {
-            throw new RuntimeException(String.format("Собака с id %d не найдена", id));
+            throw new DogNotFoundException();
         }
     }
 
@@ -59,7 +60,7 @@ public class DogsServiceImpl implements DogsService {
             DogDto dogDto = constructDogDtoFromCat(dog);
             return Collections.singletonList(dogDto);
         } else {
-            throw new NullPointerException(String.format("Собака с id %d не найден", id));
+            throw new DogNotFoundException();
         }
     }
 
@@ -110,10 +111,7 @@ public class DogsServiceImpl implements DogsService {
             dogsRepository.deleteById(id);
             return HttpStatus.NO_CONTENT;
         } else {
-            throw new NullPointerException(String.format("Собака с id %d не найден", id));
+            throw new DogNotFoundException();
         }
     }
-
-
-
 }

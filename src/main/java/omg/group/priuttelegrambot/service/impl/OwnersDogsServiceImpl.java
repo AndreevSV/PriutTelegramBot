@@ -2,6 +2,7 @@ package omg.group.priuttelegrambot.service.impl;
 
 
 import lombok.RequiredArgsConstructor;
+import omg.group.priuttelegrambot.Exception.OwnerDogNotFoundException;
 import omg.group.priuttelegrambot.dto.owners.OwnerDogDto;
 import omg.group.priuttelegrambot.entity.owners.OwnerDog;
 import omg.group.priuttelegrambot.repository.OwnersDogsRepository;
@@ -42,7 +43,7 @@ public class OwnersDogsServiceImpl implements OwnersDogsService {
             ownersDogsRepository.save(owner);
             return HttpStatus.OK;
         } else {
-            throw new RuntimeException(String.format("Клиент с id %d не найден", id));
+            throw new OwnerDogNotFoundException();
         }
     }
 
@@ -56,7 +57,7 @@ public class OwnersDogsServiceImpl implements OwnersDogsService {
             OwnerDogDto ownerDto = constructOwnerDto(owner);
             return Collections.singletonList(ownerDto);
         } else {
-            throw new NullPointerException(String.format("Клиент с id %d не найден", id));
+            throw new OwnerDogNotFoundException();
         }
     }
 
@@ -98,7 +99,7 @@ public class OwnersDogsServiceImpl implements OwnersDogsService {
             ownersDogsRepository.deleteById(id);
             return HttpStatus.NO_CONTENT;
         } else {
-            throw new NullPointerException(String.format("Клиент с id %d не найден", id));
+            throw new OwnerDogNotFoundException();
         }
     }
 

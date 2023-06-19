@@ -1,6 +1,7 @@
 package omg.group.priuttelegrambot.service.impl;
 
 import lombok.RequiredArgsConstructor;
+import omg.group.priuttelegrambot.Exception.OwnerCatNotFoundException;
 import omg.group.priuttelegrambot.dto.owners.OwnerCatDto;
 import omg.group.priuttelegrambot.entity.owners.OwnerCat;
 import omg.group.priuttelegrambot.repository.OwnersCatsRepository;
@@ -40,7 +41,7 @@ public class OwnersCatsServiceImpl implements OwnersCatsService {
             ownersCatsRepository.save(owner);
             return HttpStatus.OK;
         } else {
-            throw new RuntimeException(String.format("Клиент с id %d не найден", id));
+            throw new OwnerCatNotFoundException();
         }
     }
 
@@ -54,7 +55,7 @@ public class OwnersCatsServiceImpl implements OwnersCatsService {
             OwnerCatDto ownerDto = constructOwnerDto(owner);
             return Collections.singletonList(ownerDto);
         } else {
-            throw new NullPointerException(String.format("Клиент с id %d не найден", id));
+            throw new OwnerCatNotFoundException();
         }
     }
 
@@ -96,7 +97,7 @@ public class OwnersCatsServiceImpl implements OwnersCatsService {
             ownersCatsRepository.deleteById(id);
             return HttpStatus.NO_CONTENT;
         } else {
-            throw new NullPointerException(String.format("Клиент с id %d не найден", id));
+            throw new OwnerCatNotFoundException();
         }
     }
 
