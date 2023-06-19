@@ -2,6 +2,7 @@ package omg.group.priuttelegrambot.service.impl;
 
 import lombok.Data;
 import lombok.RequiredArgsConstructor;
+import omg.group.priuttelegrambot.Exception.CatNotFoundException;
 import omg.group.priuttelegrambot.dto.animals.CatDto;
 import omg.group.priuttelegrambot.entity.animals.Cat;
 import omg.group.priuttelegrambot.entity.animals.enimalsenum.CatsBreed;
@@ -45,7 +46,7 @@ public class CatsServiceImpl implements CatsService {
             catsRepository.save(cat);
             return HttpStatus.OK;
         } else {
-            throw new RuntimeException(String.format("Кот/кошка с id %d не найден", id));
+            throw new CatNotFoundException();
         }
     }
 
@@ -59,7 +60,7 @@ public class CatsServiceImpl implements CatsService {
             CatDto catDto = constructCatDtoFromCat(cat);
             return Collections.singletonList(catDto);
         } else {
-            throw new NullPointerException(String.format("Кот/кошка с id %d не найден", id));
+            throw new CatNotFoundException();
         }
     }
 
@@ -110,7 +111,7 @@ public class CatsServiceImpl implements CatsService {
             catsRepository.deleteById(id);
             return HttpStatus.NO_CONTENT;
         } else {
-            throw new NullPointerException(String.format("Кот/кошка с id %d не найден", id));
+            throw new CatNotFoundException();
         }
     }
 
