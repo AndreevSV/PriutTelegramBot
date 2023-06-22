@@ -11,4 +11,6 @@ public class CatDto extends AnimalDto {
     private CatsBreed breed;
     private OwnerCat volunteer;
     private OwnerCat owner;
+
+
 }

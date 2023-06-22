@@ -2,11 +2,13 @@ package omg.group.priuttelegrambot.entity.report;
 
 import jakarta.persistence.*;
 import lombok.Data;
+import lombok.RequiredArgsConstructor;
 
 import java.time.LocalDateTime;
 
 @MappedSuperclass
 @Data
+@RequiredArgsConstructor
 public abstract class Report {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

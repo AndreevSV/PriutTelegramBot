@@ -11,4 +11,6 @@ public class OwnerCatDto extends OwnerDto {
     private Long catId; // !!!!!!!!!!!!!!!!!!
 
     private AddressesOwnersCats address;
+
+    private Long chatId;
 }

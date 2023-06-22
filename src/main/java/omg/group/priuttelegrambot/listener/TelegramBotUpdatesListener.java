@@ -2,13 +2,17 @@ package omg.group.priuttelegrambot.listener;
 
 import com.pengrad.telegrambot.TelegramBot;
 import com.pengrad.telegrambot.UpdatesListener;
+import com.pengrad.telegrambot.model.PhotoSize;
 import com.pengrad.telegrambot.model.Update;
 import com.pengrad.telegrambot.model.request.InlineKeyboardButton;
 import com.pengrad.telegrambot.model.request.InlineKeyboardMarkup;
 import com.pengrad.telegrambot.request.SendMessage;
+import com.pengrad.telegrambot.request.SendPhoto;
 import lombok.Data;
+import omg.group.priuttelegrambot.dto.animals.CatDto;
 import omg.group.priuttelegrambot.dto.owners.OwnerCatDto;
 import omg.group.priuttelegrambot.dto.owners.OwnerDogDto;
+import omg.group.priuttelegrambot.dto.reports.ReportsCatsDto;
 import omg.group.priuttelegrambot.service.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -42,14 +46,19 @@ public class TelegramBotUpdatesListener implements UpdatesListener {
 
     private final OwnersCatsService ownersCatsService;
 
+    private final CatsService catsService;
+
+    private final ReportCatsService reportCatsService;
 
 
     public TelegramBotUpdatesListener(TelegramBot telegramBot,
                                       KnowledgebaseDogsService knowledgebaseDogsService,
                                       KnowledgebaseCatsService knowledgebaseCatsService,
                                       OwnersCatsService ownersCatsService,
-                                      OwnersDogsService ownersDogsService) {
+                                      OwnersDogsService ownersDogsService, CatsService catsService, ReportCatsService reportCatsService) {
         this.telegramBot = telegramBot;
+        this.catsService = catsService;
+        this.reportCatsService = reportCatsService;
         this.telegramBot.setUpdatesListener(this);
         this.knowledgebaseCatsService = knowledgebaseCatsService;
         this.knowledgebaseDogsService = knowledgebaseDogsService;
@@ -59,12 +68,14 @@ public class TelegramBotUpdatesListener implements UpdatesListener {
 
     @Override
     public int process(List<Update> updates) {
-        updates.stream().filter(update -> update.message() != null || update.callbackQuery() != null).forEach(this::handleUpdate);
+        updates.stream().filter(update -> update.message() != null || update.callbackQuery() != null ||
+                update.message().photo() != null).forEach(this::handleUpdate);
         return CONFIRMED_UPDATES_ALL;
     }
 
     private void handleUpdate(Update update) {
-        if (update.message() != null && update.message().text() != null || update.callbackQuery() != null) {
+        if (update.message() != null && update.message().text() != null || update.callbackQuery() != null
+                || update.message().photo() != null) {
             processText(update);
         } else {
             this.sendMessage(update.message().chat().id(), "Нет такой команды. Попробуйте /help");
@@ -83,12 +94,21 @@ public class TelegramBotUpdatesListener implements UpdatesListener {
             userName = update.message().from().username();
             firstName = update.message().from().firstName();
             lastName = update.message().from().lastName();
-        } else if (update.callbackQuery() != null) {
+        }
+        if (update.callbackQuery() != null) {
             chatId = update.callbackQuery().message().chat().id();
             text = update.callbackQuery().data();
             userName = update.callbackQuery().from().username();
             firstName = update.callbackQuery().from().firstName();
             lastName = update.callbackQuery().from().lastName();
+        }
+        if (update.message() != null && update.message().photo() != null && update.message().equals("кошка")) {
+            chatId = update.message().chat().id();
+            text = "/cat_send_photo";
+            userName = update.message().from().username();
+            firstName = update.message().from().firstName();
+            lastName = update.message().from().lastName();
+
         }
 
         switch (text) {
@@ -162,8 +182,44 @@ public class TelegramBotUpdatesListener implements UpdatesListener {
             case "/cat_disability" -> executeCommandAndShowMenuCatTake(chatId, text);
             case "/cat_refusal_reasons" -> executeCommandAndShowMenuCatTake(chatId, text);
 
-            case "/cat_send_report" -> executeCommandAndShowMenuCatSendReport(chatId, text);
-            case "/cat_send_photo" -> executeCommandAndShowMenuCatSendReport(chatId, text);
+            case "/cat_send_report" -> {
+                sendMessage(chatId, "Отправь фото, подпиши это кошка или собака");
+
+
+            }
+            case "/cat_send_photo" -> {
+                //Получаем fileId фото
+                PhotoSize photo = update.message().photo()[update.message().photo().length - 1];
+                String fileId = photo.fileId();
+                //Список всех владельцев кошек
+                List<OwnerCatDto> ownerCatDtos = ownersCatsService.getAll();
+                //Проходимся по списку владельцев кошек
+                for (OwnerCatDto owner : ownerCatDtos) {
+                    //Проверяем(по chatId) есть ли пользоветель в списке владельцев кошек
+                    if (owner.getChatId() != null && owner.getChatId().equals(chatId)) {
+                        //Узнаем id кошки пользователя
+                        Long catId = owner.getCatId();
+                        //Проходимся по списку кошек
+                        for (CatDto oneCat : catsService.getAll()) {
+                            //Проверяем естль такая кошка в списке кошек
+                            if (oneCat.getId() != null && oneCat.getId().equals(catId)) {
+                                ReportsCatsDto reportsCatsDto = new ReportsCatsDto();
+                                reportsCatsDto.setAnimalId(catId);
+                                reportsCatsDto.setPath(fileId);
+                                reportsCatsDto.setClientId(oneCat.getOwner().getId());
+                                reportCatsService.add(reportsCatsDto);
+                                sendMessage(chatId, "Фото добавлено ");
+                                telegramBot.execute(new SendPhoto(chatId, fileId));
+                            }
+                        }
+                    }
+                }
+                sendMessage(chatId, "отправь рацион животного");
+
+                text = "/cat_send_ration";
+            }
+
+
             case "/cat_send_ration" -> executeCommandAndShowMenuCatSendReport(chatId, text);
             case "/cat_send_feeling" -> executeCommandAndShowMenuCatSendReport(chatId, text);
             case "/cat_send_changes" -> executeCommandAndShowMenuCatSendReport(chatId, text);
@@ -217,7 +273,7 @@ public class TelegramBotUpdatesListener implements UpdatesListener {
             case "/dog_volunteer" -> executeCommandAndShowMenuDogSendReport(chatId, text);
             case "/dog_receive_contacts" -> executeCommandAndshowMenuDogTake(chatId, text);
 
-            default -> sendMessage(chatId, "Нет такой команды");
+            default -> sendMessage(chatId, "Нет такой команды, попроуй /start");
         }
     }
 
@@ -400,5 +456,6 @@ public class TelegramBotUpdatesListener implements UpdatesListener {
             ownersDogsService.add(ownerDogDto);
         }
     }
+
 
 }
