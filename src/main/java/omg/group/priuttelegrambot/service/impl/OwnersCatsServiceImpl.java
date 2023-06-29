@@ -4,6 +4,7 @@ import lombok.RequiredArgsConstructor;
 import omg.group.priuttelegrambot.dto.owners.OwnerCatDto;
 import omg.group.priuttelegrambot.entity.owners.OwnerCat;
 import omg.group.priuttelegrambot.repository.OwnersCatsRepository;
+import omg.group.priuttelegrambot.repository.OwnersCatsRepositoryCustom;
 import omg.group.priuttelegrambot.service.OwnersCatsService;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
@@ -19,6 +20,7 @@ import java.util.stream.Collectors;
 public class OwnersCatsServiceImpl implements OwnersCatsService {
 
     private final OwnersCatsRepository ownersCatsRepository;
+
 
     @Override
     public HttpStatus add(OwnerCatDto ownerCatDto) {
@@ -105,6 +107,19 @@ public class OwnersCatsServiceImpl implements OwnersCatsService {
             return HttpStatus.NO_CONTENT;
         } else {
             throw new NullPointerException(String.format("Клиент с id %d не найден", id));
+        }
+    }
+
+    @Override
+    public OwnerCatDto findCatsVolunteer() {
+
+        Optional<OwnerCat> ownerOptional = ownersCatsRepository.findFirstByVolunteerIsTrue();
+
+        if (ownerOptional.isPresent()) {
+            OwnerCat owner = ownerOptional.get();
+            return constructOwnerDto(owner);
+        } else {
+            throw new NullPointerException("Свободный волонтер не найден. Повторите попытку позже");
         }
     }
 

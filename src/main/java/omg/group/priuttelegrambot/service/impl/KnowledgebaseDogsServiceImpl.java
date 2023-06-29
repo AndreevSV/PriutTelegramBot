@@ -21,13 +21,20 @@ public class KnowledgebaseDogsServiceImpl implements KnowledgebaseDogsService {
     private final KnowledgebaseDogsRepository knowledgebaseDogsRepository;
 
     @Override
-    public String findMessageByCommand(String command) {
+    public KnowledgebaseDto findMessageByCommand(String command) {
+
         Optional<KnowledgebaseDogs> knowledge = knowledgebaseDogsRepository.findByCommand(command);
+
         if (knowledge.isPresent()) {
+
             KnowledgebaseDto knowledgebaseDto = new KnowledgebaseDto();
+
             knowledgebaseDto.setCommand(knowledge.get().getCommand());
             knowledgebaseDto.setMessage(knowledge.get().getMessage());
-            return knowledgebaseDto.getMessage();
+            knowledgebaseDto.setCommandDescription(knowledge.get().getCommandDescription());
+
+            return knowledgebaseDto;
+
         } else {
             throw new NullPointerException("Такая команда не найдена");
         }

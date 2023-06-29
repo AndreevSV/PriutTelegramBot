@@ -3,6 +3,7 @@ package omg.group.priuttelegrambot.repository;
 import omg.group.priuttelegrambot.entity.animals.Cat;
 import omg.group.priuttelegrambot.entity.animals.enimalsenum.CatsBreed;
 import omg.group.priuttelegrambot.entity.animals.enimalsenum.Sex;
+import omg.group.priuttelegrambot.entity.owners.OwnerCat;
 import org.jetbrains.annotations.NotNull;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;

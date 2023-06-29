@@ -81,4 +81,6 @@ public interface OwnersCatsService {
 
         return ownerDto;
     }
+
+    OwnerCatDto findCatsVolunteer();
 }

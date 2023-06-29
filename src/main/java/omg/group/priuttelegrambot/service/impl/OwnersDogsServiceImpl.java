@@ -3,6 +3,7 @@ package omg.group.priuttelegrambot.service.impl;
 
 import lombok.RequiredArgsConstructor;
 import omg.group.priuttelegrambot.dto.owners.OwnerDogDto;
+import omg.group.priuttelegrambot.entity.owners.OwnerCat;
 import omg.group.priuttelegrambot.entity.owners.OwnerDog;
 import omg.group.priuttelegrambot.repository.OwnersDogsRepository;
 import omg.group.priuttelegrambot.service.OwnersDogsService;
@@ -107,6 +108,19 @@ public class OwnersDogsServiceImpl implements OwnersDogsService {
             return HttpStatus.NO_CONTENT;
         } else {
             throw new NullPointerException(String.format("Клиент с id %d не найден", id));
+        }
+    }
+
+    @Override
+    public OwnerDogDto findDogsVolunteer() {
+
+        Optional<OwnerDog> ownerOptional = ownersDogsRepository.findFirstByVolunteerIsTrue();
+
+        if (ownerOptional.isPresent()) {
+            OwnerDog owner = ownerOptional.get();
+            return constructOwnerDto(owner);
+        } else {
+            throw new NullPointerException("Свободный волонтер не найден. Повторите попытку позже");
         }
     }
 

@@ -1,5 +1,7 @@
 package omg.group.priuttelegrambot.service;
 
+import omg.group.priuttelegrambot.dto.knowledgebase.KnowledgebaseDto;
+
 public interface KnowledgebaseCatsService {
-    String findMessageByCommand(String command);
+    KnowledgebaseDto findMessageByCommand(String command);
 }

@@ -10,10 +10,14 @@ import org.springframework.stereotype.Service;
 @Service
 @RequiredArgsConstructor
 @Data
-public class ReportsCatsService{
+public class ReportsCatsService {
 
     @Autowired
     private final ReportsCatsRepository reportsCatsRepository;
+
+    public void savePhotoPath() {
+
+    }
 
     public void saveRation(String ration) {
 
@@ -22,6 +26,14 @@ public class ReportsCatsService{
 
 
 //        reportsCatsRepository.save(ration);
+
+    }
+
+    public void saveFeeling() {
+
+    }
+
+    public void saveChenges() {
 
     }
 

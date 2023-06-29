@@ -1,5 +1,6 @@
 package omg.group.priuttelegrambot.service;
 
+import omg.group.priuttelegrambot.dto.owners.OwnerCatDto;
 import omg.group.priuttelegrambot.dto.owners.OwnerDogDto;
 import omg.group.priuttelegrambot.entity.owners.OwnerDog;
 import org.springframework.http.HttpStatus;
@@ -80,5 +81,7 @@ public interface OwnersDogsService {
 
         return ownerDto;
     }
+
+    OwnerDogDto findDogsVolunteer();
 }
 

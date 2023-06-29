@@ -9,7 +9,7 @@ import java.util.List;
 import java.util.Optional;
 
 @Repository
-public interface OwnersDogsRepository extends JpaRepository<OwnerDog, Long> {
+public interface OwnersDogsRepository extends JpaRepository<OwnerDog, Long>, OwnersDogsRepositoryCustom {
     @NotNull
     Optional<OwnerDog> findById(@NotNull Long id);
 
@@ -21,4 +21,5 @@ public interface OwnersDogsRepository extends JpaRepository<OwnerDog, Long> {
     List<OwnerDog> findBySurnameContainingIgnoreCase(String surname);
 
     List<OwnerDog> findByTelephoneContainingIgnoreCase(String telephone);
+
 }
