@@ -1,5 +1,8 @@
 package omg.group.priuttelegrambot.service.impl;
 
+import com.pengrad.telegrambot.TelegramBot;
+import com.pengrad.telegrambot.model.Update;
+import com.pengrad.telegrambot.request.SendMessage;
 import lombok.Data;
 import lombok.RequiredArgsConstructor;
 import omg.group.priuttelegrambot.dto.knowledgebase.KnowledgebaseDto;
@@ -16,6 +19,8 @@ import java.util.Optional;
 public class KnowledgebaseCatsServiceImpl implements KnowledgebaseCatsService {
 
     private final KnowledgebaseCatsRepository knowledgebaseCatsRepository;
+    private final TelegramBot telegramBot;
+//    private final Update update;
 
 
     @Override
@@ -31,8 +36,9 @@ public class KnowledgebaseCatsServiceImpl implements KnowledgebaseCatsService {
 
             return knowledgebaseDto;
         } else {
-            throw new NullPointerException("Такая команда не найдена");
+//            telegramBot.execute(new SendMessage(update.message().chat().id(), "Такая команда не найдена"));
         }
+        return null;
     }
 
 

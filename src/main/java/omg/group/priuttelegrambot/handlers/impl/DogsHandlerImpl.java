@@ -7,8 +7,9 @@ import com.pengrad.telegrambot.model.request.InlineKeyboardMarkup;
 import com.pengrad.telegrambot.model.request.ParseMode;
 import com.pengrad.telegrambot.request.EditMessageText;
 import omg.group.priuttelegrambot.dto.owners.OwnerDogDto;
-import omg.group.priuttelegrambot.dto.reports.ReportsCatsDto;
-import omg.group.priuttelegrambot.handlers.AnimalHandler;
+import omg.group.priuttelegrambot.dto.reports.ReportsDogsDto;
+import omg.group.priuttelegrambot.entity.report.ReportDogBoolean;
+import omg.group.priuttelegrambot.handlers.DogsHandler;
 import omg.group.priuttelegrambot.service.KnowledgebaseDogsService;
 import omg.group.priuttelegrambot.service.OwnersDogsService;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -16,7 +17,7 @@ import org.springframework.stereotype.Service;
 
 @Service
 @Qualifier("dogsHandler")
-public class DogsHandler implements AnimalHandler {
+public class DogsHandlerImpl implements DogsHandler {
 
     private Long chatId;
     private int messageId;
@@ -29,7 +30,7 @@ public class DogsHandler implements AnimalHandler {
     private final OwnersDogsService ownersDogsService;
 
 
-    public DogsHandler(KnowledgebaseDogsService knowledgebaseDogsService, TelegramBot telegramBot, OwnersDogsService ownersDogsService) {
+    public DogsHandlerImpl(KnowledgebaseDogsService knowledgebaseDogsService, TelegramBot telegramBot, OwnersDogsService ownersDogsService) {
         this.knowledgebaseDogsService = knowledgebaseDogsService;
         this.telegramBot = telegramBot;
         this.ownersDogsService = ownersDogsService;
@@ -174,23 +175,23 @@ public class DogsHandler implements AnimalHandler {
         }
     }
 
-    @Override
-    public ReportsCatsDto receivePhoto(Update update) {
+//    @Override
+    public ReportDogBoolean receivePhoto(Update update) {
         return null;
     }
 
-    @Override
-    public ReportsCatsDto receiveRation(Update update) {
+//    @Override
+    public ReportsDogsDto receiveRation(Update update) {
         return null;
     }
 
-    @Override
-    public ReportsCatsDto receiveFeeling(Update update) {
+//    @Override
+    public ReportsDogsDto receiveFeeling(Update update) {
         return null;
     }
 
-    @Override
-    public ReportsCatsDto receiveChanges(Update update) {
+//    @Override
+    public ReportsDogsDto receiveChanges(Update update) {
         return null;
     }
 }

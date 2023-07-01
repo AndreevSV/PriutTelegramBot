@@ -3,8 +3,9 @@ package omg.group.priuttelegrambot.handlers;
 import com.pengrad.telegrambot.model.Update;
 import com.pengrad.telegrambot.model.request.InlineKeyboardMarkup;
 import omg.group.priuttelegrambot.dto.reports.ReportsCatsDto;
+import omg.group.priuttelegrambot.entity.report.ReportCatBoolean;
 
-public interface AnimalHandler {
+public interface CatsHandler {
 
     InlineKeyboardMarkup formPriutMainMenuButton();
 
@@ -18,7 +19,7 @@ public interface AnimalHandler {
 
     void newOwnerRegister();
 
-    ReportsCatsDto receivePhoto(Update update);
+    ReportCatBoolean receivePhoto(Update update);
 
     ReportsCatsDto receiveRation(Update update);
 

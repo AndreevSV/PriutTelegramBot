@@ -11,8 +11,8 @@ import omg.group.priuttelegrambot.dto.owners.OwnerCatDto;
 import omg.group.priuttelegrambot.dto.reports.ReportsCatsDto;
 import omg.group.priuttelegrambot.entity.owners.OwnerCat;
 import omg.group.priuttelegrambot.entity.report.CatsReport;
-import omg.group.priuttelegrambot.handlers.AnimalHandler;
-import omg.group.priuttelegrambot.repository.CatsRepository;
+import omg.group.priuttelegrambot.entity.report.ReportCatBoolean;
+import omg.group.priuttelegrambot.handlers.CatsHandler;
 import omg.group.priuttelegrambot.repository.OwnersCatsRepository;
 import omg.group.priuttelegrambot.repository.ReportsCatsRepository;
 import omg.group.priuttelegrambot.service.KnowledgebaseCatsService;
@@ -29,7 +29,7 @@ import java.util.Optional;
 
 @Service
 @Qualifier("catsHandler")
-public class CatsHandler implements AnimalHandler {
+public class CatsHandlerImpl implements CatsHandler {
 
     private Long chatId;
     private int messageId;
@@ -38,19 +38,23 @@ public class CatsHandler implements AnimalHandler {
     private String firstName;
     private String lastName;
 
+    private PhotoSize[] photos;
+
     @Value("${telegram.bot.token}")
     private String token;
+    private final ReportCatBoolean reportCatBoolean;
     private final KnowledgebaseCatsService knowledgebaseCatsService;
     private final TelegramBot telegramBot;
     private final OwnersCatsService ownersCatsService;
     private final OwnersCatsRepository ownersCatsRepository;
     private final ReportsCatsRepository reportsCatsRepository;
 
-    public CatsHandler(KnowledgebaseCatsService knowledgebaseCatsService,
-                       TelegramBot telegramBot,
-                       OwnersCatsService ownersCatsService,
-                       OwnersCatsRepository ownersCatsRepository,
-                       CatsRepository catsRepository1, ReportsCatsRepository reportsCatsRepository) {
+    public CatsHandlerImpl(ReportCatBoolean reportCatBoolean, KnowledgebaseCatsService knowledgebaseCatsService,
+                           TelegramBot telegramBot,
+                           OwnersCatsService ownersCatsService,
+                           OwnersCatsRepository ownersCatsRepository,
+                           ReportsCatsRepository reportsCatsRepository) {
+        this.reportCatBoolean = reportCatBoolean;
         this.knowledgebaseCatsService = knowledgebaseCatsService;
         this.telegramBot = telegramBot;
         this.ownersCatsService = ownersCatsService;
@@ -69,7 +73,7 @@ public class CatsHandler implements AnimalHandler {
             userName = update.message().from().username();
             firstName = update.message().from().firstName();
             lastName = update.message().from().lastName();
-            update.message().photo();
+            PhotoSize[] photos = update.message().photo();
         } else if (update.callbackQuery() != null) {
             chatId = update.callbackQuery().message().chat().id();
             messageId = update.callbackQuery().message().messageId();
@@ -102,6 +106,7 @@ public class CatsHandler implements AnimalHandler {
      */
     @Override
     public InlineKeyboardMarkup formInlineKeyboardForInfoMenuButton() {
+
         InlineKeyboardMarkup inlineKeyboardMarkup = new InlineKeyboardMarkup();
 
         inlineKeyboardMarkup.addRow(new InlineKeyboardButton("Рассказать о приюте").callbackData("/cat_about"));
@@ -120,6 +125,7 @@ public class CatsHandler implements AnimalHandler {
      */
     @Override
     public InlineKeyboardMarkup formInlineKeyboardForTakeMenuButton() {
+
         InlineKeyboardMarkup inlineKeyboardMarkup = new InlineKeyboardMarkup();
 
         inlineKeyboardMarkup.addRow(new InlineKeyboardButton("Знакомство с животным").callbackData("/cat_connection_rules"));
@@ -182,27 +188,27 @@ public class CatsHandler implements AnimalHandler {
     public void newOwnerRegister() {
 
         if (!ownersCatsService.findByChatId(chatId)) {
+
             OwnerCatDto ownerCatDto = new OwnerCatDto();
+
             ownerCatDto.setChatId(chatId);
             ownerCatDto.setUserName(userName);
             ownerCatDto.setName(firstName);
             ownerCatDto.setSurname(lastName);
             ownerCatDto.setIsVolunteer(false);
             ownerCatDto.setFirstProbation(false);
+
             ownersCatsService.add(ownerCatDto);
         }
     }
 
-    @Override
-    public ReportsCatsDto receivePhoto(Update update) {
+//    @Override
+    public ReportCatBoolean receivePhoto(Update update) {
 
         Long chatId = update.message().chat().id();
         Integer date = update.message().date();
         PhotoSize[] photos = update.message().photo();
         Integer messageId = update.message().messageId();
-        int updateId = update.updateId();
-
-
 
         PhotoSize photo = photos[photos.length - 1];
         String fileId = photo.fileId();
@@ -217,8 +223,7 @@ public class CatsHandler implements AnimalHandler {
         if (ownerCat.isPresent()) { // Check-up if Client with such chatId is present in the Clients_cats database
             if ((ownerCat.get().getCatId()) != null) { // If Client exist, check-up if Client has a cat in the Cats database
                 Long catId = ownerCat.get().getCatId();
-                Optional<CatsReport> catsReportOptional = reportsCatsRepository
-                        .findByClientIdAndAnimalIdAndCreatedAt(chatId, catId, LocalDate.now()); // Return CatsReport for today (optional)
+                Optional<CatsReport> catsReportOptional = reportsCatsRepository.findByClientIdAndAnimalIdAndCreatedAt(chatId, catId, LocalDate.now()); // Return CatsReport for today (optional)
                 if (catsReportOptional.isPresent()) { // If Client exist, Client has a cat, check-up if CatsReport exist in Report_cats database
                     if (catsReportOptional.get().getPath() == null) { // If Client exist, has a cat, and report has been created, check-up if report has photo path field not empty
 
@@ -227,21 +232,8 @@ public class CatsHandler implements AnimalHandler {
 
                         reportsCatsRepository.save(catsReport); // Save photoPath in report out of update
 
-                        Optional<CatsReport> catsReporAfterRenewalOptional = reportsCatsRepository
-                                .findByClientIdAndAnimalIdAndCreatedAt(chatId, catId, LocalDate.now());
+                        return reportCatBoolean.createReportCatBooleanFalse();
 
-                        ReportsCatsDto reportsCatsDto = new ReportsCatsDto(); // Create reportDto after saving Ration
-
-                        reportsCatsDto.setClientId(catsReporAfterRenewalOptional.get().getClientId());
-                        reportsCatsDto.setAnimalId(catsReporAfterRenewalOptional.get().getAnimalId());
-                        reportsCatsDto.setPath(catsReporAfterRenewalOptional.get().getPath());
-                        reportsCatsDto.setCreatedAt(catsReporAfterRenewalOptional.get().getCreatedAt());
-                        reportsCatsDto.setUpdatedAt(catsReporAfterRenewalOptional.get().getUpdatedAt());
-                        reportsCatsDto.setRation(catsReporAfterRenewalOptional.get().getRation());
-                        reportsCatsDto.setFeeling(catsReporAfterRenewalOptional.get().getFeeling());
-                        reportsCatsDto.setChanges(catsReporAfterRenewalOptional.get().getChanges());
-
-                        return reportsCatsDto;
                     }
                 } else { // If report for today doesn't exist - create new report with photo path
                     CatsReport catsReport = new CatsReport();
@@ -253,36 +245,25 @@ public class CatsHandler implements AnimalHandler {
 
                     reportsCatsRepository.save(catsReport);
 
-                    Optional<CatsReport> catsReporAfterRenewalOptional = reportsCatsRepository
-                            .findByClientIdAndAnimalIdAndCreatedAt(chatId, catId, LocalDate.now());
+                    return reportCatBoolean.createReportCatBooleanFalse();
 
-                    ReportsCatsDto reportsCatsDto = new ReportsCatsDto(); // Create reportDto after saving Ration
-
-                    reportsCatsDto.setClientId(catsReporAfterRenewalOptional.get().getClientId());
-                    reportsCatsDto.setAnimalId(catsReporAfterRenewalOptional.get().getAnimalId());
-                    reportsCatsDto.setPath(catsReporAfterRenewalOptional.get().getPath());
-                    reportsCatsDto.setCreatedAt(catsReporAfterRenewalOptional.get().getCreatedAt());
-                    reportsCatsDto.setUpdatedAt(catsReporAfterRenewalOptional.get().getUpdatedAt());
-                    reportsCatsDto.setRation(catsReporAfterRenewalOptional.get().getRation());
-                    reportsCatsDto.setFeeling(catsReporAfterRenewalOptional.get().getFeeling());
-                    reportsCatsDto.setChanges(catsReporAfterRenewalOptional.get().getChanges());
-
-                    return reportsCatsDto;
                 }
             } else {
                 telegramBot.execute(new EditMessageText(chatId, messageId,
                         "У Вас еще нет домашнего питомца и Вы не можете отправлять отчет"));
-                return null;
+                return reportCatBoolean.createReportCatBooleanFalse();
             }
         } else {
             telegramBot.execute(new EditMessageText(chatId, messageId,
                     "Вы еще не зарегистрированы как клиент приюта."));
-            return null;
+            return reportCatBoolean.createReportCatBooleanFalse();
         }
-        return null;
+
+        return reportCatBoolean.createReportCatBooleanWaitingForPhotoTrue();
+
     }
 
-    @Override
+//    @Override
     public ReportsCatsDto receiveRation(Update update) {
 
         Long chatId = update.message().chat().id();
@@ -365,7 +346,7 @@ public class CatsHandler implements AnimalHandler {
         return null;
     }
 
-    @Override
+//    @Override
     public ReportsCatsDto receiveFeeling(Update update) {
 
         Long chatId = update.message().chat().id();
@@ -449,7 +430,7 @@ public class CatsHandler implements AnimalHandler {
     }
 
 
-    @Override
+//    @Override
     public ReportsCatsDto receiveChanges(Update update) {
 
         Long chatId = update.message().chat().id();
