@@ -2,6 +2,7 @@ package omg.group.priuttelegrambot.listener;
 
 import com.pengrad.telegrambot.TelegramBot;
 import com.pengrad.telegrambot.UpdatesListener;
+import com.pengrad.telegrambot.model.CallbackQuery;
 import com.pengrad.telegrambot.model.PhotoSize;
 import com.pengrad.telegrambot.model.Update;
 import com.pengrad.telegrambot.model.request.InlineKeyboardButton;
@@ -18,7 +19,10 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 
+import javax.security.auth.callback.Callback;
 import java.util.List;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 @Component
 @Data
@@ -102,12 +106,15 @@ public class TelegramBotUpdatesListener implements UpdatesListener {
             firstName = update.callbackQuery().from().firstName();
             lastName = update.callbackQuery().from().lastName();
         }
-        if (update.message() != null && update.message().photo() != null && update.message().equals("кошка")) {
+        if (update.message() != null && update.message().photo() != null) {
             chatId = update.message().chat().id();
-            text = "/cat_send_photo";
             userName = update.message().from().username();
             firstName = update.message().from().firstName();
             lastName = update.message().from().lastName();
+            if (update.message().caption().equals("кошка")) {
+                text = "/cat_send_photo";
+
+            }
 
         }
 
@@ -210,6 +217,7 @@ public class TelegramBotUpdatesListener implements UpdatesListener {
                                 reportCatsService.add(reportsCatsDto);
                                 sendMessage(chatId, "Фото добавлено ");
                                 telegramBot.execute(new SendPhoto(chatId, fileId));
+
                             }
                         }
                     }
