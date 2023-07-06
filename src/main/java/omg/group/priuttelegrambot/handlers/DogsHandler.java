@@ -2,29 +2,28 @@ package omg.group.priuttelegrambot.handlers;
 
 import com.pengrad.telegrambot.model.Update;
 import com.pengrad.telegrambot.model.request.InlineKeyboardMarkup;
-import omg.group.priuttelegrambot.dto.reports.ReportsDogsDto;
-import omg.group.priuttelegrambot.entity.report.ReportDogBoolean;
 
 public interface DogsHandler {
 
-        InlineKeyboardMarkup formPriutMainMenuButton();
+    InlineKeyboardMarkup formPriutMainMenuButton();
 
-        InlineKeyboardMarkup formInlineKeyboardForInfoMenuButton();
+    InlineKeyboardMarkup formInlineKeyboardForInfoMenuButton();
 
-        InlineKeyboardMarkup formInlineKeyboardForTakeMenuButton();
+    InlineKeyboardMarkup formInlineKeyboardForTakeMenuButton();
 
-        InlineKeyboardMarkup formInlineKeyboardForSendReportButton();
+    InlineKeyboardMarkup formInlineKeyboardForSendReportButton();
 
-        void executeButtonOrCommand(Update update, InlineKeyboardMarkup inlineKeyboardMarkup);
+    void executeButtonOrCommand(Update update, InlineKeyboardMarkup inlineKeyboardMarkup);
 
-        void newOwnerRegister();
+    void newOwnerRegister();
 
-        ReportDogBoolean receivePhoto(Update update);
+    void receivePhoto(Update update);
 
-    ReportsDogsDto receiveRation(Update update);
+    void receiveRation(Update update);
 
-    ReportsDogsDto receiveFeeling(Update update);
+    void receiveFeeling(Update update);
 
-    ReportsDogsDto receiveChanges(Update update);
+    void receiveChanges(Update update);
 
+    Boolean isProbationStarted(Update update);
 }

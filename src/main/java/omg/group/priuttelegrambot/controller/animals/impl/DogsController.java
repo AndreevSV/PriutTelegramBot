@@ -24,22 +24,20 @@ public class DogsController {
     }
 
     @PostMapping
-    public ResponseEntity<HttpStatus> add(
-            @RequestBody DogDto dogDto) {
-        return ResponseEntity.ok().body(dogsService.add(dogDto));
+    public ResponseEntity<HttpStatus> add(@RequestBody DogDto dogDto) {
+        dogsService.add(dogDto);
+        return ResponseEntity.ok().build();
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<HttpStatus> updateById(
-            @PathVariable Long id,
-            @RequestBody DogDto dogDto) {
-        return ResponseEntity.ok().body(dogsService.updateById(id, dogDto));
+    public ResponseEntity<HttpStatus> updateById(@PathVariable Long id, @RequestBody DogDto dogDto) {
+        dogsService.updateById(id, dogDto);
+        return ResponseEntity.ok().build();
     }
 
 
     @GetMapping("/{id}")
-    public ResponseEntity<List<DogDto>> findById(
-            @PathVariable Long id) {
+    public ResponseEntity<List<DogDto>> findById(@PathVariable Long id) {
         return ResponseEntity.ok().body(dogsService.findById(id));
     }
 
@@ -64,19 +62,16 @@ public class DogsController {
         if (breed != null) {
             return ResponseEntity.ok(dogsService.findByBreed(breed));
         } else {
-            throw new NullPointerException("Кошка с такими параметрами не найдена");
+            return ResponseEntity.notFound().build();
         }
     }
 
     @GetMapping("/findbybirthday")
-    public ResponseEntity<List<DogDto>> findByBirthdayBetweenStartDateAndEndDate(
-            @RequestParam(required = true) Date startDate,
-            @RequestParam(required = true) Date endDate) {
+    public ResponseEntity<List<DogDto>> findByBirthdayBetweenStartDateAndEndDate(@RequestParam Date startDate, @RequestParam Date endDate) {
         if (startDate != null && endDate != null) {
-            return ResponseEntity.ok().body(
-                    dogsService.findByBirthdayBetweenDates(startDate, endDate));
+            return ResponseEntity.ok().body(dogsService.findByBirthdayBetweenDates(startDate, endDate));
         } else {
-            throw new NullPointerException("Собаки, рожденной в данном промежутке времени, не найджено");
+            return ResponseEntity.notFound().build();
         }
     }
 
@@ -87,9 +82,9 @@ public class DogsController {
 
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<HttpStatus> deleteById(
-            @PathVariable Long id) {
-        return ResponseEntity.ok().body(dogsService.deleteById(id));
+    public ResponseEntity<HttpStatus> deleteById(@PathVariable Long id) {
+        dogsService.deleteById(id);
+        return ResponseEntity.ok().build();
     }
 
 }

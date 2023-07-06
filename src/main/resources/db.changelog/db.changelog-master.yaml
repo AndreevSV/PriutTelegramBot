@@ -76,3 +76,25 @@ databaseChangeLog:
               column:
                 name: chat_id
                 type: BIGINT
+  - changeSet:
+      id: 5
+      author: AndreevSV
+      changes:
+        - addColumn:
+            tableName: reports_cats
+            columns:
+              - column:
+                  name: date_of_report
+                  type: DATE
+              - column:
+                  name: date_of_last_report
+                  type: DATE
+        - addColumn:
+            tableName: reports_dogs
+            columns:
+              - column:
+                  name: date_of_report
+                  type: DATE
+              - column:
+                  name: date_of_last_report
+                  type: DATE

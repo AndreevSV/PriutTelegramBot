@@ -11,9 +11,9 @@ import java.util.List;
 
 public interface DogsService {
 
-    HttpStatus add(DogDto dogDto);
+    void add(DogDto dogDto);
 
-    HttpStatus updateById(Long id, DogDto dogDto);
+    void updateById(Long id, DogDto dogDto);
 
     List<DogDto> findById(Long id);
 
@@ -27,7 +27,7 @@ public interface DogsService {
 
     List<DogDto> getAll();
 
-    HttpStatus deleteById(Long id);
+    void deleteById(Long id);
 
     default Dog constructDogFromDogDto(DogDto dogDto) {
 

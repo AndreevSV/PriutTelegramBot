@@ -74,6 +74,4 @@ public abstract class Owner {
     @Column(name = "chat_id")
     private Long chatId;
 
-
-
 }

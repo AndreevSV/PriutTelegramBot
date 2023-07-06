@@ -55,7 +55,8 @@ public class OwnersCatsController {
             )
     })
     public ResponseEntity<HttpStatus> add(@RequestBody OwnerCatDto ownerCatDto) {
-        return ResponseEntity.ok().body(ownersCatsService.add(ownerCatDto));
+        ownersCatsService.add(ownerCatDto);
+        return ResponseEntity.ok().build();
     }
 
     @PutMapping("/{id}")
@@ -77,7 +78,8 @@ public class OwnersCatsController {
             )
     })
     public ResponseEntity<HttpStatus> updateById(@PathVariable Long id, @RequestBody OwnerCatDto ownerCatDto) {
-        return ResponseEntity.ok().body(ownersCatsService.updateById(id, ownerCatDto));
+        ownersCatsService.updateById(id, ownerCatDto);
+        return ResponseEntity.ok().build();
     }
 
     @GetMapping
@@ -174,7 +176,8 @@ public class OwnersCatsController {
             )
     })
     public ResponseEntity<HttpStatus> deleteById(@PathVariable Long id) {
-        return ResponseEntity.ok().body(ownersCatsService.deleteById(id));
+        ownersCatsService.deleteById(id);
+        return ResponseEntity.ok().build();
     }
 
 }

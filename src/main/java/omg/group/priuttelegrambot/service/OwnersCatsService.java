@@ -8,9 +8,9 @@ import java.util.List;
 
 public interface OwnersCatsService {
 
-    HttpStatus add(OwnerCatDto ownerDto);
+    void add(OwnerCatDto ownerDto);
 
-    HttpStatus updateById(Long id, OwnerCatDto ownerDto);
+    void updateById(Long id, OwnerCatDto ownerDto);
 
     List<OwnerCatDto> findById(Long id);
 
@@ -24,7 +24,7 @@ public interface OwnersCatsService {
 
     List<OwnerCatDto> getAll();
 
-    HttpStatus deleteById(Long id);
+    void deleteById(Long id);
 
     default OwnerCat constructOwner(OwnerCatDto ownerDto) {
 

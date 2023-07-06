@@ -8,9 +8,9 @@ import org.springframework.http.HttpStatus;
 import java.util.List;
 
 public interface OwnersDogsService {
-    HttpStatus add(OwnerDogDto ownerDto);
+    void add(OwnerDogDto ownerDto);
 
-    HttpStatus updateById(Long id, OwnerDogDto ownerDto);
+    void updateById(Long id, OwnerDogDto ownerDto);
 
     List<OwnerDogDto> findById(Long id);
 
@@ -24,7 +24,9 @@ public interface OwnersDogsService {
 
     List<OwnerDogDto> getAll();
 
-    HttpStatus deleteById(Long id);
+    void deleteById(Long id);
+
+    OwnerDogDto findDogsVolunteer();
 
     default OwnerDog constructOwner(OwnerDogDto ownerDto) {
 
@@ -82,6 +84,5 @@ public interface OwnersDogsService {
         return ownerDto;
     }
 
-    OwnerDogDto findDogsVolunteer();
 }
 

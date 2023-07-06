@@ -18,6 +18,8 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 @Component
 @Data
@@ -31,9 +33,6 @@ public class TelegramBotUpdatesListener implements UpdatesListener {
     private String firstName;
     private String lastName;
 
-    private final ReportCatBoolean reportCatBoolean;
-    private final ReportDogBoolean reportDogBoolean;
-
     private static final Logger LOG = LoggerFactory.getLogger(TelegramBotUpdatesListener.class);
 
     private final TelegramBot telegramBot;
@@ -45,23 +44,26 @@ public class TelegramBotUpdatesListener implements UpdatesListener {
     private final CatsHandler catsHandler;
     private final OtherHandlers otherHandler;
 
+    private final ReportDogBoolean reportDogBoolean;
+    private final ReportCatBoolean reportCatBoolean;
+
+    Map<Long, ReportCatBoolean> ownersCatsStatus = new ConcurrentHashMap<>();
+    Map<Long, ReportDogBoolean> ownersDogsStatus = new ConcurrentHashMap<>();
+
     public TelegramBotUpdatesListener(TelegramBot telegramBot,
                                       KnowledgebaseDogsService knowledgebaseDogsService,
                                       KnowledgebaseCatsService knowledgebaseCatsService,
                                       OwnersCatsService ownersCatsService,
                                       OwnersDogsService ownersDogsService,
-                                      @Qualifier("dogsHandlerImpl") DogsHandler dogsHandler,
-                                      @Qualifier("catsHandlerImpl") CatsHandler catsHandler,
-                                      OtherHandlers otherHandler,
-                                      ReportCatBoolean reportCatBoolean,
-                                      ReportDogBoolean reportDogBoolean
-    ) {
+                                      DogsHandler dogsHandler,
+                                      CatsHandler catsHandler,
+                                      OtherHandlers otherHandler, ReportDogBoolean reportDogBoolean, ReportCatBoolean reportCatBoolean) {
         this.telegramBot = telegramBot;
         this.dogsHandler = dogsHandler;
         this.catsHandler = catsHandler;
         this.otherHandler = otherHandler;
-        this.reportCatBoolean = reportCatBoolean;
         this.reportDogBoolean = reportDogBoolean;
+        this.reportCatBoolean = reportCatBoolean;
         this.telegramBot.setUpdatesListener(this);
         this.knowledgebaseCatsService = knowledgebaseCatsService;
         this.knowledgebaseDogsService = knowledgebaseDogsService;
@@ -77,37 +79,61 @@ public class TelegramBotUpdatesListener implements UpdatesListener {
 
     private void handleUpdate(Update update) {
         if (update.callbackQuery() != null ||
-                (update.message().text() != null &&
-            update.message().text().startsWith("/")) &&
-                    !reportCatBoolean.reportCatIsNecessary(reportCatBoolean) &&
-                    !reportDogBoolean.reportDogIsNecessary(reportDogBoolean)) {
+                (update.message().text() != null && update.message().text().startsWith("/")  //&&
+//                        !ownersCatsStatus.containsKey(update.message().from().id()) &&
+//                        !ownersDogsStatus.containsKey(update.message().from().id())
+                        )
+        ) {
             processButton(update);
-        }
-        else if ((update.message() != null &&
-                update.message().photo() != null &&
-                reportCatBoolean.isWaitingForCatPhoto())) {
-            catsHandler.receivePhoto(update);
-        }
-//        if (update.message() != null && update.message().photo() != null) {
-//            processCatPhoto(update, isWaitingForCatPhoto); }
-         else {
+        } else if (update.message() != null && ownersCatsStatus.containsKey(update.message().from().id())) {
+            if (ownersCatsStatus.get(update.message().from().id()).equals(reportCatBoolean.photoIsNecessary())) {
+                catsHandler.receivePhoto(update);
+                ownersCatsStatus.remove(update.message().from().id());
+
+            } else if (ownersCatsStatus.get(update.message().from().id()).equals(reportCatBoolean.rationIsNecessary())) {
+                catsHandler.receiveRation(update);
+                ownersCatsStatus.remove(update.message().from().id());
+            } else if (ownersCatsStatus.get(update.message().from().id()).equals(reportCatBoolean.feelingIsNecessary())) {
+                catsHandler.receiveFeeling(update);
+                ownersCatsStatus.remove(update.message().from().id());
+            } else if (ownersCatsStatus.get(update.message().from().id()).equals(reportCatBoolean.changesIsNecessary())) {
+                catsHandler.receiveChanges(update);
+                ownersCatsStatus.remove(update.message().from().id());
+            }
+        } else if (update.message() != null && ownersDogsStatus.containsKey(update.message().from().id())) {
+            if (ownersDogsStatus.get(update.message().from().id()).equals(reportDogBoolean.photoIsNecessary())) {
+                dogsHandler.receivePhoto(update);
+                ownersDogsStatus.remove(update.message().from().id());
+            } else if (ownersDogsStatus.get(update.message().from().id()).equals(reportDogBoolean.rationIsNecessary())) {
+                dogsHandler.receiveRation(update);
+                ownersDogsStatus.remove(update.message().from().id());
+            } else if (ownersDogsStatus.get(update.message().from().id()).equals(reportDogBoolean.feelingIsNecessary())) {
+                dogsHandler.receiveFeeling(update);
+                ownersDogsStatus.remove(update.message().from().id());
+            } else if (ownersDogsStatus.get(update.message().from().id()).equals(reportDogBoolean.changesIsNecessary())) {
+                dogsHandler.receiveChanges(update);
+                ownersDogsStatus.remove(update.message().from().id());
+            }
+        } else {
             otherHandler.noSuchCommandSendMessage(update);
         }
     }
 
     private void processButton(Update update) {
 
+        extractDataFromUpdate(update);
+
         LOG.info("Получен следующий апдэйт {}", update);
 
-        extractDataFromUpdate(update);
-        reportCatBoolean.createReportCatBooleanFalse();
-        reportDogBoolean.createReportDogBooleanFalse();
-
         switch (command) {
-            case "/start" -> otherHandler.executeStartMenuButton(update);
+            case "/start" -> {
+                otherHandler.executeStartMenuButton(update);
+            }
             case "/cat" -> {
                 InlineKeyboardMarkup inlineKeyboardMarkup = catsHandler.formPriutMainMenuButton();
                 catsHandler.executeButtonOrCommand(update, inlineKeyboardMarkup);
+                catsHandler.newOwnerRegister();
+
             }
             case "/cat_info", "/cat_about", "/cat_timetable", "/cat_admission", "/cat_safety_measures" -> {
                 InlineKeyboardMarkup inlineKeyboardMarkup = catsHandler.formInlineKeyboardForInfoMenuButton();
@@ -124,20 +150,26 @@ public class TelegramBotUpdatesListener implements UpdatesListener {
             case "/cat_send_photo" -> {
                 InlineKeyboardMarkup inlineKeyboardMarkup = catsHandler.formInlineKeyboardForSendReportButton();
                 catsHandler.executeButtonOrCommand(update, inlineKeyboardMarkup);
-
-                reportCatBoolean.createReportCatBooleanWaitingForPhotoTrue();
+                ReportCatBoolean rcb = reportCatBoolean.photoIsNecessary();
+                ownersCatsStatus.put(chatId, rcb);
             }
             case "/cat_send_ration" -> {
                 InlineKeyboardMarkup inlineKeyboardMarkup = catsHandler.formInlineKeyboardForSendReportButton();
                 catsHandler.executeButtonOrCommand(update, inlineKeyboardMarkup);
+                ReportCatBoolean rcb = reportCatBoolean.rationIsNecessary();
+                ownersCatsStatus.put(chatId, rcb);
             }
             case "/cat_send_feeling" -> {
                 InlineKeyboardMarkup inlineKeyboardMarkup = catsHandler.formInlineKeyboardForSendReportButton();
                 catsHandler.executeButtonOrCommand(update, inlineKeyboardMarkup);
+                ReportCatBoolean rcb = reportCatBoolean.feelingIsNecessary();
+                ownersCatsStatus.put(chatId, rcb);
             }
             case "/cat_send_changes" -> {
                 InlineKeyboardMarkup inlineKeyboardMarkup = catsHandler.formInlineKeyboardForSendReportButton();
                 catsHandler.executeButtonOrCommand(update, inlineKeyboardMarkup);
+                ReportCatBoolean rcb = reportCatBoolean.changesIsNecessary();
+                ownersCatsStatus.put(chatId, rcb);
             }
             case "/cat_back" -> {
                 InlineKeyboardMarkup inlineKeyboardMarkup = catsHandler.formPriutMainMenuButton();
@@ -156,6 +188,8 @@ public class TelegramBotUpdatesListener implements UpdatesListener {
             case "/dog" -> {
                 InlineKeyboardMarkup inlineKeyboardMarkup = dogsHandler.formPriutMainMenuButton();
                 dogsHandler.executeButtonOrCommand(update, inlineKeyboardMarkup);
+                dogsHandler.newOwnerRegister();
+
             }
             case "/dog_info", "/dog_about", "/dog_timetable", "/dog_admission", "/dog_safety_measures" -> {
                 InlineKeyboardMarkup inlineKeyboardMarkup = dogsHandler.formInlineKeyboardForInfoMenuButton();
@@ -170,20 +204,35 @@ public class TelegramBotUpdatesListener implements UpdatesListener {
                 dogsHandler.executeButtonOrCommand(update, inlineKeyboardMarkup);
             }
             case "/dog_send_photo" -> {
-
+                InlineKeyboardMarkup inlineKeyboardMarkup = dogsHandler.formInlineKeyboardForSendReportButton();
+                dogsHandler.executeButtonOrCommand(update, inlineKeyboardMarkup);
+                ReportDogBoolean rdb = reportDogBoolean.photoIsNecessary();
+                ownersDogsStatus.put(chatId, rdb);
             }
             case "/dog_send_ration" -> {
+                InlineKeyboardMarkup inlineKeyboardMarkup = dogsHandler.formInlineKeyboardForSendReportButton();
+                dogsHandler.executeButtonOrCommand(update, inlineKeyboardMarkup);
+                ReportDogBoolean rdb = reportDogBoolean.rationIsNecessary();
+                ownersDogsStatus.put(chatId, rdb);
+
             }
             case "/dog_send_feeling" -> {
+                InlineKeyboardMarkup inlineKeyboardMarkup = dogsHandler.formInlineKeyboardForSendReportButton();
+                dogsHandler.executeButtonOrCommand(update, inlineKeyboardMarkup);
+                ReportDogBoolean rdb = reportDogBoolean.feelingIsNecessary();
+                ownersDogsStatus.put(chatId, rdb);
             }
             case "/dog_send_changes" -> {
-
+                InlineKeyboardMarkup inlineKeyboardMarkup = dogsHandler.formInlineKeyboardForSendReportButton();
+                dogsHandler.executeButtonOrCommand(update, inlineKeyboardMarkup);
+                ReportDogBoolean rdb = reportDogBoolean.changesIsNecessary();
+                ownersDogsStatus.put(chatId, rdb);
             }
             case "/dog_back" -> {
                 InlineKeyboardMarkup inlineKeyboardMarkup = dogsHandler.formPriutMainMenuButton();
                 dogsHandler.executeButtonOrCommand(update, inlineKeyboardMarkup);
             }
-            case "/dog_volunteer" -> {/////////////////////!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+            case "/dog_volunteer" -> {
                 {
                     InlineKeyboardMarkup inlineKeyboardMarkup = dogsHandler.formInlineKeyboardForSendReportButton();
                     dogsHandler.executeButtonOrCommand(update, inlineKeyboardMarkup);
@@ -197,7 +246,6 @@ public class TelegramBotUpdatesListener implements UpdatesListener {
             default -> otherHandler.noSuchCommandSendMessage(update);
         }
     }
-
 
 
 //    private void processCatPhoto(Update update, boolean isWaitingForCatPhoto) {
@@ -238,12 +286,5 @@ public class TelegramBotUpdatesListener implements UpdatesListener {
             lastName = update.message().from().lastName();
         }
     }
-
-
-
-
-
-
-
 
 }

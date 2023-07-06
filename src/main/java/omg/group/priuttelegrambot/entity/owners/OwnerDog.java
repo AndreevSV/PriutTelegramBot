@@ -24,7 +24,7 @@ public class OwnerDog extends Owner {
     private AddressesOwnersDogs address;
 
     @OneToOne
-    @JoinColumn(name = "id", referencedColumnName = "id")
+    @JoinColumn(name = "id")
     private OwnerDog volunteer;
 
     @OneToMany(mappedBy = "ownerDog")

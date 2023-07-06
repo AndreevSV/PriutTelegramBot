@@ -26,26 +26,24 @@ public class DogsServiceImpl implements DogsService {
     private final DogsRepository dogsRepository;
 
     @Override
-    public HttpStatus add(DogDto dogDto) {
+    public void add(DogDto dogDto) {
 
         Dog dog = constructDogFromDogDto(dogDto);
         dog.setCreatedAt(LocalDateTime.now());
 
         dogsRepository.save(dog);
-        return HttpStatus.CREATED;
     }
 
     @Override
-    public HttpStatus updateById(Long id, DogDto dogDto) {
+    public void updateById(Long id, DogDto dogDto) {
 
         Dog dog = constructDogFromDogDto(dogDto);
         dog.setUpdatedAt(LocalDateTime.now());
 
         if (dogsRepository.existsById(id)) {
             dogsRepository.save(dog);
-            return HttpStatus.OK;
         } else {
-            throw new RuntimeException(String.format("Собака с id %d не найдена", id));
+            System.out.println((String.format("Собака с id %d не найдена", id)));
         }
     }
 
@@ -59,7 +57,8 @@ public class DogsServiceImpl implements DogsService {
             DogDto dogDto = constructDogDtoFromCat(dog);
             return Collections.singletonList(dogDto);
         } else {
-            throw new NullPointerException(String.format("Собака с id %d не найден", id));
+            System.out.println((String.format("Собака с id %d не найден", id)));
+            return null;
         }
     }
 
@@ -105,12 +104,11 @@ public class DogsServiceImpl implements DogsService {
     }
 
     @Override
-    public HttpStatus deleteById(Long id) {
+    public void deleteById(Long id) {
         if (dogsRepository.existsById(id)) {
             dogsRepository.deleteById(id);
-            return HttpStatus.NO_CONTENT;
         } else {
-            throw new NullPointerException(String.format("Собака с id %d не найден", id));
+            System.out.println(String.format("Собака с id %d не найден", id));
         }
     }
 

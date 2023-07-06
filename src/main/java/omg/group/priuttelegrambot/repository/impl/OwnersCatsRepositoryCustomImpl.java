@@ -1,11 +1,14 @@
-package omg.group.priuttelegrambot.repository;
+package omg.group.priuttelegrambot.repository.impl;
 
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
 import omg.group.priuttelegrambot.entity.owners.OwnerCat;
+import omg.group.priuttelegrambot.repository.OwnersCatsRepositoryCustom;
+import org.springframework.stereotype.Repository;
 
 import java.util.Optional;
 
+@Repository
 public class OwnersCatsRepositoryCustomImpl implements OwnersCatsRepositoryCustom {
 
     @PersistenceContext

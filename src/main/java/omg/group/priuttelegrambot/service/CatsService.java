@@ -11,9 +11,9 @@ import java.util.List;
 
 public interface CatsService {
 
-    HttpStatus add(CatDto catDto);
+    void add(CatDto catDto);
 
-    HttpStatus updateById(Long id, CatDto catDto);
+    void updateById(Long id, CatDto catDto);
 
     List<CatDto> findById(Long id);
 
@@ -27,7 +27,7 @@ public interface CatsService {
 
     List<CatDto> getAll();
 
-    HttpStatus deleteById(Long id);
+    void deleteById(Long id);
 
     default Cat constructCatFromCatDto(CatDto catDto) {
 

@@ -26,26 +26,24 @@ public class CatsServiceImpl implements CatsService {
     private final CatsRepository catsRepository;
 
     @Override
-    public HttpStatus add(CatDto catDto) {
+    public void add(CatDto catDto) {
 
         Cat cat = constructCatFromCatDto(catDto);
         cat.setCreatedAt(LocalDateTime.now());
 
         catsRepository.save(cat);
-        return HttpStatus.CREATED;
     }
 
     @Override
-    public HttpStatus updateById(Long id, CatDto catDto) {
+    public void updateById(Long id, CatDto catDto) {
 
         Cat cat = constructCatFromCatDto(catDto);
         cat.setUpdatedAt(LocalDateTime.now());
 
         if (catsRepository.existsById(id)) {
             catsRepository.save(cat);
-            return HttpStatus.OK;
         } else {
-            throw new RuntimeException(String.format("Кот/кошка с id %d не найден", id));
+            System.out.println((String.format("Кот/кошка с id %d не найден", id)));
         }
     }
 
@@ -59,7 +57,8 @@ public class CatsServiceImpl implements CatsService {
             CatDto catDto = constructCatDtoFromCat(cat);
             return Collections.singletonList(catDto);
         } else {
-            throw new NullPointerException(String.format("Кот/кошка с id %d не найден", id));
+            System.out.println((String.format("Кот/кошка с id %d не найден", id)));
+            return null;
         }
     }
 
@@ -105,12 +104,11 @@ public class CatsServiceImpl implements CatsService {
     }
 
     @Override
-    public HttpStatus deleteById(Long id) {
+    public void deleteById(Long id) {
         if (catsRepository.existsById(id)) {
             catsRepository.deleteById(id);
-            return HttpStatus.NO_CONTENT;
         } else {
-            throw new NullPointerException(String.format("Кот/кошка с id %d не найден", id));
+            System.out.println((String.format("Кот/кошка с id %d не найден", id)));
         }
     }
 

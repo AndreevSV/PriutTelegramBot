@@ -21,28 +21,25 @@ public class OwnersCatsServiceImpl implements OwnersCatsService {
 
     private final OwnersCatsRepository ownersCatsRepository;
 
-
     @Override
-    public HttpStatus add(OwnerCatDto ownerCatDto) {
+    public void add(OwnerCatDto ownerCatDto) {
 
         OwnerCat owner = constructOwner(ownerCatDto);
         owner.setCreatedAt(LocalDateTime.now());
 
         ownersCatsRepository.save(owner);
-        return HttpStatus.CREATED;
     }
 
     @Override
-    public HttpStatus updateById(Long id, OwnerCatDto ownerCatDto) {
+    public void updateById(Long id, OwnerCatDto ownerCatDto) {
 
         OwnerCat owner = constructOwner(ownerCatDto);
         owner.setUpdatedAt(LocalDateTime.now());
 
         if (ownersCatsRepository.existsById(id)) {
             ownersCatsRepository.save(owner);
-            return HttpStatus.OK;
         } else {
-            throw new RuntimeException(String.format("Клиент с id %d не найден", id));
+            System.out.println((String.format("Клиент с id %d не найден", id)));
         }
     }
 
@@ -101,12 +98,11 @@ public class OwnersCatsServiceImpl implements OwnersCatsService {
     }
 
     @Override
-    public HttpStatus deleteById(Long id) {
+    public void deleteById(Long id) {
         if (ownersCatsRepository.existsById(id)) {
             ownersCatsRepository.deleteById(id);
-            return HttpStatus.NO_CONTENT;
         } else {
-            throw new NullPointerException(String.format("Клиент с id %d не найден", id));
+            System.out.println((String.format("Клиент с id %d не найден", id)));
         }
     }
 
@@ -119,7 +115,8 @@ public class OwnersCatsServiceImpl implements OwnersCatsService {
             OwnerCat owner = ownerOptional.get();
             return constructOwnerDto(owner);
         } else {
-            throw new NullPointerException("Свободный волонтер не найден. Повторите попытку позже");
+            System.out.println("Свободный волонтер не найден. Повторите попытку позже");
+            return null;
         }
     }
 

@@ -8,7 +8,7 @@ import java.util.Optional;
 
 @Repository
 public interface KnowledgebaseDogsRepository extends JpaRepository<KnowledgebaseDogs, Long> {
-    Optional<KnowledgebaseDogs> findByCommand(String command);
 
+    Optional<KnowledgebaseDogs> findByCommand(String command);
 
 }

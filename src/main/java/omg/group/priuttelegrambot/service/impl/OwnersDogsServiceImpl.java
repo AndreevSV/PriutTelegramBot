@@ -22,28 +22,25 @@ public class OwnersDogsServiceImpl implements OwnersDogsService {
 
     private final OwnersDogsRepository ownersDogsRepository;
 
-
     @Override
-    public HttpStatus add(OwnerDogDto ownerDto) {
+    public void add(OwnerDogDto ownerDto) {
 
         OwnerDog owner = constructOwner(ownerDto);
         owner.setCreatedAt(LocalDateTime.now());
 
         ownersDogsRepository.save(owner);
-        return HttpStatus.CREATED;
     }
 
     @Override
-    public HttpStatus updateById(Long id, OwnerDogDto ownerCatDto) {
+    public void updateById(Long id, OwnerDogDto ownerCatDto) {
 
         OwnerDog owner = constructOwner(ownerCatDto);
         owner.setUpdatedAt(LocalDateTime.now());
 
         if (ownersDogsRepository.existsById(id)) {
             ownersDogsRepository.save(owner);
-            return HttpStatus.OK;
         } else {
-            throw new RuntimeException(String.format("Клиент с id %d не найден", id));
+            System.out.println((String.format("Клиент с id %d не найден", id)));
         }
     }
 
@@ -57,7 +54,8 @@ public class OwnersDogsServiceImpl implements OwnersDogsService {
             OwnerDogDto ownerDto = constructOwnerDto(owner);
             return Collections.singletonList(ownerDto);
         } else {
-            throw new NullPointerException(String.format("Клиент с id %d не найден", id));
+            System.out.println((String.format("Клиент с id %d не найден", id)));
+            return null;
         }
     }
 
@@ -102,12 +100,11 @@ public class OwnersDogsServiceImpl implements OwnersDogsService {
     }
 
     @Override
-    public HttpStatus deleteById(Long id) {
+    public void deleteById(Long id) {
         if (ownersDogsRepository.existsById(id)) {
             ownersDogsRepository.deleteById(id);
-            return HttpStatus.NO_CONTENT;
         } else {
-            throw new NullPointerException(String.format("Клиент с id %d не найден", id));
+            System.out.println((String.format("Клиент с id %d не найден", id)));
         }
     }
 
@@ -120,7 +117,8 @@ public class OwnersDogsServiceImpl implements OwnersDogsService {
             OwnerDog owner = ownerOptional.get();
             return constructOwnerDto(owner);
         } else {
-            throw new NullPointerException("Свободный волонтер не найден. Повторите попытку позже");
+            System.out.println(("Свободный волонтер не найден. Повторите попытку позже"));
+            return null;
         }
     }
 

@@ -1,5 +1,6 @@
 package omg.group.priuttelegrambot.handlers;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.pengrad.telegrambot.model.Update;
 import com.pengrad.telegrambot.model.request.InlineKeyboardMarkup;
 import omg.group.priuttelegrambot.dto.reports.ReportsCatsDto;
@@ -19,11 +20,13 @@ public interface CatsHandler {
 
     void newOwnerRegister();
 
-    ReportCatBoolean receivePhoto(Update update);
+    void receivePhoto(Update update);
 
-    ReportsCatsDto receiveRation(Update update);
+    void receiveRation(Update update);
 
-    ReportsCatsDto receiveFeeling(Update update);
+    void receiveFeeling(Update update);
 
-    ReportsCatsDto receiveChanges(Update update);
+    void receiveChanges(Update update);
+
+    Boolean isProbationStarted(Update update);
 }

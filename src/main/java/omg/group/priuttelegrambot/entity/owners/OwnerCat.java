@@ -8,6 +8,7 @@ import omg.group.priuttelegrambot.entity.addresses.AddressesOwnersCats;
 import omg.group.priuttelegrambot.entity.animals.Cat;
 
 import java.util.Collection;
+import java.util.Objects;
 
 @EqualsAndHashCode(callSuper = true)
 @Data
@@ -24,10 +25,9 @@ public class OwnerCat extends Owner {
     private AddressesOwnersCats address;
 
     @OneToOne
-    @JoinColumn(name = "id", referencedColumnName = "id")
+    @JoinColumn(name = "id")
     private OwnerCat volunteer;
 
     @OneToMany(mappedBy = "ownerCat")
     private Collection<Cat> cats;
-
 }

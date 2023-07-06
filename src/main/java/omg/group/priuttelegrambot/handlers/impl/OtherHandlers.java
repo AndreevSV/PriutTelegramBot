@@ -18,7 +18,7 @@ public class OtherHandlers {
     private String lastName;
     private final TelegramBot telegramBot;
 
-    private void extractDataFromUpdate(Update update) {
+    public void extractDataFromUpdate(Update update) {
 
         if (update.message() != null) {
             chatId = update.message().chat().id();
@@ -74,7 +74,9 @@ public class OtherHandlers {
     public void noSuchCommandSendMessage(Update update) {
         extractDataFromUpdate(update);
 
-        SendMessage sendMessage = new SendMessage(chatId, "Нет такой команды");
+        SendMessage sendMessage = new SendMessage(chatId, """
+            Нет такой команды.
+            Попробуйте воспользоваться кнопками меню""");
 
         telegramBot.execute(sendMessage);
     }

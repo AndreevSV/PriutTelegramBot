@@ -11,5 +11,4 @@ public interface KnowledgebaseCatsRepository extends JpaRepository<Knowledgebase
 
     Optional<KnowledgebaseCats> findByCommand(String command);
 
-
 }

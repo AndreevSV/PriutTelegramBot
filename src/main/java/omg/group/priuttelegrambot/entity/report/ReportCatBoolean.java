@@ -1,70 +1,81 @@
 package omg.group.priuttelegrambot.entity.report;
 
 import lombok.Data;
+import lombok.RequiredArgsConstructor;
 import org.jetbrains.annotations.NotNull;
 import org.springframework.stereotype.Component;
 
 @Data
+@RequiredArgsConstructor
 @Component
 public class ReportCatBoolean {
-    boolean isWaitingForCatPhoto;
-    boolean isWaitingForCatRation;
-    boolean isWaitingForCatFeeling;
-    boolean isWaitingForCatChanges;
+    private boolean isWaitingForPhoto;
+    private boolean isWaitingForRation;
+    private boolean isWaitingForFeeling;
+    private boolean isWaitingForChanges;
 
-    public ReportCatBoolean createReportCatBooleanFalse() {
+    public Boolean reportIsNecessary(@NotNull ReportCatBoolean reportCatBoolean) {
+        if (!reportCatBoolean.isWaitingForPhoto &&
+                !reportCatBoolean.isWaitingForRation &&
+                !reportCatBoolean.isWaitingForFeeling &&
+                !reportCatBoolean.isWaitingForChanges) {
+            return false;
+        } else {
+            return true;
+        }
+    }
+
+    public ReportCatBoolean photoIsNecessary() {
         ReportCatBoolean reportCatBoolean = new ReportCatBoolean();
 
-        reportCatBoolean.setWaitingForCatPhoto(false);
-        reportCatBoolean.setWaitingForCatRation(false);
-        reportCatBoolean.setWaitingForCatFeeling(false);
-        reportCatBoolean.setWaitingForCatChanges(false);
+        reportCatBoolean.setWaitingForPhoto(true);
+        reportCatBoolean.setWaitingForRation(false);
+        reportCatBoolean.setWaitingForFeeling(false);
+        reportCatBoolean.setWaitingForChanges(false);
 
         return reportCatBoolean;
     }
-    public Boolean reportCatIsNecessary(@NotNull ReportCatBoolean reportCatBoolean) {
-        return reportCatBoolean.isWaitingForCatPhoto ||
-                reportCatBoolean.isWaitingForCatRation ||
-                reportCatBoolean.isWaitingForCatFeeling ||
-                reportCatBoolean.isWaitingForCatChanges;
-    }
-    public ReportCatBoolean createReportCatBooleanWaitingForPhotoTrue() {
+
+    public ReportCatBoolean rationIsNecessary() {
         ReportCatBoolean reportCatBoolean = new ReportCatBoolean();
 
-        reportCatBoolean.setWaitingForCatPhoto(true);
-        reportCatBoolean.setWaitingForCatRation(false);
-        reportCatBoolean.setWaitingForCatFeeling(false);
-        reportCatBoolean.setWaitingForCatChanges(false);
+        reportCatBoolean.setWaitingForPhoto(false);
+        reportCatBoolean.setWaitingForRation(true);
+        reportCatBoolean.setWaitingForFeeling(false);
+        reportCatBoolean.setWaitingForChanges(false);
 
         return reportCatBoolean;
     }
-    public ReportCatBoolean createReportCatBooleanWaitingForRationTrue() {
+
+    public ReportCatBoolean feelingIsNecessary() {
         ReportCatBoolean reportCatBoolean = new ReportCatBoolean();
 
-        reportCatBoolean.setWaitingForCatPhoto(false);
-        reportCatBoolean.setWaitingForCatRation(true);
-        reportCatBoolean.setWaitingForCatFeeling(false);
-        reportCatBoolean.setWaitingForCatChanges(false);
+        reportCatBoolean.setWaitingForPhoto(false);
+        reportCatBoolean.setWaitingForRation(false);
+        reportCatBoolean.setWaitingForFeeling(true);
+        reportCatBoolean.setWaitingForChanges(false);
 
         return reportCatBoolean;
     }
-    public ReportCatBoolean createReportCatBooleanWaitingForFeelingTrue() {
+
+    public ReportCatBoolean changesIsNecessary() {
         ReportCatBoolean reportCatBoolean = new ReportCatBoolean();
 
-        reportCatBoolean.setWaitingForCatPhoto(false);
-        reportCatBoolean.setWaitingForCatRation(false);
-        reportCatBoolean.setWaitingForCatFeeling(true);
-        reportCatBoolean.setWaitingForCatChanges(false);
+        reportCatBoolean.setWaitingForPhoto(false);
+        reportCatBoolean.setWaitingForRation(false);
+        reportCatBoolean.setWaitingForFeeling(false);
+        reportCatBoolean.setWaitingForChanges(true);
 
         return reportCatBoolean;
     }
-    public ReportCatBoolean createReportCatBooleanWaitingForChangesTrue() {
+
+    public ReportCatBoolean reportFalse() {
         ReportCatBoolean reportCatBoolean = new ReportCatBoolean();
 
-        reportCatBoolean.setWaitingForCatPhoto(false);
-        reportCatBoolean.setWaitingForCatRation(false);
-        reportCatBoolean.setWaitingForCatFeeling(false);
-        reportCatBoolean.setWaitingForCatChanges(true);
+        reportCatBoolean.setWaitingForPhoto(false);
+        reportCatBoolean.setWaitingForRation(false);
+        reportCatBoolean.setWaitingForFeeling(false);
+        reportCatBoolean.setWaitingForChanges(false);
 
         return reportCatBoolean;
     }

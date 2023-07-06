@@ -26,7 +26,6 @@ public class KnowledgebaseDogsServiceImpl implements KnowledgebaseDogsService {
         Optional<KnowledgebaseDogs> knowledge = knowledgebaseDogsRepository.findByCommand(command);
 
         if (knowledge.isPresent()) {
-
             KnowledgebaseDto knowledgebaseDto = new KnowledgebaseDto();
 
             knowledgebaseDto.setCommand(knowledge.get().getCommand());
@@ -34,9 +33,9 @@ public class KnowledgebaseDogsServiceImpl implements KnowledgebaseDogsService {
             knowledgebaseDto.setCommandDescription(knowledge.get().getCommandDescription());
 
             return knowledgebaseDto;
-
         } else {
-            throw new NullPointerException("Такая команда не найдена");
+            System.out.println("Такая команда не найдена");
+            return null;
         }
     }
 

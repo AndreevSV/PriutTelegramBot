@@ -19,13 +19,11 @@ import java.util.Optional;
 public class KnowledgebaseCatsServiceImpl implements KnowledgebaseCatsService {
 
     private final KnowledgebaseCatsRepository knowledgebaseCatsRepository;
-    private final TelegramBot telegramBot;
-//    private final Update update;
-
-
     @Override
     public KnowledgebaseDto findMessageByCommand(String command) {
+
         Optional<KnowledgebaseCats> knowledge = knowledgebaseCatsRepository.findByCommand(command);
+
         if (knowledge.isPresent()) {
 
             KnowledgebaseDto knowledgebaseDto = new KnowledgebaseDto();
@@ -36,9 +34,10 @@ public class KnowledgebaseCatsServiceImpl implements KnowledgebaseCatsService {
 
             return knowledgebaseDto;
         } else {
-//            telegramBot.execute(new SendMessage(update.message().chat().id(), "Такая команда не найдена"));
+            System.out.println("Такая команда не найдена.");
+            return null;
         }
-        return null;
+
     }
 
 
