@@ -1,10 +1,9 @@
 package omg.group.priuttelegrambot.service;
 
-import omg.group.priuttelegrambot.dto.animals.CatDto;
-import omg.group.priuttelegrambot.entity.animals.Cat;
-import omg.group.priuttelegrambot.entity.animals.enimalsenum.CatsBreed;
-import omg.group.priuttelegrambot.entity.animals.enimalsenum.Sex;
-import org.springframework.http.HttpStatus;
+import omg.group.priuttelegrambot.dto.pets.CatDto;
+import omg.group.priuttelegrambot.entity.pets.Cat;
+import omg.group.priuttelegrambot.entity.pets.petsenum.CatsBreed;
+import omg.group.priuttelegrambot.entity.pets.petsenum.Sex;
 
 import java.util.Date;
 import java.util.List;

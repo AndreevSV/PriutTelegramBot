@@ -2,6 +2,7 @@ package omg.group.priuttelegrambot.service;
 
 import omg.group.priuttelegrambot.dto.owners.OwnerCatDto;
 import omg.group.priuttelegrambot.dto.owners.OwnerDogDto;
+import omg.group.priuttelegrambot.entity.owners.OwnerCat;
 import omg.group.priuttelegrambot.entity.owners.OwnerDog;
 import org.springframework.http.HttpStatus;
 
@@ -28,10 +29,13 @@ public interface OwnersDogsService {
 
     OwnerDogDto findDogsVolunteer();
 
+    void setVolunteer(Long id, List<Long> dogsIds);
+
     default OwnerDog constructOwner(OwnerDogDto ownerDto) {
 
         OwnerDog owner = new OwnerDog();
 
+        owner.setId(ownerDto.getId());
         owner.setUserName(ownerDto.getUserName());
         owner.setName(ownerDto.getName());
         owner.setSurname(ownerDto.getSurname());
@@ -45,13 +49,10 @@ public interface OwnersDogsService {
         owner.setDateIncome(ownerDto.getDateIncome());
         owner.setDateOutcome(ownerDto.getDateOutcome());
         owner.setBecameClient(ownerDto.getBecameClient());
-        owner.setIsVolunteer(ownerDto.getIsVolunteer());
-        owner.setDogId(ownerDto.getDogId());
-        owner.setFirstProbation(ownerDto.getFirstProbation());
-        owner.setProbationStarts(ownerDto.getProbationStarts());
-        owner.setProbationEnds(ownerDto.getProbationEnds());
-        owner.setPassedProbation(ownerDto.getPassedProbation());
+        owner.setIsVolunteer(owner.getIsVolunteer());
+        owner.setDogs(ownerDto.getDogs());
         owner.setChatId(ownerDto.getChatId());
+        owner.setVolunteer(owner.getVolunteer());
 
         return owner;
     }
@@ -60,6 +61,7 @@ public interface OwnersDogsService {
 
         OwnerDogDto ownerDto = new OwnerDogDto();
 
+        ownerDto.setId(owner.getId());
         ownerDto.setUserName(owner.getUserName());
         ownerDto.setName(owner.getName());
         ownerDto.setSurname(owner.getSurname());
@@ -74,12 +76,9 @@ public interface OwnersDogsService {
         ownerDto.setDateOutcome(owner.getDateOutcome());
         ownerDto.setBecameClient(owner.getBecameClient());
         ownerDto.setIsVolunteer(owner.getIsVolunteer());
-        ownerDto.setDogId(owner.getDogId());
-        ownerDto.setFirstProbation(owner.getFirstProbation());
-        ownerDto.setProbationStarts(owner.getProbationStarts());
-        ownerDto.setProbationEnds(owner.getProbationEnds());
-        ownerDto.setPassedProbation(owner.getPassedProbation());
+        ownerDto.setDogs(owner.getDogs());
         ownerDto.setChatId(owner.getChatId());
+        ownerDto.setVolunteer(owner.getVolunteer());
 
         return ownerDto;
     }

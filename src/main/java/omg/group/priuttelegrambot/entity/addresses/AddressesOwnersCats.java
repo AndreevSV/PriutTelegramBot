@@ -8,7 +8,7 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 import omg.group.priuttelegrambot.entity.owners.OwnerCat;
 
-import java.util.Collection;
+import java.util.List;
 
 @EqualsAndHashCode(callSuper = true)
 @Data
@@ -17,6 +17,6 @@ import java.util.Collection;
 public class AddressesOwnersCats extends Addresses {
 
     @OneToMany(mappedBy = "address")
-    private Collection<OwnerCat> clientsCats;
+    private List<OwnerCat> clientsCats;
 
 }

@@ -1,13 +1,14 @@
 package omg.group.priuttelegrambot.service.impl;
 
 
+import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import omg.group.priuttelegrambot.dto.owners.OwnerDogDto;
-import omg.group.priuttelegrambot.entity.owners.OwnerCat;
+import omg.group.priuttelegrambot.entity.pets.Dog;
 import omg.group.priuttelegrambot.entity.owners.OwnerDog;
-import omg.group.priuttelegrambot.repository.OwnersDogsRepository;
+import omg.group.priuttelegrambot.repository.pets.DogsRepository;
+import omg.group.priuttelegrambot.repository.owners.OwnersDogsRepository;
 import omg.group.priuttelegrambot.service.OwnersDogsService;
-import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
@@ -21,6 +22,7 @@ import java.util.stream.Collectors;
 public class OwnersDogsServiceImpl implements OwnersDogsService {
 
     private final OwnersDogsRepository ownersDogsRepository;
+    private final DogsRepository dogsRepository;
 
     @Override
     public void add(OwnerDogDto ownerDto) {
@@ -111,7 +113,7 @@ public class OwnersDogsServiceImpl implements OwnersDogsService {
     @Override
     public OwnerDogDto findDogsVolunteer() {
 
-        Optional<OwnerDog> ownerOptional = ownersDogsRepository.findFirstByVolunteerIsTrue();
+        Optional<OwnerDog> ownerOptional = ownersDogsRepository.findVolunteerByVolunteerIsTrueAndChatsOpenedMinimum();
 
         if (ownerOptional.isPresent()) {
             OwnerDog owner = ownerOptional.get();
@@ -122,7 +124,26 @@ public class OwnersDogsServiceImpl implements OwnersDogsService {
         }
     }
 
+    @Override
+    public void setVolunteer(Long id, List<Long> dogsIds) {
+
+        OwnerDog owner = ownersDogsRepository.findById(id)
+                .orElseThrow(() -> new EntityNotFoundException("Волонтер с таким id " + id + " не найден."));
+        owner.setIsVolunteer(true);
+        owner.setUpdatedAt(LocalDateTime.now());
+        owner.setChatsOpened(0);
+
+        List<Dog> dogs = dogsRepository.findAllById(dogsIds);
+        for (Dog dog : dogs) {
+            dog.setOwnerDog(owner);
+        }
+
+        owner.setDogs(dogs);
+        ownersDogsRepository.save(owner);
+    }
 }
+
+
 
 
 

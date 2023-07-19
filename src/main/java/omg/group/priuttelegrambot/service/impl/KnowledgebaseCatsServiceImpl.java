@@ -1,13 +1,10 @@
 package omg.group.priuttelegrambot.service.impl;
 
-import com.pengrad.telegrambot.TelegramBot;
-import com.pengrad.telegrambot.model.Update;
-import com.pengrad.telegrambot.request.SendMessage;
 import lombok.Data;
 import lombok.RequiredArgsConstructor;
 import omg.group.priuttelegrambot.dto.knowledgebase.KnowledgebaseDto;
 import omg.group.priuttelegrambot.entity.knowledgebases.KnowledgebaseCats;
-import omg.group.priuttelegrambot.repository.KnowledgebaseCatsRepository;
+import omg.group.priuttelegrambot.repository.knowledgebases.KnowledgebaseCatsRepository;
 import omg.group.priuttelegrambot.service.KnowledgebaseCatsService;
 import org.springframework.stereotype.Service;
 

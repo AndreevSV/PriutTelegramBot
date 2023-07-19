@@ -4,7 +4,7 @@
 //import lombok.Data;
 //import lombok.RequiredArgsConstructor;
 //import omg.group.priuttelegrambot.dto.reports.ReportsDto;
-//import omg.group.priuttelegrambot.entity.report.CatsReport;
+//import omg.group.priuttelegrambot.entity.report.ReportCat;
 //import omg.group.priuttelegrambot.repository.ReportsCatsRepository;
 //import org.springframework.beans.factory.annotation.Autowired;
 //import org.springframework.stereotype.Service;
@@ -20,7 +20,7 @@
 //    public void savePhoto(Update update) {
 //        if (update.message().photo() != null) {
 //
-//            reportsCatsRepository.save(new CatsReport());
+//            reportsCatsRepository.save(new ReportCat());
 //        }
 //
 //    }

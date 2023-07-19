@@ -2,7 +2,6 @@ package omg.group.priuttelegrambot.service;
 
 import omg.group.priuttelegrambot.dto.owners.OwnerCatDto;
 import omg.group.priuttelegrambot.entity.owners.OwnerCat;
-import org.springframework.http.HttpStatus;
 
 import java.util.List;
 
@@ -26,10 +25,15 @@ public interface OwnersCatsService {
 
     void deleteById(Long id);
 
+    OwnerCatDto findCatsVolunteer();
+
+    void setVolunteer(Long id, List<Long> catsIds);
+
     default OwnerCat constructOwner(OwnerCatDto ownerDto) {
 
         OwnerCat owner = new OwnerCat();
 
+        owner.setId(ownerDto.getId());
         owner.setUserName(ownerDto.getUserName());
         owner.setName(ownerDto.getName());
         owner.setSurname(ownerDto.getSurname());
@@ -43,13 +47,10 @@ public interface OwnersCatsService {
         owner.setDateIncome(ownerDto.getDateIncome());
         owner.setDateOutcome(ownerDto.getDateOutcome());
         owner.setBecameClient(ownerDto.getBecameClient());
-        owner.setIsVolunteer(ownerDto.getIsVolunteer());
-        owner.setCatId(ownerDto.getCatId());
-        owner.setFirstProbation(ownerDto.getFirstProbation());
-        owner.setProbationStarts(ownerDto.getProbationStarts());
-        owner.setProbationEnds(ownerDto.getProbationEnds());
-        owner.setPassedProbation(ownerDto.getPassedProbation());
+        owner.setIsVolunteer(owner.getIsVolunteer());
+        owner.setCats(ownerDto.getCats());
         owner.setChatId(ownerDto.getChatId());
+        owner.setVolunteer(owner.getVolunteer());
 
         return owner;
     }
@@ -58,6 +59,7 @@ public interface OwnersCatsService {
 
         OwnerCatDto ownerDto = new OwnerCatDto();
 
+        ownerDto.setId(owner.getId());
         ownerDto.setUserName(owner.getUserName());
         ownerDto.setName(owner.getName());
         ownerDto.setSurname(owner.getSurname());
@@ -72,15 +74,12 @@ public interface OwnersCatsService {
         ownerDto.setDateOutcome(owner.getDateOutcome());
         ownerDto.setBecameClient(owner.getBecameClient());
         ownerDto.setIsVolunteer(owner.getIsVolunteer());
-        ownerDto.setCatId(owner.getCatId());
-        ownerDto.setFirstProbation(owner.getFirstProbation());
-        ownerDto.setProbationStarts(owner.getProbationStarts());
-        ownerDto.setProbationEnds(owner.getProbationEnds());
-        ownerDto.setPassedProbation(owner.getPassedProbation());
+        ownerDto.setCats(owner.getCats());
         ownerDto.setChatId(owner.getChatId());
+        ownerDto.setVolunteer(owner.getVolunteer());
+
 
         return ownerDto;
     }
 
-    OwnerCatDto findCatsVolunteer();
 }

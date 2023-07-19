@@ -2,8 +2,7 @@ package omg.group.priuttelegrambot.entity.owners;
 
 import jakarta.persistence.*;
 import jakarta.validation.constraints.Email;
-import lombok.Data;
-import lombok.RequiredArgsConstructor;
+import lombok.*;
 import org.springframework.format.annotation.DateTimeFormat;
 
 import java.time.LocalDateTime;
@@ -59,19 +58,14 @@ public abstract class Owner {
     @Column(name = "volunteer")
     private Boolean isVolunteer;
 
-    @Column(name = "first_probation")
-    private Boolean firstProbation;
-
-    @Column(name = "probation_starts")
-    private LocalDateTime probationStarts;
-
-    @Column(name = "probation_ends")
-    private LocalDateTime probationEnds;
-
-    @Column(name = "passed_probation")
-    private Boolean passedProbation;
-
     @Column(name = "chat_id")
     private Long chatId;
+
+//    @Column(name = "volunteer_id")
+//    private Long volunteerId;
+
+    @Column(name = "chats_opened")
+    private Integer chatsOpened;
+
 
 }

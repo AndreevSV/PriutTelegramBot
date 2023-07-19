@@ -1,12 +1,13 @@
 package omg.group.priuttelegrambot.service.impl;
 
+import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import omg.group.priuttelegrambot.dto.owners.OwnerCatDto;
+import omg.group.priuttelegrambot.entity.pets.Cat;
 import omg.group.priuttelegrambot.entity.owners.OwnerCat;
-import omg.group.priuttelegrambot.repository.OwnersCatsRepository;
-import omg.group.priuttelegrambot.repository.OwnersCatsRepositoryCustom;
+import omg.group.priuttelegrambot.repository.pets.CatsRepository;
+import omg.group.priuttelegrambot.repository.owners.OwnersCatsRepository;
 import omg.group.priuttelegrambot.service.OwnersCatsService;
-import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
@@ -20,6 +21,7 @@ import java.util.stream.Collectors;
 public class OwnersCatsServiceImpl implements OwnersCatsService {
 
     private final OwnersCatsRepository ownersCatsRepository;
+    private final CatsRepository catsRepository;
 
     @Override
     public void add(OwnerCatDto ownerCatDto) {
@@ -53,7 +55,8 @@ public class OwnersCatsServiceImpl implements OwnersCatsService {
             OwnerCatDto ownerDto = constructOwnerDto(owner);
             return Collections.singletonList(ownerDto);
         } else {
-            throw new NullPointerException(String.format("Клиент с id %d не найден", id));
+            System.out.println((String.format("Клиент с id %d не найден", id)));
+            return null;
         }
     }
 
@@ -109,10 +112,10 @@ public class OwnersCatsServiceImpl implements OwnersCatsService {
     @Override
     public OwnerCatDto findCatsVolunteer() {
 
-        Optional<OwnerCat> ownerOptional = ownersCatsRepository.findFirstByVolunteerIsTrue();
+        Optional<OwnerCat> volunteer = ownersCatsRepository.findVolunteerByVolunteerIsTrueAndChatsOpenedMinimum();
 
-        if (ownerOptional.isPresent()) {
-            OwnerCat owner = ownerOptional.get();
+        if (volunteer.isPresent()) {
+            OwnerCat owner = volunteer.get();
             return constructOwnerDto(owner);
         } else {
             System.out.println("Свободный волонтер не найден. Повторите попытку позже");
@@ -120,4 +123,21 @@ public class OwnersCatsServiceImpl implements OwnersCatsService {
         }
     }
 
+    @Override
+    public void setVolunteer(Long id, List<Long> catsIds) {
+
+        OwnerCat owner = ownersCatsRepository.findById(id)
+                .orElseThrow(() -> new EntityNotFoundException("Волонтер с таким id " + id + " не найден."));
+        owner.setIsVolunteer(true);
+        owner.setUpdatedAt(LocalDateTime.now());
+        owner.setChatsOpened(0);
+
+        List<Cat> cats = catsRepository.findAllById(catsIds);
+        for (Cat cat : cats) {
+            cat.setOwnerCat(owner);
+        }
+
+        owner.setCats(cats);
+        ownersCatsRepository.save(owner);
+    }
 }

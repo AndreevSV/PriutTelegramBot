@@ -1,13 +1,11 @@
 package omg.group.priuttelegrambot.entity.owners;
 
 import jakarta.persistence.*;
-import lombok.Data;
-import lombok.EqualsAndHashCode;
-import lombok.RequiredArgsConstructor;
+import lombok.*;
 import omg.group.priuttelegrambot.entity.addresses.AddressesOwnersDogs;
-import omg.group.priuttelegrambot.entity.animals.Dog;
+import omg.group.priuttelegrambot.entity.pets.Dog;
 
-import java.util.Collection;
+import java.util.List;
 
 @EqualsAndHashCode(callSuper = true)
 @Data
@@ -16,18 +14,17 @@ import java.util.Collection;
 @Table(name = "clients_dogs")
 public class OwnerDog extends Owner {
 
-    @Column(name = "dog_id")
-    private Long dogId;
-
     @ManyToOne
     @JoinColumn(name = "address", referencedColumnName = "id")
     private AddressesOwnersDogs address;
 
-    @OneToOne
-    @JoinColumn(name = "id")
+    @ManyToOne
+    @JoinColumn(name = "volunteer_id", referencedColumnName = "id")
     private OwnerDog volunteer;
 
     @OneToMany(mappedBy = "ownerDog")
-    private Collection<Dog> dogs;
+    @ToString.Exclude
+    private List<Dog> dogs;
+
 
 }

@@ -47,16 +47,6 @@ public class OwnerDto {
 
     private Boolean isVolunteer;
 
-    private Boolean firstProbation;
-
-    @Pattern(regexp = "") //!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-    private LocalDateTime probationStarts;
-
-    @Pattern(regexp = "") //!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-    private LocalDateTime probationEnds;
-
-    private Boolean passedProbation;
-
     private Long chatId;
 
 }

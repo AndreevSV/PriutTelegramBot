@@ -2,13 +2,12 @@ package omg.group.priuttelegrambot.service.impl;
 
 import lombok.Data;
 import lombok.RequiredArgsConstructor;
-import omg.group.priuttelegrambot.dto.animals.DogDto;
-import omg.group.priuttelegrambot.entity.animals.Dog;
-import omg.group.priuttelegrambot.entity.animals.enimalsenum.DogsBreed;
-import omg.group.priuttelegrambot.entity.animals.enimalsenum.Sex;
-import omg.group.priuttelegrambot.repository.DogsRepository;
+import omg.group.priuttelegrambot.dto.pets.DogDto;
+import omg.group.priuttelegrambot.entity.pets.Dog;
+import omg.group.priuttelegrambot.entity.pets.petsenum.DogsBreed;
+import omg.group.priuttelegrambot.entity.pets.petsenum.Sex;
+import omg.group.priuttelegrambot.repository.pets.DogsRepository;
 import omg.group.priuttelegrambot.service.DogsService;
-import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;

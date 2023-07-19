@@ -1,6 +1,5 @@
 package omg.group.priuttelegrambot.entity.report;
 
-import jakarta.annotation.PostConstruct;
 import lombok.Data;
 import lombok.RequiredArgsConstructor;
 import org.jetbrains.annotations.NotNull;
@@ -69,7 +68,6 @@ public class ReportDogBoolean {
 
         return reportDogBoolean;
     }
-
 
     public ReportDogBoolean reportFalse() {
         ReportDogBoolean reportDogBoolean = new ReportDogBoolean();

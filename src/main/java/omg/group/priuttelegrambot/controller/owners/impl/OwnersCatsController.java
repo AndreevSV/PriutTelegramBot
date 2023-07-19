@@ -157,8 +157,6 @@ public class OwnersCatsController {
         return ResponseEntity.ok(ownersCatsService.getAll());
     }
 
-
-    @DeleteMapping("/{id}")
     @Operation(
             summary = "Удаление клиента из клиентской базы",
             description = "Клиент удаляется из базы клиентов путем введения его идентификатора"
@@ -175,9 +173,73 @@ public class OwnersCatsController {
                     }
             )
     })
+    @DeleteMapping("/{id}")
     public ResponseEntity<HttpStatus> deleteById(@PathVariable Long id) {
         ownersCatsService.deleteById(id);
         return ResponseEntity.ok().build();
     }
+
+
+    @Operation(
+            summary = "Установление сотруднику статуса Волонтера и назначение ему курируемых животных",
+            description = "Сотрудник ищется по id и ему передается список id курируемых животных json-файла"
+    )
+    @ApiResponses(value = {
+            @ApiResponse(
+                    responseCode = "200",
+                    description = "Статус на статус Волонтер успешно обновлен и ему назначены животные",
+                    content = {
+                            @Content(
+                                    mediaType = "application/json",
+                                    array = @ArraySchema(schema = @Schema(implementation = OwnerCat.class))
+                            )
+                    }
+            ),
+            @ApiResponse(
+                    responseCode = "400",
+                    description = "Параметры запроса отсутствуют или имеют некорректный формат"
+
+            ),
+            @ApiResponse(
+                    responseCode = "500",
+                    description = "Произошла ошибка, не зависящая от вызывающей стороны"
+            )
+    })
+    @PutMapping("/volunteer/{id}")
+    public ResponseEntity<HttpStatus> setVolunteer(@PathVariable Long id, @RequestBody List<Long> catsIds) {
+        ownersCatsService.setVolunteer(id, catsIds);
+        return ResponseEntity.ok().build();
+    }
+
+//    @Operation(
+//            summary = "Установление животному хозяина и назначение хозяину испытательный срок",
+//            description = "Сотрудник ищется по id и ему передается список id курируемых животных json-файла"
+//    )
+//    @ApiResponses(value = {
+//            @ApiResponse(
+//                    responseCode = "200",
+//                    description = "Статус на статус Волонтер успешно обновлен и ему назначены животные",
+//                    content = {
+//                            @Content(
+//                                    mediaType = "application/json",
+//                                    array = @ArraySchema(schema = @Schema(implementation = OwnerCat.class))
+//                            )
+//                    }
+//            ),
+//            @ApiResponse(
+//                    responseCode = "400",
+//                    description = "Параметры запроса отсутствуют или имеют некорректный формат"
+//
+//            ),
+//            @ApiResponse(
+//                    responseCode = "500",
+//                    description = "Произошла ошибка, не зависящая от вызывающей стороны"
+//            )
+//    })
+//    @PutMapping("/owner/{id}")
+//    public ResponseEntity<HttpStatus> setAnimalToOwnerAndSetStartOfProbationPeriod(@PathVariable Long id, @RequestBody List<Long> catsIds) {
+//        ownersCatsService.setVolunteer(id, catsIds);
+//        return ResponseEntity.ok().build();
+//    }
 
 }

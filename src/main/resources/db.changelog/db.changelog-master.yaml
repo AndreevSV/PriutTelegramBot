@@ -98,3 +98,85 @@ databaseChangeLog:
               - column:
                   name: date_of_last_report
                   type: DATE
+  - changeSet:
+      id: 6
+      author: AndreevVS
+      changes:
+        - dropColumn:
+            tableName: clients_cats
+            columnName: cat_id
+        - dropColumn:
+            tableName: clients_dogs
+            columnName: dog_id
+        - addColumn:
+            tableName: clients_cats
+            columns:
+              - column:
+                  name: volunteer_id
+                  type: BIGINT
+                  constraints:
+                    nullable: true
+                    foreignKeyName: fk_volunteer_id
+                    references:
+                      tableName: clients_cats
+                      columnNames: id
+        - addColumn:
+            tableName: clients_dogs
+            columns:
+              - column:
+                  name: volunteer_id
+                  type: BIGINT
+                  constraints:
+                    nullable: true
+                    foreignKeyName: fk_volunteer_id
+                    references:
+                      tableName: clients_dogs
+                      columnNames: id
+        - sqlFile:
+            path: db.changelog/init4.sql
+
+  - changeSet:
+      id: 7
+      author: AndreevSV
+      changes:
+        - sqlFile:
+            path: db.changelog/init5.sql
+
+  - changeSet:
+      id: 8
+      author: AndreevSV
+      changes:
+        - addColumn:
+            tableName: clients_cats
+            columns:
+              - column:
+                  name: chats_opened
+                  type: INTEGER
+        - addColumn:
+            tableName: clients_dogs
+            columns:
+              - column:
+                  name: chats_opened
+                  type: INTEGER
+  - changeSet:
+      id: 9
+      author: AndreevSV
+      changes:
+        - addColumn:
+            tableName: chat_cats
+            columns:
+              - column:
+                  name: answer_text
+                  type: TEXT
+              - column:
+                  name: answer_sent
+                  type: BOOLEAN
+        - addColumn:
+            tableName: chat_dogs
+            columns:
+              - column:
+                    name: answer_text
+                    type: TEXT
+              - column:
+                  name: answer_sent
+                  type: BOOLEAN
