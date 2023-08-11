@@ -22,7 +22,7 @@ public class OwnerCat extends Owner {
     @JoinColumn(name = "volunteer_id", referencedColumnName = "id")
     private OwnerCat volunteer;
 
-    @OneToMany(mappedBy = "ownerCat")
+    @OneToMany(mappedBy = "ownerCat", fetch = FetchType.EAGER)
     @ToString.Exclude
     private List<Cat> cats;
 

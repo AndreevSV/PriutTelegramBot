@@ -32,9 +32,9 @@ public class PetsHandler {
                 new InlineKeyboardButton("Приют для собак").callbackData("/dog"));
 
         SendMessage sendMessage = new SendMessage(chatId, String.format("""
-                Привет %s
-                Вы запустили бот
-                *приютов собак и кошек*
+                Привет *%s* !
+                
+                Вы запустили бот *приютов собак и кошек*
                 Выберите необходимый приют ниже:
                 """, userName))
                 .parseMode(ParseMode.Markdown)

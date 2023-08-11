@@ -113,13 +113,12 @@ public class OwnersDogsServiceImpl implements OwnersDogsService {
     @Override
     public OwnerDogDto findDogsVolunteer() {
 
-        Optional<OwnerDog> ownerOptional = ownersDogsRepository.findVolunteerByVolunteerIsTrueAndChatsOpenedMinimum();
+        Optional<OwnerDog> ownerOptional = ownersDogsRepository.findVolunteerByVolunteerIsTrueAndNoChatsOpened();
 
         if (ownerOptional.isPresent()) {
             OwnerDog owner = ownerOptional.get();
             return constructOwnerDto(owner);
         } else {
-            System.out.println(("Свободный волонтер не найден. Повторите попытку позже"));
             return null;
         }
     }
@@ -131,7 +130,7 @@ public class OwnersDogsServiceImpl implements OwnersDogsService {
                 .orElseThrow(() -> new EntityNotFoundException("Волонтер с таким id " + id + " не найден."));
         owner.setIsVolunteer(true);
         owner.setUpdatedAt(LocalDateTime.now());
-        owner.setChatsOpened(0);
+        owner.setVolunteerChatOpened(false);
 
         List<Dog> dogs = dogsRepository.findAllById(dogsIds);
         for (Dog dog : dogs) {

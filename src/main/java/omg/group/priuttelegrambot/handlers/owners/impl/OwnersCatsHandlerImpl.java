@@ -1,41 +1,36 @@
 package omg.group.priuttelegrambot.handlers.owners.impl;
 
 import com.pengrad.telegrambot.TelegramBot;
+import com.pengrad.telegrambot.model.Message;
 import com.pengrad.telegrambot.model.Update;
 import com.pengrad.telegrambot.model.request.InlineKeyboardButton;
 import com.pengrad.telegrambot.model.request.InlineKeyboardMarkup;
 import com.pengrad.telegrambot.model.request.ParseMode;
 import com.pengrad.telegrambot.request.SendMessage;
-import omg.group.priuttelegrambot.dto.owners.OwnerCatDto;
+import com.pengrad.telegrambot.response.SendResponse;
 import omg.group.priuttelegrambot.entity.chats.ChatCats;
 import omg.group.priuttelegrambot.entity.owners.OwnerCat;
-import omg.group.priuttelegrambot.entity.pets.Cat;
 import omg.group.priuttelegrambot.handlers.owners.OwnersCatsHandler;
 import omg.group.priuttelegrambot.handlers.pets.CatsHandler;
 import omg.group.priuttelegrambot.repository.chats.ChatsCatsRepository;
 import omg.group.priuttelegrambot.repository.owners.OwnersCatsRepository;
-import omg.group.priuttelegrambot.service.OwnersCatsService;
-import org.jetbrains.annotations.NotNull;
 import org.springframework.stereotype.Service;
 
-import java.util.List;
+import java.time.LocalDateTime;
 import java.util.Optional;
 
 @Service
 public class OwnersCatsHandlerImpl implements OwnersCatsHandler {
     private final TelegramBot telegramBot;
-    private final OwnersCatsService ownersCatsService;
     private final OwnersCatsRepository ownersCatsRepository;
     private final ChatsCatsRepository chatsCatsRepository;
     private final CatsHandler catsHandler;
 
     public OwnersCatsHandlerImpl(TelegramBot telegramBot,
-                                 OwnersCatsService ownersCatsService,
                                  OwnersCatsRepository ownersCatsRepository,
                                  ChatsCatsRepository chatsCatsRepository,
                                  CatsHandler catsHandler) {
         this.telegramBot = telegramBot;
-        this.ownersCatsService = ownersCatsService;
         this.ownersCatsRepository = ownersCatsRepository;
         this.chatsCatsRepository = chatsCatsRepository;
         this.catsHandler = catsHandler;
@@ -53,210 +48,197 @@ public class OwnersCatsHandlerImpl implements OwnersCatsHandler {
         Long ownerChatId = 0L;
 
         if (update.callbackQuery() != null) {
-            ownerChatId = update.callbackQuery().from().id();
+            ownerChatId = update.callbackQuery().message().chat().id();
         } else if (update.message() != null) {
-            ownerChatId = update.message().from().id();
+            ownerChatId = update.message().chat().id();
         }
 
-        Optional<OwnerCat> ownerCat = ownersCatsRepository.findByChatId(ownerChatId);
+        Optional<OwnerCat> owner = ownersCatsRepository.findByChatId(ownerChatId);
 
-        if (ownerCat.isPresent()) {
+        if (owner.isPresent()) {
+            // If owner exist in clients_cats database - immediately call a volunteer
 
-            startingChat(ownerCat.get());
+            startingChat(owner.get());
 
         } else {
+            // If owner doesn't exist in clients_cats database than register him as new user and send a call to volunteer
 
             catsHandler.newOwnerRegister(update);
 
             Optional<OwnerCat> ownerCatNew = ownersCatsRepository.findByChatId(ownerChatId);
 
-            startingChat(ownerCatNew.get());
+            if (ownerCatNew.isPresent()) {
+
+                startingChat(ownerCatNew.get());
+            }
         }
     }
 
-
+    // Method sends inquiry to volunteer for starting a chat
     @Override
-    public void startingChat(OwnerCat ownerCat) {
+    public void startingChat(OwnerCat owner) {
 
-        if (ownerCat != null) {
+        Long ownerChatId = owner.getChatId();
+        Long ownerId = owner.getTelegramUserId();
 
-            Long ownerId = ownerCat.getId();
-            Long ownerChatId = ownerCat.getChatId();
+        Optional<ChatCats> chatOptional = chatsCatsRepository.findByOwnerCatId(ownerId);
 
-            Optional<ChatCats> chatCats = chatsCatsRepository.findByOwnerCatId(ownerId);
+        if (chatOptional.isPresent()) {
+            //  If owner already has a chat send him a message about it
 
-            if (chatCats.isPresent()) {
+            InlineKeyboardMarkup inlineKeyboardMarkup = new InlineKeyboardMarkup();
 
-                SendMessage sendMessage = new SendMessage(ownerChatId, """
-                        У вас уже открыт чат с волонтером.
-                        Пожалуйста, дождитесь ответа, либо
-                        напишите свой вопрос.
-                        Чтобы закрыть чат введите команду
-                        /close
+            inlineKeyboardMarkup.addRow(
+                    new InlineKeyboardButton("Завершить").callbackData("/cats_close"));
+
+            SendMessage messageToOwner = new SendMessage(ownerChatId, """
+                    Вы уже ведете чат с волонтером.
+                    Введите свой вопрос. Для
+                    прекращения нажмите *Завершить*
+                    или введите команду */cats_close*
+                    """)
+                    .parseMode(ParseMode.Markdown)
+                    .replyMarkup(inlineKeyboardMarkup);
+
+            telegramBot.execute(messageToOwner);
+
+        } else {
+            // If owner hasn't a chat searches for a free volunteer
+
+            Optional<OwnerCat> volunteerOptional = ownersCatsRepository
+                    .findVolunteerByVolunteerIsTrueAndNoChatsOpened();
+
+            if (volunteerOptional.isEmpty()) {
+
+                // If no free volunteer exist send to owner a message about it
+
+                SendMessage messageToOwner = new SendMessage(ownerChatId, """
+                        К сожалению в настоящее время
+                        нет свободных волонтеров, которые
+                        могут вас проконсультировать.
+                        Пожалуйста, обратитесь позднее.
                         """)
                         .parseMode(ParseMode.Markdown);
 
-                telegramBot.execute(sendMessage);
+                telegramBot.execute(messageToOwner);
 
             } else {
-                OwnerCatDto volunteerDto = ownersCatsService.findCatsVolunteer();
-                Long volunteerChatId = volunteerDto.getChatId();
 
-                OwnerCat volunteer = ownersCatsService.constructOwner(volunteerDto);
+                // If free volunteer exist set a chat with him
 
-                InlineKeyboardMarkup inlineKeyboardMarkup = new InlineKeyboardMarkup();
-                inlineKeyboardMarkup.addRow(
-                        new InlineKeyboardButton("Ответить").callbackData("/cats_reply"),
-                        new InlineKeyboardButton("Завершить").callbackData("/cats_close"));
+                OwnerCat volunteer = volunteerOptional.get();
 
-                SendMessage sendMessage = new SendMessage(volunteerChatId, """
-                        Клиенту требуется консультация.
-                        Пожалуйста, свяжитесь с ним в
-                        ближайшее время, нажав *"Ответить"*.
-                        По кончанию диалога нажмите *Завершить*
-                        """)
-                        .parseMode(ParseMode.Markdown)
-                        .replyMarkup(inlineKeyboardMarkup);
+                Long volunteerChatId = volunteer.getChatId();
 
-                telegramBot.execute(sendMessage);
+                volunteer.setVolunteerChatOpened(true);
+
+                ownersCatsRepository.save(volunteer);
+
+                // Set new chat in chat_cats database
 
                 ChatCats chat = new ChatCats();
 
                 chat.setIsChatting(false); // Till volunteer haven't pushed button /reply chat is not started
-                chat.setOwnerCat(ownerCat);
+                chat.setOwnerCat(owner);
                 chat.setVolunteerCat(volunteer);
+                chat.setCreatedAt(LocalDateTime.now());
 
                 chatsCatsRepository.save(chat);
+
+                // Send message to volunteer
+
+                InlineKeyboardMarkup inlineKeyboardMarkup = new InlineKeyboardMarkup();
+
+                inlineKeyboardMarkup.addRow(
+                        new InlineKeyboardButton("Ответить").callbackData("/cats_reply"),
+                        new InlineKeyboardButton("Завершить").callbackData("/cats_close"));
+
+                SendMessage messageToVolunteer = new SendMessage(volunteerChatId, """
+                        Клиенту требуется консультация.
+                        Пожалуйста, свяжитесь с ним в
+                        ближайшее время, нажав *"Ответить"*.
+                        По завершению чата нажмите *Завершить*
+                        или введите команду */cats_close*
+                        """)
+                        .parseMode(ParseMode.Markdown)
+                        .replyMarkup(inlineKeyboardMarkup);
+
+                telegramBot.execute(messageToVolunteer);
+
+                // Send message to owner
+
+                SendMessage messageToOwner = new SendMessage(ownerChatId, """
+                        Волонтеру направлен запрос на чат
+                        с вами. Пожалуйста, дождитесь
+                        ответа волонтера, либо введите
+                        команду */cats_close* для завершения.
+                        """)
+                        .parseMode(ParseMode.Markdown);
+
+                telegramBot.execute(messageToOwner);
+
             }
         }
     }
 
 
     /**
-     * Method starts a chat when volunteer clicks on button "Ответить" - "/cats_reply" command
+     * Method starts a chat when volunteer pushes on button "Ответить" - "/cats_reply" command
      */
     @Override
     public void executeReplyButtonCommandForVolunteer(Update update) {
 
-        OwnerCat volunteer = returnVolunteerFromUpdate(update);
+        Long volunteerChatId = update.callbackQuery().message().chat().id();
+        Long volunteerTelegramUserId = update.callbackQuery().message().from().id();
 
-        if (volunteer != null) {
+        Optional<ChatCats> chatOptional = chatsCatsRepository.findByVolunteerCatId(volunteerChatId);
 
-            int chatsOpened = volunteer.getChatsOpened();
-            chatsOpened = chatsOpened + 1;
-            volunteer.setChatsOpened(chatsOpened);
+        if (chatOptional.isPresent()) {
 
-            ownersCatsRepository.save(volunteer); // Increase chats where volunteer is answers
+            ChatCats chat = chatOptional.get();
 
-            Long volunteerId = volunteer.getId();
+            Long ownerTelegramUserId = chatOptional.get().getOwnerCat().getTelegramUserId();
+            Long ownerChatId = chatOptional.get().getOwnerCat().getChatId();
 
-            List<ChatCats> chats = chatsCatsRepository.findByIsChattingFalseAndVolunteerCatId(volunteerId);
+            SendMessage groupMessage = new SendMessage(ownerTelegramUserId, "/newgroup@priut_OMG_bot " + volunteerTelegramUserId);
+            SendResponse sendResponse = telegramBot.execute(groupMessage);
 
-            if (!chats.isEmpty()) {
-                if (chats.size() == 1) {
+            Message groupChat = sendResponse.message();
 
-                    Long ownerChatId = chats.get(0).getOwnerCat().getChatId();
+            if (groupChat != null && groupChat.chat() != null) {
 
-                    Long volunteerChatId = chats.get(0).getVolunteerCat().getChatId();
+                Long chatId = groupChat.chat().id();
 
-                    ChatCats chat = chats.get(0);
+                chat.setIsChatting(true);
+                chat.setChatId(chatId);
 
-                    chat.setIsChatting(true);
+                chatsCatsRepository.save(chat);
 
-                    chatsCatsRepository.save(chat);
+                SendMessage messageToOwner = new SendMessage(ownerChatId, """
+                        Волонтер подтвердил готовность
+                        проконсультровать Вас. Для
+                        этого был создан новый чат.
+                        Напишите ему свой вопрос.
+                        Для завершения отправьте команду
+                        */cats_close* в созданном чате.
+                        """)
+                        .parseMode(ParseMode.Markdown);
 
-                    SendMessage messageToOwner = new SendMessage(ownerChatId, """
-                            Волонтер подтвердил готовность
-                            проконсультровать Вас. Введите
-                            сообщение и нажмите кнопку отправить.
-                            Для завершения консультации отправьте
-                            команду /close
-                            """)
-                            .parseMode(ParseMode.Markdown);
+                telegramBot.execute(messageToOwner);
 
-                    telegramBot.execute(messageToOwner);
+                SendMessage sendMessage = new SendMessage(volunteerChatId, """
+                        Вы подтвердили чат с клиентом.
+                        Для этого был создан новый чат.
+                        Дождитесь вопроса от него.
+                        Для завершения отправьте команду
+                        */cats_close* в созданном чате.
+                        """)
+                        .parseMode(ParseMode.Markdown);
 
-                    SendMessage sendMessage = new SendMessage(volunteerChatId, """
-                            Вы подтвердили чат с клиентом.
-                            Дождитесь ответа от него. Для
-                            завершения консультации введите
-                            команду /close
-                            """)
-                            .parseMode(ParseMode.Markdown);
+                telegramBot.execute(sendMessage);
 
-                    telegramBot.execute(sendMessage);
-
-                } else {
-
-                    Long ownerId;
-                    String userName;
-
-                    StringBuilder stringBuilder = new StringBuilder();
-
-                    String startMessage = """
-                            У Вас несколько запросов
-                            от клиентов на консультацию:
-                            """;
-
-                    for (ChatCats chat : chats) {
-
-                        ownerId = chat.getOwnerCat().getId();
-                        userName = chat.getOwnerCat().getUserName();
-
-                        String string = String.format("""
-                                Клиент # - %d, имя пользователя - %s
-                                """, ownerId, userName);
-
-                        stringBuilder.append(string);
-                    }
-
-                    Long volunteerChatId = chats.get(0).getVolunteerCat().getChatId();
-
-                    SendMessage messageToVolunteer = new SendMessage(volunteerChatId,
-                            startMessage + "\n " + stringBuilder +
-                                    "\n Отправьте номер клиента или его " +
-                                    "имя пользователя для старта чата");
-
-                    telegramBot.execute(messageToVolunteer);
-                }
             }
         }
-    }
-
-    @Override
-    public OwnerCat returnOwnerFromUpdate(@NotNull Update update) {
-
-        Long ownerCatChatId;
-
-        if (update.callbackQuery() != null) {
-            ownerCatChatId = update.callbackQuery().from().id();
-        } else {
-            ownerCatChatId = update.message().from().id();
-        }
-
-        Optional<OwnerCat> ownerCat = ownersCatsRepository.findByChatId(ownerCatChatId);
-
-        return ownerCat.orElse(null);
-    }
-
-    @Override
-    public OwnerCat returnVolunteerFromUpdate(@NotNull Update update) {
-
-        Long volunteerChatId;
-
-        if (update.callbackQuery() != null) {
-            volunteerChatId = update.callbackQuery().from().id();
-        } else {
-            volunteerChatId = update.message().from().id();
-        }
-
-        Optional<OwnerCat> volunteerOptional = ownersCatsRepository.findByVolunteerIsTrueAndChatId(volunteerChatId);
-
-        if (volunteerOptional.isPresent()) {
-
-            return volunteerOptional.get().getVolunteer();
-        }
-        return null;
     }
 
     /**
@@ -265,132 +247,92 @@ public class OwnersCatsHandlerImpl implements OwnersCatsHandler {
     @Override
     public void executeCloseButtonCommand(Update update) {
 
-        OwnerCat ownerCat = returnOwnerFromUpdate(update);
+        Long ownerOrVolunteerId = update.message().from().id();
 
-        if (ownerCat != null) {
+        Optional<ChatCats> chatByOwnerOptional = chatsCatsRepository.findByOwnerCatId(ownerOrVolunteerId);
 
-            Long ownerId = ownerCat.getId();
+        if (chatByOwnerOptional.isEmpty()) {
 
-            Optional<ChatCats> chatOptional = chatsCatsRepository.findByIsChattingTrueAndOwnerCatId(ownerId);
+            Optional<ChatCats> chatByVolunteerOptional = chatsCatsRepository
+                    .findByVolunteerCatId(ownerOrVolunteerId);
 
-            if (chatOptional.isPresent()) {
+            if (chatByVolunteerOptional.isPresent()) {
 
-                Long ownerChatId = chatOptional.get().getOwnerCat().getChatId();
+                ChatCats chat = chatByVolunteerOptional.get();
+                Long ownerChatId = chat.getOwnerCat().getTelegramUserId();
+                String userName = chat.getOwnerCat().getUserName();
+                Long volunteerChatId = chat.getVolunteerCat().getTelegramUserId();
+                Long chatId = chat.getChatId();
 
-                String userName = chatOptional.get().getOwnerCat().getUserName();
+                chatsCatsRepository.delete(chat);
 
-                Long volunteerChatId = chatOptional.get().getVolunteerCat().getChatId();
 
-                chatsCatsRepository.delete(chatOptional.get());
+                Optional<OwnerCat> volunteerOptional = ownersCatsRepository
+                        .findByVolunteerIsTrueAndChatId(volunteerChatId);
 
-                OwnerCat volunteer = returnVolunteerFromUpdate(update);
+                if (volunteerOptional.isPresent()) {
 
-                if (volunteer != null) {
+                    OwnerCat volunteer = volunteerOptional.get();
+                    volunteer.setVolunteerChatOpened(false);
+                    ownersCatsRepository.save(volunteer);
 
-                    int chatsOpened = volunteer.getChatsOpened();
-                    chatsOpened = chatsOpened - 1;
-                    volunteer.setChatsOpened(chatsOpened);
+                    SendMessage sendMessage = new SendMessage(volunteerChatId, String.format("""
+                            Вы закрыли чат со следующим
+                            клиентом: %s
+                            """, userName))
+                            .parseMode(ParseMode.Markdown);
 
-                    ownersCatsRepository.save(volunteer); // Decrease chats where volunteer is answers
+                    telegramBot.execute(sendMessage);
+
+                    // !!!!!!!!!!!!!!!!!!!!!!!!!!!!!! Вставить клавиатуру!!!!!!!!!!!!!!!!!!!!!!!!!)
 
                     SendMessage messageToOwner = new SendMessage(ownerChatId, """
-                            Вы завершили чат с волонтером.
+                            Волонтер закрыл чат с вами.
+                            Для новой консультации нажмите
+                            кнопку *Позвать волонтера*
                             """)
                             .parseMode(ParseMode.Markdown);
 
                     telegramBot.execute(messageToOwner);
-
-                    SendMessage messageToVolunteer = new SendMessage(volunteerChatId, String.format("""
-                            Пользователь %s завершил чат с вами.
-                            Диалог закрыт и удален из базы.
-                            """, userName))
-                            .parseMode(ParseMode.Markdown);
-
-                    telegramBot.execute(messageToVolunteer);
                 }
-            } else {
+            }
+        } else {
 
-                OwnerCat volunteer = returnVolunteerFromUpdate(update);
+            ChatCats chat = chatByOwnerOptional.get();
+            Long ownerChatId = chat.getOwnerCat().getTelegramUserId();
+            String userName = chat.getOwnerCat().getUserName();
+            Long volunteerChatId = chat.getVolunteerCat().getTelegramUserId();
+            Long chatId = chat.getChatId();
 
-                if (volunteer != null) {
+            chatsCatsRepository.delete(chat);
 
-                    Long volunteerId = volunteer.getId();
+            Optional<OwnerCat> volunteerOptional = ownersCatsRepository
+                    .findByVolunteerIsTrueAndChatId(volunteerChatId);
 
-                    List<ChatCats> chats = chatsCatsRepository.findByIsChattingTrueAndVolunteerCatId(volunteerId);
+            if (volunteerOptional.isPresent()) {
 
-                    if (!chats.isEmpty()) {
+                OwnerCat volunteer = volunteerOptional.get();
+                volunteer.setVolunteerChatOpened(false);
+                ownersCatsRepository.save(volunteer);
 
-                        if (chats.size() == 1) {
+                SendMessage messageToOwner = new SendMessage(ownerChatId, """
+                        Вы завершили чат с волонтером.
+                        """)
+                        .parseMode(ParseMode.Markdown);
 
-                            Long ownerChatId = chats.get(0).getOwnerCat().getChatId();
+                telegramBot.execute(messageToOwner);
 
-                            Long volunteerChatId = chats.get(0).getVolunteerCat().getChatId();
+                SendMessage messageToVolunteer = new SendMessage(volunteerChatId, String.format("""
+                        Пользователь %s завершил чат с вами.
+                        Диалог закрыт и удален из базы.
+                        """, userName))
+                        .parseMode(ParseMode.Markdown);
 
-                            ChatCats chat = chats.get(0);
-
-                            chatsCatsRepository.delete(chat);
-
-                            SendMessage messageToOwner = new SendMessage(ownerChatId, """
-                                    Волонтер закрыл чат с вами.
-                                    Для новой консультации нажмите
-                                    кнопку *Позвать волонтера*
-                                    """)
-                                    .parseMode(ParseMode.Markdown);
-
-                            telegramBot.execute(messageToOwner);
-
-                            String userName = chat.getOwnerCat().getUserName();
-
-                            SendMessage sendMessage = new SendMessage(volunteerChatId, String.format("""
-                                    Вы закрыли чат со следующим
-                                    клиентом: %s
-                                    """, userName))
-                                    .parseMode(ParseMode.Markdown);
-
-                            telegramBot.execute(sendMessage);
-
-                        } else {
-
-                            String userName;
-
-                            StringBuilder stringBuilder = new StringBuilder();
-
-                            String startMessage = """
-                                    У Вас несколько чатов в работе.
-                                    Укажите номер или имя пользователя,
-                                    с которым хотите завершить чат.
-                                    """;
-
-                            for (ChatCats chat : chats) {
-
-                                ownerId = chat.getOwnerCat().getId();
-                                userName = chat.getOwnerCat().getUserName();
-                                String text = chat.getMessageText();
-
-                                String string = String.format("""
-                                        Клиент # - %d, имя пользователя - %s, последнее сообщение:
-                                        %s
-                                                                                
-                                        """, ownerId, userName, text);
-
-                                stringBuilder.append(string);
-                            }
-
-                            Long volunteerChatId = volunteer.getChatId();
-
-                            SendMessage messageToVolunteer = new SendMessage(volunteerChatId,
-                                    startMessage + "\n " + stringBuilder +
-                                            "\n Отправьте номер клиента или его " +
-                                            "имя пользователя для старта чата");
-
-                            telegramBot.execute(messageToVolunteer);
-
-                        }
-                    }
-                }
+                telegramBot.execute(messageToVolunteer);
             }
         }
     }
+
 
     /**
      * Method that receives message and sand it to client or volunteer
@@ -398,94 +340,38 @@ public class OwnersCatsHandlerImpl implements OwnersCatsHandler {
     @Override
     public void sendMessageReceived(Update update) {
 
-        if (update.message().text() != null) {
+        Long ownerOrVolunteerId = update.message().from().id();
 
-            Integer messageId = update.message().messageId();
+        Optional<ChatCats> chatByOwnerOptional = chatsCatsRepository.findByOwnerCatId(ownerOrVolunteerId);
+
+        if (chatByOwnerOptional.isEmpty()) {
+
+            Optional<ChatCats> chatByVolunteerOptional = chatsCatsRepository
+                    .findByVolunteerCatId(ownerOrVolunteerId);
+
+            if (chatByVolunteerOptional.isPresent()) {
+
+                String text = update.message().text();
+
+                ChatCats chat = chatByVolunteerOptional.get();
+                Long chatId = chat.getChatId();
+
+                SendMessage message = new SendMessage(chatId, text);
+
+                telegramBot.execute(message);
+            }
+        } else {
+
             String text = update.message().text();
 
-            OwnerCat ownerOrVolunteer = returnOwnerFromUpdate(update);
+            ChatCats chat = chatByOwnerOptional.get();
+            Long chatId = chat.getChatId();
 
-            Long ownerOrVolunteerId = ownerOrVolunteer.getId();
+            SendMessage message = new SendMessage(chatId, text);
 
-            if (chatsCatsRepository.findByIsChattingTrueAndOwnerCatId(ownerOrVolunteerId).isPresent()) {
-
-                Optional<ChatCats> chat = chatsCatsRepository.findByIsChattingTrueAndOwnerCatId(ownerOrVolunteerId);
-
-                if (chat.isPresent()) {
-
-                    chat.get().setLastMessageId(messageId);
-                    chat.get().setMessageText(text);
-
-                    chatsCatsRepository.save(chat.get());
-
-                    Long volunteerChatId = chat.get().getVolunteerCat().getChatId();
-
-                    SendMessage messageToVolunteer = new SendMessage(volunteerChatId, text);
-
-                    telegramBot.execute(messageToVolunteer);
-                }
-
-            } else if (!chatsCatsRepository.findByVolunteerCatId(ownerOrVolunteerId).isEmpty()) {
-
-                List<ChatCats> chats = chatsCatsRepository.findByVolunteerCatId(ownerOrVolunteerId);
-
-                if (chats.size() == 1) {
-
-                    Long ownerChatId = chats.get(0).getOwnerCat().getChatId();
-
-                    int lastMessageId = chats.get(0).getLastMessageId();
-
-                    SendMessage messageToOwner = new SendMessage(ownerChatId, text)
-                            .replyToMessageId(lastMessageId);
-
-                    telegramBot.execute(messageToOwner);
-
-                } else {
-
-                    StringBuilder stringBuilder = new StringBuilder();
-
-                    String startMessage = """
-                            У Вас несколько чатов в работе.
-                            Укажите номер или имя пользователя,
-                            которому отвечаете.
-                             """;
-
-                    for (ChatCats chat : chats) {
-
-                        Long ownerId = chat.getOwnerCat().getId();
-                        String userName = chat.getOwnerCat().getUserName();
-                        String savedText = chat.getMessageText();
-
-                        String string = String.format("""
-                                Клиент # - %d, имя пользователя - %s, последнее сообщение от клиента:
-                                %s
-                                                                        
-                                """, ownerId, userName, savedText);
-
-                        stringBuilder.append(string);
-                    }
-
-                    Long volunteerChatId = chats.get(0).getVolunteerCat().getChatId();
-
-                    SendMessage messageToVolunteer = new SendMessage(volunteerChatId,
-                            startMessage + "\n " +
-                                    stringBuilder + "\n" + """
-                                    Для отправки сообщения отправьте
-                                    номер клиента или имя пользователя.
-                                    Номер или имя начните со знака *
-                                    и без пробела номер, либо имя.
-                                    """);
-
-                    telegramBot.execute(messageToVolunteer);
-                }
-            }
+            telegramBot.execute(message);
         }
     }
 
-    @Override
-    public ChatCats returnOneChatToAnswer(Update update) {
-
-
-    }
-
 }
+

@@ -180,3 +180,121 @@ databaseChangeLog:
               - column:
                   name: answer_sent
                   type: BOOLEAN
+  - changeSet:
+      id: 10
+      author: AndreevSV
+      changes:
+        - addColumn:
+            tableName: chat_cats
+            columns:
+              - column:
+                  name: message_sent_time
+                  type: TIMESTAMP
+        - renameColumn:
+            tableName: chat_cats
+            oldColumnName: answer_sent
+            newColumnName: answer_sent_time
+            columnDataType: TIMESTAMP
+        - addColumn:
+            tableName: chat_dogs
+            columns:
+              - column:
+                  name: message_sent_time
+                  type: TIMESTAMP
+        - renameColumn:
+            tableName: chat_dogs
+            oldColumnName: answer_sent
+            newColumnName: answer_sent_time
+            columnDataType: TIMESTAMP
+  - changeSet:
+      id: 11
+      author: AndreevSV
+      changes:
+        - addColumn:
+            tableName: chat_cats
+            columns:
+              - column:
+                  name: created_at
+                  type: TIMESTAMP
+        - addColumn:
+            tableName: chat_dogs
+            columns:
+              - column:
+                  name: created_at
+                  type: TIMESTAMP
+  - changeSet:
+      id: 12
+      author: AndreevSV
+      changes:
+        - dropColumn:
+            tableName: chat_cats
+            columnName: answer_sent_time
+        - dropColumn:
+            tableName: chat_dogs
+            columnName: answer_sent_time
+        - addColumn:
+            tableName: chat_cats
+            columns:
+              - column:
+                  name: answer_sent_time
+                  type: TIMESTAMP
+        - addColumn:
+            tableName: chat_dogs
+            columns:
+              - column:
+                  name: answer_sent_time
+                  type: TIMESTAMP
+  - changeSet:
+      id: 13
+      author: AndreevSV
+      changes:
+        - sqlFile:
+            path: db.changelog/init6.sql
+  - changeSet:
+      id: 14
+      author: AndreevSV
+      changes:
+        - addColumn:
+            tableName: chat_cats
+            columns:
+              - column:
+                  name: chat_id
+                  type: BIGINT
+        - addColumn:
+            tableName: chat_dogs
+            columns:
+              - column:
+                  name: chat_id
+                  type: BIGINT
+  - changeSet:
+      id: 15
+      author: AndreevSV
+      changes:
+        - addColumn:
+            tableName: clients_cats
+            columns:
+              - column:
+                  name: telegram_user_id
+                  type: BIGINT
+        - addColumn:
+            tableName: clients_dogs
+            columns:
+              - column:
+                  name: telegram_user_id
+                  type: BIGINT
+  - changeSet:
+      id: 16
+      author: AndreevSV
+      changes:
+        - addColumn:
+            tableName: clients_cats
+            columns:
+              - column:
+                  name: volunteer_chat_opened
+                  type: BOOLEAN
+        - addColumn:
+            tableName: clients_dogs
+            columns:
+              - column:
+                  name: volunteer_chat_opened
+                  type: BOOLEAN

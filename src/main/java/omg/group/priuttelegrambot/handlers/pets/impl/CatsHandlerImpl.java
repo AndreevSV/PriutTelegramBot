@@ -164,6 +164,7 @@ public class CatsHandlerImpl implements CatsHandler {
     public void newOwnerRegister(@NotNull Update update) {
 
         Long chatId = 0L;
+        Long telegramUserId = 0L;
         String userName = "";
         String firstName = "";
         String lastName = "";
@@ -175,12 +176,14 @@ public class CatsHandlerImpl implements CatsHandler {
             firstName = update.message().from().firstName();
             lastName = update.message().from().lastName();
             date = update.message().date();
+            telegramUserId = update.message().from().id();
         } else if (update.callbackQuery() != null) {
             chatId = update.callbackQuery().message().chat().id();
             userName = update.callbackQuery().from().username();
             firstName = update.callbackQuery().from().firstName();
             lastName = update.callbackQuery().from().lastName();
             date = update.callbackQuery().message().date();
+            telegramUserId = update.callbackQuery().message().from().id();
         }
 
         LocalDateTime registrationDate = Instant.ofEpochSecond(date)
@@ -196,6 +199,8 @@ public class CatsHandlerImpl implements CatsHandler {
             ownerCatDto.setSurname(lastName);
             ownerCatDto.setIsVolunteer(false);
             ownerCatDto.setCreatedAt(registrationDate);
+            ownerCatDto.setTelegramUserId(telegramUserId);
+            ownerCatDto.setVolunteerChatOpened(false);
 
             ownersCatsService.add(ownerCatDto);
         }
@@ -207,7 +212,16 @@ public class CatsHandlerImpl implements CatsHandler {
     @Override
     public OwnerCat checkForOwnerExist(Update update) {
 
-        Long chatId = update.message().from().id();
+        Long chatId = 0L;
+
+        if (update.callbackQuery() != null) {
+            chatId = update.callbackQuery().message().chat().id();
+        } else if (update.message() != null && update.message().photo() == null) {
+            chatId = update.message().chat().id();
+        } else if (update.message() != null && update.message().photo() != null) {
+            chatId = update.message().chat().id();
+        }
+
         Optional<OwnerCat> ownerCat = ownersCatsRepository.findByChatId(chatId);
 
         if (ownerCat.isPresent()) {
@@ -215,9 +229,11 @@ public class CatsHandlerImpl implements CatsHandler {
         } else {
             InlineKeyboardMarkup inlineKeyboardMarkup = formInlineKeyboardForTakeMenuButton();
             telegramBot.execute(new SendMessage(chatId, """
-                    Вы еще не зарегистрированы как владелец животного.
-                    Просмотрите информацию, как взять себе питомца.
-                    Для этого нажмите соответствующу кнопку ниже""")
+                    Вы еще не зарегистрированы как
+                    владелец животного. Просмотрите
+                    информацию, как взять себе питомца.
+                    Для этого нажмите соответствующу 
+                    кнопку ниже""")
                     .parseMode(ParseMode.Markdown)
                     .replyMarkup(inlineKeyboardMarkup));
             return new OwnerCat();
@@ -228,6 +244,7 @@ public class CatsHandlerImpl implements CatsHandler {
      * Method checks if Owner has a Cat(s)
      */
     @Override
+    @Transactional
     public List<Cat> checkForOwnerHasCat(OwnerCat ownerCat) {
 
         Long chatId = ownerCat.getChatId();
@@ -239,8 +256,10 @@ public class CatsHandlerImpl implements CatsHandler {
             telegramBot.execute(new SendMessage(chatId, """
                     У Вас еще нет домашнего питомца
                     и Вы не можете отправлять отчет.
-                    Просмотрите информацию, как взять себе питомца.
-                    Для этого нажмите соответствующу кнопку ниже""")
+                    Просмотрите информацию, как взять
+                    себе питомца. Для этого нажмите
+                    соответствующу кнопку ниже
+                    """)
                     .parseMode(ParseMode.Markdown)
                     .replyMarkup(inlineKeyboardMarkup));
             return new ArrayList<>();
@@ -258,7 +277,7 @@ public class CatsHandlerImpl implements CatsHandler {
             List<Cat> catsOnProbation = new ArrayList<>();
 
             for (Cat cat : cats) {
-                if (cat.getFirstProbation().equals(true) || cat.getSecondProbation().equals(true)) {
+                if ((cat.getFirstProbation() != null && cat.getFirstProbation().equals(true)) || ((cat.getSecondProbation() != null && cat.getSecondProbation().equals(true)))) {
                     catsOnProbation.add(cat);
                 }
             }
@@ -314,8 +333,6 @@ public class CatsHandlerImpl implements CatsHandler {
 
         List<Cat> cats = returnCatsOnProbation(update);
 
-        Long idCat = Long.valueOf(text);
-
         if (!checkForCatsOnProbationMoreThanOne(cats) && !cats.isEmpty()) {
 
             return cats.get(0);
@@ -349,6 +366,8 @@ public class CatsHandlerImpl implements CatsHandler {
 
         } else if (checkForCatsOnProbationMoreThanOne(cats) && !update.message().text().isEmpty()) {
 
+            Long idCat = Long.valueOf(text);
+
             boolean found = false;
 
             for (Cat cat : cats) {
@@ -365,6 +384,12 @@ public class CatsHandlerImpl implements CatsHandler {
                         """);
                 telegramBot.execute(message);
             }
+        } else {
+            SendMessage message = new SendMessage(chatId, """
+                    У вас нет животного на испытательном
+                    сроке, вы не можете ничего отправить.
+                    """);
+            telegramBot.execute(message);
         }
         return null;
     }
@@ -393,82 +418,95 @@ public class CatsHandlerImpl implements CatsHandler {
     @Transactional
     public void receivePhoto(Update update) {
 
-        Long chatId = 0L;
-        PhotoSize[] photos = new PhotoSize[0];
+        Long chatId =0L;
+        PhotoSize[] photos = null;
         Integer date = null;
 
-        if (update.message() != null) {
-            chatId = update.message().chat().id();
-            photos = update.message().photo();
-            date = update.message().date();
-        } else if (update.callbackQuery() != null) {
-            chatId = update.callbackQuery().message().chat().id();
-        }
+        if (checkForProbationPeriodSetAndValid(update)) {
 
-        PhotoSize photo = photos[photos.length - 1];
-        String fileId = photo.fileId();
-        String filePath = "https://api.telegram.org/bot" + token + "/getFile?file_id=" + fileId;
+            if (update.message() != null && update.message().photo() != null) {
+                chatId = update.message().chat().id();
+                photos = update.message().photo();
+                date = update.message().date();
 
-        LocalDateTime localDateTime = Instant.ofEpochSecond(date)
-                .atZone(ZoneId.systemDefault())
-                .toLocalDateTime();
+                PhotoSize photo = photos[photos.length - 1];
+                String fileId = photo.fileId();
+                String filePath = "https://api.telegram.org/bot" + token + "/getFile?file_id=" + fileId;
 
-        Cat cat = returnOneCatOnProbation(update);
+                LocalDateTime localDateTime = Instant.ofEpochSecond(date)
+                        .atZone(ZoneId.systemDefault())
+                        .toLocalDateTime();
 
-        Long clientId = cat.getOwnerCat().getId();
-        Long catId = cat.getId();
+                Cat cat = returnOneCatOnProbation(update);
 
-        if (!isReportExist(update)) { // If report for today not exist
+                Long clientId = cat.getOwnerCat().getId();
+                Long catId = cat.getId();
 
-            ReportCat report = new ReportCat(); // Set new report with filePath
-            report.setClientId(clientId);
-            report.setAnimalId(catId);
-            report.setPath(filePath);
-            report.setCreatedAt(localDateTime);
-            report.setDateReport(LocalDate.now());
-            report.setDateLastReport(LocalDate.now().plusDays(DAYS_OF_PROBATION));
+                if (!isReportExist(update)) { // If report for today not exist
 
-            reportsCatsRepository.save(report); // Save photoPath in report
+                    ReportCat report = new ReportCat(); // Set new report with filePath
+                    report.setClientId(clientId);
+                    report.setAnimalId(catId);
+                    report.setPath(filePath);
+                    report.setCreatedAt(localDateTime);
+                    report.setDateReport(LocalDate.now());
+                    report.setDateLastReport(LocalDate.now().plusDays(DAYS_OF_PROBATION));
 
-            InlineKeyboardMarkup inlineKeyboardMarkup = formInlineKeyboardForSendReportButton();
-            telegramBot.execute(new SendMessage(chatId, """
-                    Создан новый отчет за сегодняший день и
-                    высланная фотография успешно сохранена.
-                    Вам необходимо отослать следующую информацию:
-                    - рацион животного;
-                    - самочувствие животного;
-                    - произошедшие изменения.
-                    Для этого нажмите соответствующую кнопку""")
-                    .parseMode(ParseMode.Markdown)
-                    .replyMarkup(inlineKeyboardMarkup));
+                    reportsCatsRepository.save(report); // Save photoPath in report
 
-        } else if (isReportExist(update)) {
+                    InlineKeyboardMarkup inlineKeyboardMarkup = formInlineKeyboardForSendReportButton();
+                    telegramBot.execute(new SendMessage(chatId, """
+                            Создан новый отчет за сегодняший
+                            день и высланная фотография успешно
+                            сохранена. Вам необходимо отослать
+                            следующую информацию:
+                            - рацион животного;
+                            - самочувствие животного;
+                            - произошедшие изменения.
+                            Для этого нажмите соответствующую
+                            кнопку
+                            """)
+                            .parseMode(ParseMode.Markdown)
+                            .replyMarkup(inlineKeyboardMarkup));
 
-            Optional<ReportCat> report = reportsCatsRepository
-                    .findByClientIdAndAnimalIdAndDateReport(clientId, catId, LocalDate.now());
+                } else if (isReportExist(update)) {
 
-            if (report.isPresent() && report.get().getPath().isEmpty()) {
+                    Optional<ReportCat> report = reportsCatsRepository
+                            .findByClientIdAndAnimalIdAndDateReport(clientId, catId, LocalDate.now());
 
-                report.get().setPath(filePath);
-                report.get().setUpdatedAt(LocalDateTime.now());
+                    if (report.isPresent() && report.get().getPath().isEmpty()) {
 
-                reportsCatsRepository.save(report.get());
+                        report.get().setPath(filePath);
+                        report.get().setUpdatedAt(LocalDateTime.now());
 
+                        reportsCatsRepository.save(report.get());
+
+                        InlineKeyboardMarkup inlineKeyboardMarkup = formInlineKeyboardForSendReportButton();
+                        telegramBot.execute(new SendMessage(chatId, """
+                                *Фотография успешно сохранена*.
+                                Выберите следующую команду:""")
+                                .parseMode(ParseMode.Markdown)
+                                .replyMarkup(inlineKeyboardMarkup));
+
+                    }
+                    if (report.isPresent() && !report.get().getPath().isEmpty() &&
+                            reportsCatsRepository.findByPath(filePath).isPresent()) {
+
+                        InlineKeyboardMarkup inlineKeyboardMarkup = formInlineKeyboardForSendReportButton();
+                        telegramBot.execute(new SendMessage(chatId, """
+                                Вы уже отсылали такую фотографию.
+                                Отошлите свежую фотографию.""")
+                                .parseMode(ParseMode.Markdown)
+                                .replyMarkup(inlineKeyboardMarkup));
+                    }
+                }
+            } else {
                 InlineKeyboardMarkup inlineKeyboardMarkup = formInlineKeyboardForSendReportButton();
                 telegramBot.execute(new SendMessage(chatId, """
-                        *Фотография успешно сохранена*.
-                        Выберите следующую команду:""")
-                        .parseMode(ParseMode.Markdown)
-                        .replyMarkup(inlineKeyboardMarkup));
-
-            }
-            if (report.isPresent() && !report.get().getPath().isEmpty() &&
-                    reportsCatsRepository.findByPath(filePath).isPresent()) {
-
-                InlineKeyboardMarkup inlineKeyboardMarkup = formInlineKeyboardForSendReportButton();
-                telegramBot.execute(new SendMessage(chatId, """
-                        Вы уже отсылали такую фотографию.
-                        Отошлите свежую фотографию.""")
+                                Вы пытаетесь отослать не фотографию.
+                                Для отсылки фотографии нажмите снова
+                                команду *Отправить фото*.
+                                """)
                         .parseMode(ParseMode.Markdown)
                         .replyMarkup(inlineKeyboardMarkup));
             }
@@ -481,85 +519,90 @@ public class CatsHandlerImpl implements CatsHandler {
      */
     @Override
     public void receiveRation(Update update) {
-        Long chatId = 0L;
-        Integer date = null;
-        String text = "";
 
-        if (update.message() != null) {
-            chatId = update.message().chat().id();
-            date = update.message().date();
-            text = update.message().text();
-        } else if (update.callbackQuery() != null) {
-            chatId = update.callbackQuery().message().chat().id();
-        }
+        if (checkForProbationPeriodSetAndValid(update)) {
+            Long chatId = 0L;
+            Integer date = null;
+            String text = "";
 
-        LocalDateTime localDateTime = Instant.ofEpochSecond(date)
-                .atZone(ZoneId.systemDefault())
-                .toLocalDateTime();
+            if (update.message() != null) {
+                chatId = update.message().chat().id();
+                date = update.message().date();
+                text = update.message().text();
+            } else if (update.callbackQuery() != null) {
+                chatId = update.callbackQuery().message().chat().id();
+            }
 
-        Cat cat = returnOneCatOnProbation(update);
+            LocalDateTime localDateTime = Instant.ofEpochSecond(date)
+                    .atZone(ZoneId.systemDefault())
+                    .toLocalDateTime();
 
-        Long clientId = cat.getOwnerCat().getId();
-        Long catId = cat.getId();
+            Cat cat = returnOneCatOnProbation(update);
 
-        if (!isReportExist(update)) { // If report for today not exist
+            Long clientId = cat.getOwnerCat().getId();
+            Long catId = cat.getId();
 
-            ReportCat report = new ReportCat(); // Set new report with filePath
-            report.setClientId(clientId);
-            report.setAnimalId(catId);
-            report.setRation(text);
-            report.setCreatedAt(localDateTime);
-            report.setDateReport(LocalDate.now());
-            report.setDateLastReport(LocalDate.now().plusDays(DAYS_OF_PROBATION));
+            if (!isReportExist(update)) { // If report for today not exist
 
-            reportsCatsRepository.save(report);
+                ReportCat report = new ReportCat(); // Set new report with filePath
+                report.setClientId(clientId);
+                report.setAnimalId(catId);
+                report.setRation(text);
+                report.setCreatedAt(localDateTime);
+                report.setDateReport(LocalDate.now());
+                report.setDateLastReport(LocalDate.now().plusDays(DAYS_OF_PROBATION));
 
-            InlineKeyboardMarkup inlineKeyboardMarkup = formInlineKeyboardForSendReportButton();
-            telegramBot.execute(new SendMessage(chatId, """
-                    Создан новый отчет за сегодняший день и
-                    высланный рацион успешно сохранен.
-                    Вам необходимо дополнительно отослать
-                    следующую информацию:
-                    - фотограцию животного;
-                    - самочувствие животного;
-                    - произошедшие изменения.
-                    Для этого нажмите соответствующую кнопку
-                    """)
-                    .parseMode(ParseMode.Markdown)
-                    .replyMarkup(inlineKeyboardMarkup));
-
-        } else if (isReportExist(update)) {
-
-            Optional<ReportCat> report = reportsCatsRepository
-                    .findByClientIdAndAnimalIdAndDateReport(clientId, catId, LocalDate.now());
-
-            if (report.isPresent() && report.get().getRation().isEmpty()) {
-
-                report.get().setRation(text);
-                report.get().setUpdatedAt(LocalDateTime.now());
-
-                reportsCatsRepository.save(report.get());
+                reportsCatsRepository.save(report);
 
                 InlineKeyboardMarkup inlineKeyboardMarkup = formInlineKeyboardForSendReportButton();
                 telegramBot.execute(new SendMessage(chatId, """
-                        *Введеный *рацион* успешно сохранен*.
-                        Выберите следующую команду:
+                        Создан новый отчет за сегодняший
+                        день и высланный рацион успешно
+                        сохранен. Вам необходимо 
+                        дополнительно отослать следующую 
+                        информацию:
+                        - фотограцию животного;
+                        - самочувствие животного;
+                        - произошедшие изменения.
+                        Для этого нажмите соответствующую 
+                        кнопку
                         """)
                         .parseMode(ParseMode.Markdown)
                         .replyMarkup(inlineKeyboardMarkup));
 
-            }
-            if (report.isPresent() && !report.get().getRation().isEmpty()) {
+            } else if (isReportExist(update)) {
 
-                String ration = report.get().getRation();
+                Optional<ReportCat> report = reportsCatsRepository
+                        .findByClientIdAndAnimalIdAndDateReport(clientId, catId, LocalDate.now());
 
-                InlineKeyboardMarkup inlineKeyboardMarkup = formInlineKeyboardForSendReportButton();
-                telegramBot.execute(new SendMessage(chatId, String.format("""
-                        Вы уже отсылали сегодня рацион.
-                        Вот он:
-                        %s""", ration))
-                        .parseMode(ParseMode.Markdown)
-                        .replyMarkup(inlineKeyboardMarkup));
+                if (report.isPresent() && (report.get().getRation() == null || report.get().getRation().isEmpty())) {
+
+                    report.get().setRation(text);
+                    report.get().setUpdatedAt(LocalDateTime.now());
+
+                    reportsCatsRepository.save(report.get());
+
+                    InlineKeyboardMarkup inlineKeyboardMarkup = formInlineKeyboardForSendReportButton();
+                    telegramBot.execute(new SendMessage(chatId, """
+                            *Введеный *рацион* успешно сохранен*.
+                            Выберите следующую команду:
+                            """)
+                            .parseMode(ParseMode.Markdown)
+                            .replyMarkup(inlineKeyboardMarkup));
+
+                }
+                if (report.isPresent() && !report.get().getRation().isEmpty()) {
+
+                    String ration = report.get().getRation();
+
+                    InlineKeyboardMarkup inlineKeyboardMarkup = formInlineKeyboardForSendReportButton();
+                    telegramBot.execute(new SendMessage(chatId, String.format("""
+                            Вы уже отсылали сегодня рацион.
+                            Вот он:
+                            %s""", ration))
+                            .parseMode(ParseMode.Markdown)
+                            .replyMarkup(inlineKeyboardMarkup));
+                }
             }
         }
     }
@@ -569,87 +612,92 @@ public class CatsHandlerImpl implements CatsHandler {
      */
     @Override
     public void receiveFeeling(Update update) {
-        Long chatId = 0L;
-        Integer date = null;
-        String text = "";
 
-        if (update.message() != null) {
-            chatId = update.message().chat().id();
-            date = update.message().date();
-            text = update.message().text();
-        } else if (update.callbackQuery() != null) {
-            chatId = update.callbackQuery().message().chat().id();
-        }
+        if (checkForProbationPeriodSetAndValid(update)) {
+            Long chatId = 0L;
+            Integer date = null;
+            String text = "";
 
-        LocalDateTime localDateTime = Instant.ofEpochSecond(date)
-                .atZone(ZoneId.systemDefault())
-                .toLocalDateTime();
+            if (update.message() != null) {
+                chatId = update.message().chat().id();
+                date = update.message().date();
+                text = update.message().text();
+            } else if (update.callbackQuery() != null) {
+                chatId = update.callbackQuery().message().chat().id();
+            }
 
-        Cat cat = returnOneCatOnProbation(update);
+            LocalDateTime localDateTime = Instant.ofEpochSecond(date)
+                    .atZone(ZoneId.systemDefault())
+                    .toLocalDateTime();
 
-        Long clientId = cat.getOwnerCat().getId();
-        Long catId = cat.getId();
+            Cat cat = returnOneCatOnProbation(update);
 
-        if (!isReportExist(update)) { // If report for today not exist
+            Long clientId = cat.getOwnerCat().getId();
+            Long catId = cat.getId();
 
-            ReportCat report = new ReportCat(); // Set new report with filePath
-            report.setClientId(clientId);
-            report.setAnimalId(catId);
-            report.setFeeling(text);
-            report.setCreatedAt(localDateTime);
-            report.setDateReport(LocalDate.now());
-            report.setDateLastReport(LocalDate.now().plusDays(DAYS_OF_PROBATION));
+            if (!isReportExist(update)) { // If report for today not exist
 
-            reportsCatsRepository.save(report);
+                ReportCat report = new ReportCat(); // Set new report with filePath
+                report.setClientId(clientId);
+                report.setAnimalId(catId);
+                report.setFeeling(text);
+                report.setCreatedAt(localDateTime);
+                report.setDateReport(LocalDate.now());
+                report.setDateLastReport(LocalDate.now().plusDays(DAYS_OF_PROBATION));
 
-            InlineKeyboardMarkup inlineKeyboardMarkup = formInlineKeyboardForSendReportButton();
-            telegramBot.execute(new SendMessage(chatId, """
-                    Создан новый отчет за сегодняший день и
-                    высланный отчет о *самочувствии животного* успешно сохранен.
-                    Вам необходимо дополнительно отослать
-                    следующую информацию:
-                    - фотограцию животного;
-                    - рацион животного;
-                    - произошедшие изменения.
-                    Для этого нажмите соответствующую кнопку
-                    """)
-                    .parseMode(ParseMode.Markdown)
-                    .replyMarkup(inlineKeyboardMarkup));
-
-        } else if (isReportExist(update)) {
-
-            Optional<ReportCat> report = reportsCatsRepository
-                    .findByClientIdAndAnimalIdAndDateReport(clientId, catId, LocalDate.now());
-
-            if (report.isPresent() && report.get().getRation().isEmpty()) {
-
-                report.get().setFeeling(text);
-                report.get().setUpdatedAt(LocalDateTime.now());
-
-                reportsCatsRepository.save(report.get());
+                reportsCatsRepository.save(report);
 
                 InlineKeyboardMarkup inlineKeyboardMarkup = formInlineKeyboardForSendReportButton();
                 telegramBot.execute(new SendMessage(chatId, """
-                        *Введенный отчет *о самочувствии животного*
-                        успешно сохранен*.
-                        Выберите следующую команду:
+                        Создан новый отчет за сегодняший
+                        день и высланный отчет о *самочувствии
+                        животного* успешно сохранен. Вам
+                        необходимо дополнительно отослать
+                        следующую информацию:
+                        - фотограцию животного;
+                        - рацион животного;
+                        - произошедшие изменения.
+                        Для этого нажмите соответствующую
+                        кнопку
                         """)
                         .parseMode(ParseMode.Markdown)
                         .replyMarkup(inlineKeyboardMarkup));
 
-            }
-            if (report.isPresent() && !report.get().getRation().isEmpty()) {
+            } else if (isReportExist(update)) {
 
-                String feeling = report.get().getFeeling();
+                Optional<ReportCat> report = reportsCatsRepository
+                        .findByClientIdAndAnimalIdAndDateReport(clientId, catId, LocalDate.now());
 
-                InlineKeyboardMarkup inlineKeyboardMarkup = formInlineKeyboardForSendReportButton();
-                telegramBot.execute(new SendMessage(chatId, String.format("""
-                        Вы уже отсылали сегодня отчет
-                        *о самочувствии животного*.
-                        Вот он:
-                        %s""", feeling))
-                        .parseMode(ParseMode.Markdown)
-                        .replyMarkup(inlineKeyboardMarkup));
+                if (report.isPresent() && report.get().getRation().isEmpty()) {
+
+                    report.get().setFeeling(text);
+                    report.get().setUpdatedAt(LocalDateTime.now());
+
+                    reportsCatsRepository.save(report.get());
+
+                    InlineKeyboardMarkup inlineKeyboardMarkup = formInlineKeyboardForSendReportButton();
+                    telegramBot.execute(new SendMessage(chatId, """
+                            *Введенный отчет *о самочувствии
+                            животного* успешно сохранен*.
+                            Выберите следующую команду:
+                            """)
+                            .parseMode(ParseMode.Markdown)
+                            .replyMarkup(inlineKeyboardMarkup));
+
+                }
+                if (report.isPresent() && !report.get().getRation().isEmpty()) {
+
+                    String feeling = report.get().getFeeling();
+
+                    InlineKeyboardMarkup inlineKeyboardMarkup = formInlineKeyboardForSendReportButton();
+                    telegramBot.execute(new SendMessage(chatId, String.format("""
+                            Вы уже отсылали сегодня отчет
+                            *о самочувствии животного*.
+                            Вот он:
+                            %s""", feeling))
+                            .parseMode(ParseMode.Markdown)
+                            .replyMarkup(inlineKeyboardMarkup));
+                }
             }
         }
     }
@@ -659,88 +707,92 @@ public class CatsHandlerImpl implements CatsHandler {
      */
     @Override
     public void receiveChanges(Update update) {
-        Long chatId = 0L;
-        Integer date = null;
-        String text = "";
 
-        if (update.message() != null) {
-            chatId = update.message().chat().id();
-            date = update.message().date();
-            text = update.message().text();
-        } else if (update.callbackQuery() != null) {
-            chatId = update.callbackQuery().message().chat().id();
-        }
+        if (checkForProbationPeriodSetAndValid(update)) {
+            Long chatId = 0L;
+            Integer date = null;
+            String text = "";
 
-        LocalDateTime localDateTime = Instant.ofEpochSecond(date)
-                .atZone(ZoneId.systemDefault())
-                .toLocalDateTime();
+            if (update.message() != null) {
+                chatId = update.message().chat().id();
+                date = update.message().date();
+                text = update.message().text();
+            } else if (update.callbackQuery() != null) {
+                chatId = update.callbackQuery().message().chat().id();
+            }
 
-        Cat cat = returnOneCatOnProbation(update);
+            LocalDateTime localDateTime = Instant.ofEpochSecond(date)
+                    .atZone(ZoneId.systemDefault())
+                    .toLocalDateTime();
 
-        Long clientId = cat.getOwnerCat().getId();
-        Long catId = cat.getId();
+            Cat cat = returnOneCatOnProbation(update);
 
-        if (!isReportExist(update)) { // If report for today not exist
+            Long clientId = cat.getOwnerCat().getId();
+            Long catId = cat.getId();
 
-            ReportCat report = new ReportCat(); // Set new report with filePath
-            report.setClientId(clientId);
-            report.setAnimalId(catId);
-            report.setChanges(text);
-            report.setCreatedAt(localDateTime);
-            report.setDateReport(LocalDate.now());
-            report.setDateLastReport(LocalDate.now().plusDays(DAYS_OF_PROBATION));
+            if (!isReportExist(update)) { // If report for today not exist
 
-            reportsCatsRepository.save(report);
+                ReportCat report = new ReportCat(); // Set new report with filePath
+                report.setClientId(clientId);
+                report.setAnimalId(catId);
+                report.setChanges(text);
+                report.setCreatedAt(localDateTime);
+                report.setDateReport(LocalDate.now());
+                report.setDateLastReport(LocalDate.now().plusDays(DAYS_OF_PROBATION));
 
-            InlineKeyboardMarkup inlineKeyboardMarkup = formInlineKeyboardForSendReportButton();
-            telegramBot.execute(new SendMessage(chatId, """
-                    Создан новый отчет за сегодняший день и
-                    высланный отчет *об изменениях в поведении
-                    животного* успешно сохранен.
-                    Вам необходимо дополнительно отослать
-                    следующую информацию:
-                    - фотограцию животного;
-                    - рацион животного;
-                    - самочувствие животного.
-                    Для этого нажмите соответствующую кнопку
-                    """)
-                    .parseMode(ParseMode.Markdown)
-                    .replyMarkup(inlineKeyboardMarkup));
-
-        } else if (isReportExist(update)) {
-
-            Optional<ReportCat> report = reportsCatsRepository
-                    .findByClientIdAndAnimalIdAndDateReport(clientId, catId, LocalDate.now());
-
-            if (report.isPresent() && report.get().getChanges().isEmpty()) {
-
-                report.get().setChanges(text);
-                report.get().setUpdatedAt(LocalDateTime.now());
-
-                reportsCatsRepository.save(report.get());
+                reportsCatsRepository.save(report);
 
                 InlineKeyboardMarkup inlineKeyboardMarkup = formInlineKeyboardForSendReportButton();
                 telegramBot.execute(new SendMessage(chatId, """
-                        **Введенный отчет *об изменениях в
-                        поведении животного* успешно сохранен*.
-                        Выберите следующую команду:
+                        Создан новый отчет за сегодняший
+                        день и высланный отчет *об изменениях
+                        в поведении животного* успешно сохранен.
+                        Вам необходимо дополнительно отослать
+                        следующую информацию:
+                        - фотограцию животного;
+                        - рацион животного;
+                        - самочувствие животного.
+                        Для этого нажмите соответствующую
+                        кнопку
                         """)
                         .parseMode(ParseMode.Markdown)
                         .replyMarkup(inlineKeyboardMarkup));
 
-            }
-            if (report.isPresent() && !report.get().getRation().isEmpty()) {
+            } else if (isReportExist(update)) {
 
-                String changes = report.get().getChanges();
+                Optional<ReportCat> report = reportsCatsRepository
+                        .findByClientIdAndAnimalIdAndDateReport(clientId, catId, LocalDate.now());
 
-                InlineKeyboardMarkup inlineKeyboardMarkup = formInlineKeyboardForSendReportButton();
-                telegramBot.execute(new SendMessage(chatId, String.format("""
-                        Вы уже отсылали сегодня отчет
-                        *об изменениях в поведении животного*
-                        Вот он:
-                        %s""", changes))
-                        .parseMode(ParseMode.Markdown)
-                        .replyMarkup(inlineKeyboardMarkup));
+                if (report.isPresent() && report.get().getChanges().isEmpty()) {
+
+                    report.get().setChanges(text);
+                    report.get().setUpdatedAt(LocalDateTime.now());
+
+                    reportsCatsRepository.save(report.get());
+
+                    InlineKeyboardMarkup inlineKeyboardMarkup = formInlineKeyboardForSendReportButton();
+                    telegramBot.execute(new SendMessage(chatId, """
+                            **Введенный отчет *об изменениях в
+                            поведении животного* успешно сохранен*.
+                            Выберите следующую команду:
+                            """)
+                            .parseMode(ParseMode.Markdown)
+                            .replyMarkup(inlineKeyboardMarkup));
+
+                }
+                if (report.isPresent() && !report.get().getRation().isEmpty()) {
+
+                    String changes = report.get().getChanges();
+
+                    InlineKeyboardMarkup inlineKeyboardMarkup = formInlineKeyboardForSendReportButton();
+                    telegramBot.execute(new SendMessage(chatId, String.format("""
+                            Вы уже отсылали сегодня отчет
+                            *об изменениях в поведении животного*
+                            Вот он:
+                            %s""", changes))
+                            .parseMode(ParseMode.Markdown)
+                            .replyMarkup(inlineKeyboardMarkup));
+                }
             }
         }
     }
@@ -763,82 +815,87 @@ public class CatsHandlerImpl implements CatsHandler {
 
         Cat cat = returnOneCatOnProbation(update);
 
-        LocalDate probationStarts = cat.getProbationStarts();
-        LocalDate probationEnds = cat.getProbationEnds();
+        if (cat != null) {
+            LocalDate probationStarts = cat.getProbationStarts();
+            LocalDate probationEnds = cat.getProbationEnds();
 
-        String probationStartsString = String.format("%tF", probationStarts);
-        String probationEndsString = String.format("%tF", probationEnds);
+            String probationStartsString = String.format("%tF", probationStarts);
+            String probationEndsString = String.format("%tF", probationEnds);
 
 
-        if (probationStarts == null) {
+            if (probationStarts == null) {
 
-            InlineKeyboardMarkup inlineKeyboardMarkup = formInlineKeyboardForInfoMenuButton();
+                InlineKeyboardMarkup inlineKeyboardMarkup = formInlineKeyboardForInfoMenuButton();
 
-            telegramBot.execute(new SendMessage(chatId, """
-                    У вас еще не назначен испытательный срок.
-                    Вы не можете отправлять отчет.
-                    Если вы взяли животное, но видите это сообщение,
-                    значит Ваш менеджер не установил Вам испытательный срок.
-                    Мы отправили ему запрос на установление испытательного
-                    срока. Попробуйте отослать отчет чуть позже.
-                    Выберите следующую команду:""")
-                    .parseMode(ParseMode.Markdown)
-                    .replyMarkup(inlineKeyboardMarkup));
+                telegramBot.execute(new SendMessage(chatId, """
+                        У вас еще не назначен испытательный
+                        срок. Вы не можете отправлять отчет.
+                        Если вы взяли животное, но видите это
+                        сообщение, значит Ваш менеджер не 
+                        установил Вам испытательный срок.
+                        Мы отправили ему запрос на установление 
+                        испытательного срока. Попробуйте 
+                        отослать отчет чуть позже.
+                        Выберите следующую команду:""")
+                        .parseMode(ParseMode.Markdown)
+                        .replyMarkup(inlineKeyboardMarkup));
 
-            OwnerCat ownerCat = cat.getOwnerCat();
+                OwnerCat ownerCat = cat.getOwnerCat();
 
-            Long volunteerChatId = ownerCat.getVolunteer().getChatId();
+                Long volunteerChatId = ownerCat.getVolunteer().getChatId();
 
-            SendMessage sendMessage = new SendMessage(volunteerChatId, String.format("""
-                    Клиент %s с chatId %d пытается отправить Вам 1-й
-                    отчет по своему животному, но вы не установили
-                    ему испытательный срок в системе. Пожалуйста,
-                    установите ему испытательный срок.
-                    """, userName, chatId));
-            telegramBot.execute(sendMessage);
+                SendMessage sendMessage = new SendMessage(volunteerChatId, String.format("""
+                        Клиент %s с chatId %d пытается 
+                        отправить Вам 1-й отчет по своему 
+                        животному, но вы не установили
+                        ему испытательный срок в системе. 
+                        Пожалуйста,установите ему 
+                        испытательный срок.
+                        """, userName, chatId));
+                telegramBot.execute(sendMessage);
 
-            return false;
+                return false;
 
-        } else if ((LocalDate.now().isAfter(probationStarts) || LocalDate.now().isEqual(probationStarts)) &&
-                (LocalDate.now().isBefore(probationEnds) || LocalDate.now().isEqual(probationEnds))) {
+            } else if ((LocalDate.now().isAfter(probationStarts) || LocalDate.now().isEqual(probationStarts)) &&
+                    (LocalDate.now().isBefore(probationEnds) || LocalDate.now().isEqual(probationEnds))) {
 
-            return true;
+                return true;
 
-        } else if (LocalDate.now().isBefore(probationStarts)) {
+            } else if (LocalDate.now().isBefore(probationStarts)) {
 
-            InlineKeyboardMarkup inlineKeyboardMarkup = formPriutMainMenuButton();
+                InlineKeyboardMarkup inlineKeyboardMarkup = formPriutMainMenuButton();
 
-            SendMessage sendMessage = new SendMessage(chatId, String.format("""
-                    У вас еще не начался испытательный срок.
-                    Вы можете начать отправлять отчет начиная
-                    с %s
-                    """, probationStartsString))
-                    .parseMode(ParseMode.Markdown)
-                    .replyMarkup(inlineKeyboardMarkup);
+                SendMessage sendMessage = new SendMessage(chatId, String.format("""
+                        У вас еще не начался испытательный 
+                        срок. Вы можете начать отправлять 
+                        отчет начиная с %s
+                        """, probationStartsString))
+                        .parseMode(ParseMode.Markdown)
+                        .replyMarkup(inlineKeyboardMarkup);
 
-            telegramBot.execute(sendMessage);
+                telegramBot.execute(sendMessage);
 
-            return false;
+                return false;
 
-        } else if (LocalDate.now().isAfter(probationEnds)) {
+            } else if (LocalDate.now().isAfter(probationEnds)) {
 
-            InlineKeyboardMarkup inlineKeyboardMarkup = formPriutMainMenuButton();
+                InlineKeyboardMarkup inlineKeyboardMarkup = formPriutMainMenuButton();
 
-            SendMessage sendMessage = new SendMessage(chatId, String.format("""
-                    У вас уже закончился испытательный срок
-                    %s.
-                    Вам не нужно больше отправлять отчет.
-                    Выберите следующую команду:
-                    """, probationEndsString))
-                    .parseMode(ParseMode.Markdown)
-                    .replyMarkup(inlineKeyboardMarkup);
+                SendMessage sendMessage = new SendMessage(chatId, String.format("""
+                        У вас уже закончился испытательный срок
+                        %s.
+                        Вам не нужно больше отправлять отчет.
+                        Выберите следующую команду:
+                        """, probationEndsString))
+                        .parseMode(ParseMode.Markdown)
+                        .replyMarkup(inlineKeyboardMarkup);
 
-            telegramBot.execute(sendMessage);
+                telegramBot.execute(sendMessage);
+                return false;
+            }
         }
-
         return false;
     }
-
 }
 
 

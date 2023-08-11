@@ -6,7 +6,6 @@ import omg.group.priuttelegrambot.entity.owners.OwnerCat;
 import omg.group.priuttelegrambot.repository.owners.OwnersCatsRepositoryCustom;
 import org.springframework.stereotype.Repository;
 
-import java.util.List;
 import java.util.Optional;
 
 @Repository
@@ -16,14 +15,12 @@ public class OwnersCatsRepositoryCustomImpl implements OwnersCatsRepositoryCusto
     private EntityManager entityManager;
 
     @Override
-    public Optional<OwnerCat> findVolunteerByVolunteerIsTrueAndChatsOpenedMinimum() {
+    public Optional<OwnerCat> findVolunteerByVolunteerIsTrueAndNoChatsOpened() {
 
-        String hql = "FROM OwnerCat WHERE isVolunteer = true ORDER BY chatsOpened ASC";
+        String hql = "FROM OwnerCat WHERE isVolunteer = true AND volunteerChatOpened = false";
 
-        List<OwnerCat> owners = entityManager.createQuery(hql, OwnerCat.class)
-                .setMaxResults(1)
-                .getResultList();
-
-        return owners.isEmpty() ? Optional.empty() : Optional.of(owners.get(0));
+        return entityManager.createQuery(hql, OwnerCat.class)
+                .getResultList()
+                .stream().findAny();
     }
 }

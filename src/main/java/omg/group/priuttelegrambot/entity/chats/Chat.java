@@ -4,6 +4,8 @@ import jakarta.persistence.*;
 import lombok.Data;
 import lombok.RequiredArgsConstructor;
 
+import java.time.LocalDateTime;
+
 @Data
 @RequiredArgsConstructor
 @MappedSuperclass
@@ -15,22 +17,16 @@ public abstract class Chat {
     @Column(name = "is_chatting")
     private Boolean isChatting;
 
-    @Column(name = "message_id")
-    private int lastMessageId;
+    @Column(name = "message_sent_time")
+    private LocalDateTime messageSentTime;
 
-    @Column(name = "message_text")
-    private String messageText;
+    @Column(name = "answer_sent_time")
+    private LocalDateTime answerSentTime;
 
-    @Column(name = "answer_text")
-    private String answerText;
+    @Column(name = "created_at")
+    private LocalDateTime createdAt;
 
-    @Column(name = "answer_sent")
-    private Boolean answerSent;
-
-//    @Column(name = "owner_id")
-//    private Long ownerId;
-//
-//    @Column(name = "volunteer_id")
-//    private Long volunteerId;
+    @Column(name = "chat_id")
+    private Long chatId;
 
 }

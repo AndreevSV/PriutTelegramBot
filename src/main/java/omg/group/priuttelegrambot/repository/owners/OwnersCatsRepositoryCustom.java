@@ -8,5 +8,5 @@ import java.util.Optional;
 @Repository
 public interface OwnersCatsRepositoryCustom {
 
-    Optional<OwnerCat> findVolunteerByVolunteerIsTrueAndChatsOpenedMinimum();
+    Optional<OwnerCat> findVolunteerByVolunteerIsTrueAndNoChatsOpened();
 }

@@ -16,14 +16,12 @@ public class OwnersDogsRepositoryCustomImpl implements OwnersDogsRepositoryCusto
     private EntityManager entityManager;
 
     @Override
-    public Optional<OwnerDog> findVolunteerByVolunteerIsTrueAndChatsOpenedMinimum() {
+    public Optional<OwnerDog> findVolunteerByVolunteerIsTrueAndNoChatsOpened() {
 
-        String hql = "FROM OwnerCat WHERE isVolunteer = true ORDER BY chatsOpened ASC";
+        String hql = "FROM OwnerDog WHERE isVolunteer = true AND volunteerChatOpened = false";
 
-        List<OwnerDog> owners = entityManager.createQuery(hql, OwnerDog.class)
-                .setMaxResults(1)
-                .getResultList();
-
-        return owners.isEmpty() ? Optional.empty() : Optional.of(owners.get(0));
+        return entityManager.createQuery(hql, OwnerDog.class)
+                .getResultList()
+                .stream().findAny();
     }
 }

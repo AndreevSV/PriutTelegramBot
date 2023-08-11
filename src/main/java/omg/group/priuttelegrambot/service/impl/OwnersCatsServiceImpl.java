@@ -109,16 +109,19 @@ public class OwnersCatsServiceImpl implements OwnersCatsService {
         }
     }
 
+    /**
+     *
+     * @return free volunteer (if volunteer do not have a chat) or "null" if no free volunteer
+     */
     @Override
     public OwnerCatDto findCatsVolunteer() {
 
-        Optional<OwnerCat> volunteer = ownersCatsRepository.findVolunteerByVolunteerIsTrueAndChatsOpenedMinimum();
+        Optional<OwnerCat> volunteer = ownersCatsRepository.findVolunteerByVolunteerIsTrueAndNoChatsOpened();
 
         if (volunteer.isPresent()) {
             OwnerCat owner = volunteer.get();
             return constructOwnerDto(owner);
         } else {
-            System.out.println("Свободный волонтер не найден. Повторите попытку позже");
             return null;
         }
     }
@@ -130,7 +133,7 @@ public class OwnersCatsServiceImpl implements OwnersCatsService {
                 .orElseThrow(() -> new EntityNotFoundException("Волонтер с таким id " + id + " не найден."));
         owner.setIsVolunteer(true);
         owner.setUpdatedAt(LocalDateTime.now());
-        owner.setChatsOpened(0);
+        owner.setVolunteerChatOpened(false);
 
         List<Cat> cats = catsRepository.findAllById(catsIds);
         for (Cat cat : cats) {

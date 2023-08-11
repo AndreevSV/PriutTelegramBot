@@ -13,8 +13,9 @@ public interface OwnersDogsRepository extends JpaRepository<OwnerDog, Long>, Own
     @NotNull
     Optional<OwnerDog> findById(@NotNull Long id);
 
-    @NotNull
     Optional<OwnerDog> findByChatId(@NotNull Long chatId);
+
+    Optional<OwnerDog> findByVolunteerIsFalseAndChatId (Long chatId);
 
     List<OwnerDog> findByUserNameContainingIgnoreCase(String username);
 

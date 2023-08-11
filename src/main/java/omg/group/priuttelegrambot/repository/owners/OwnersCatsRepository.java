@@ -1,6 +1,5 @@
 package omg.group.priuttelegrambot.repository.owners;
 
-
 import omg.group.priuttelegrambot.entity.owners.OwnerCat;
 import org.jetbrains.annotations.NotNull;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -16,6 +15,8 @@ public interface OwnersCatsRepository extends JpaRepository<OwnerCat, Long>, Own
     Optional<OwnerCat> findById(@NotNull Long id);
 
     Optional<OwnerCat> findByChatId(Long chatId);
+
+    Optional<OwnerCat> findByVolunteerIsFalseAndChatId (Long chatId);
 
     List<OwnerCat> findByUserNameContainingIgnoreCase(String username);
 

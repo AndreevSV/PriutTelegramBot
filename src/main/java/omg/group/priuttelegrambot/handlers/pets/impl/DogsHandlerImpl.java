@@ -171,6 +171,7 @@ public class DogsHandlerImpl implements DogsHandler {
     public void newOwnerRegister(@NotNull Update update) {
 
         Long chatId = 0L;
+        Long telegramUserId = 0L;
         String userName = "";
         String firstName = "";
         String lastName = "";
@@ -178,12 +179,14 @@ public class DogsHandlerImpl implements DogsHandler {
 
         if (update.message() != null) {
             chatId = update.message().chat().id();
+            telegramUserId = update.message().from().id();
             userName = update.message().from().username();
             firstName = update.message().from().firstName();
             lastName = update.message().from().lastName();
             date = update.message().date();
         } else if (update.callbackQuery() != null) {
             chatId = update.callbackQuery().message().chat().id();
+            telegramUserId = update.callbackQuery().from().id();
             userName = update.callbackQuery().from().username();
             firstName = update.callbackQuery().from().firstName();
             lastName = update.callbackQuery().from().lastName();
@@ -199,11 +202,13 @@ public class DogsHandlerImpl implements DogsHandler {
             OwnerDogDto ownerDogDto = new OwnerDogDto();
 
             ownerDogDto.setChatId(chatId);
+            ownerDogDto.setTelegramUserId(telegramUserId);
             ownerDogDto.setUserName(userName);
             ownerDogDto.setName(firstName);
             ownerDogDto.setSurname(lastName);
             ownerDogDto.setIsVolunteer(false);
             ownerDogDto.setCreatedAt(registrationDate);
+            ownerDogDto.setVolunteerChatOpened(false);
 
             ownersDogsService.add(ownerDogDto);
         }
@@ -266,7 +271,8 @@ public class DogsHandlerImpl implements DogsHandler {
             List<Dog> dogsOnProbation = new ArrayList<>();
 
             for (Dog dog : dogs) {
-                if (dog.getFirstProbation().equals(true) || dog.getSecondProbation().equals(true)) {
+                if ((dog.getFirstProbation() != null && dog.getFirstProbation().equals(true)) ||
+                        (dog.getSecondProbation() != null && dog.getSecondProbation().equals(true))) {
                     dogsOnProbation.add(dog);
                 }
             }
@@ -322,8 +328,6 @@ public class DogsHandlerImpl implements DogsHandler {
 
         List<Dog> dogs = returnDogsOnProbation(update);
 
-        Long idDog = Long.valueOf(text);
-
         if (!checkForDogsOnProbationMoreThanOne(dogs) && !dogs.isEmpty()) {
 
             return dogs.get(0);
@@ -357,6 +361,8 @@ public class DogsHandlerImpl implements DogsHandler {
 
         } else if (checkForDogsOnProbationMoreThanOne(dogs) && !update.message().text().isEmpty()) {
 
+            Long idDog = Long.valueOf(text);
+
             boolean found = false;
 
             for (Dog dog : dogs) {
@@ -373,6 +379,12 @@ public class DogsHandlerImpl implements DogsHandler {
                         """);
                 telegramBot.execute(message);
             }
+        } else {
+            SendMessage message = new SendMessage(chatId, """
+                        У вас нет животного на испытательном
+                        сроке, вы не можете ничего отправить.
+                        """);
+            telegramBot.execute(message);
         }
         return null;
     }
@@ -409,8 +421,6 @@ public class DogsHandlerImpl implements DogsHandler {
             chatId = update.message().chat().id();
             photos = update.message().photo();
             date = update.message().date();
-        } else if (update.callbackQuery() != null) {
-            chatId = update.callbackQuery().message().chat().id();
         }
 
         PhotoSize photo = photos[photos.length - 1];
@@ -540,7 +550,7 @@ public class DogsHandlerImpl implements DogsHandler {
             Optional<ReportDog> report = reportsDogsRepository
                     .findByClientIdAndAnimalIdAndDateReport(clientId, dogId, LocalDate.now());
 
-            if (report.isPresent() && report.get().getRation().isEmpty()) {
+            if (report.isPresent() && (report.get().getRation() == null || report.get().getRation().isEmpty())) {
 
                 report.get().setRation(text);
                 report.get().setUpdatedAt(LocalDateTime.now());

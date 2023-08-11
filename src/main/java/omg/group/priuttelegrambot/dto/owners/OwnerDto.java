@@ -49,4 +49,10 @@ public class OwnerDto {
 
     private Long chatId;
 
+    private Long volunteerId;
+
+    private Long telegramUserId;
+
+    private Boolean volunteerChatOpened;
+
 }

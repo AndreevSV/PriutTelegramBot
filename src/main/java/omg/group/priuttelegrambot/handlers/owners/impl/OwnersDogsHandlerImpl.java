@@ -6,43 +6,42 @@ import com.pengrad.telegrambot.model.request.InlineKeyboardButton;
 import com.pengrad.telegrambot.model.request.InlineKeyboardMarkup;
 import com.pengrad.telegrambot.model.request.ParseMode;
 import com.pengrad.telegrambot.request.SendMessage;
-import omg.group.priuttelegrambot.dto.owners.OwnerDogDto;
 import omg.group.priuttelegrambot.entity.chats.ChatDogs;
 import omg.group.priuttelegrambot.entity.owners.OwnerDog;
 import omg.group.priuttelegrambot.handlers.owners.OwnersDogsHandler;
 import omg.group.priuttelegrambot.handlers.pets.DogsHandler;
 import omg.group.priuttelegrambot.repository.chats.ChatsDogsRepository;
 import omg.group.priuttelegrambot.repository.owners.OwnersDogsRepository;
-import omg.group.priuttelegrambot.service.OwnersDogsService;
+import org.jetbrains.annotations.NotNull;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDateTime;
 import java.util.Optional;
 
 @Service
 public class OwnersDogsHandlerImpl implements OwnersDogsHandler {
 
     private final TelegramBot telegramBot;
-    private final OwnersDogsService ownersDogsService;
     private final OwnersDogsRepository ownersDogsRepository;
     private final ChatsDogsRepository chatsDogsRepository;
     private final DogsHandler dogsHandler;
 
 
     public OwnersDogsHandlerImpl(TelegramBot telegramBot,
-                                 OwnersDogsService ownersDogsService,
                                  OwnersDogsRepository ownersDogsRepository,
                                  ChatsDogsRepository chatsDogsRepository,
                                  DogsHandler dogsHandler) {
         this.telegramBot = telegramBot;
-        this.ownersDogsService = ownersDogsService;
         this.ownersDogsRepository = ownersDogsRepository;
         this.chatsDogsRepository = chatsDogsRepository;
         this.dogsHandler = dogsHandler;
     }
 
     /**
-     * Method sends request to the volunteer to set a chat.
-     * Volunteer answers to user clicking on button "Ответить"
+     * When client push button "Позвать волонтера" method sends request to the volunteer to start a chat.
+     * Volunteer answers to client clicking on button "Ответить"
+     * If chat is already started client receives a message that chat is already started
+     * To not duplicate code method works with startingChat method below
      */
     @Override
     public void callVolunteer(Update update) {
@@ -55,178 +54,365 @@ public class OwnersDogsHandlerImpl implements OwnersDogsHandler {
             ownerChatId = update.message().from().id();
         }
 
-        Optional<OwnerDog> ownerDog = ownersDogsRepository.findByChatId(ownerChatId);
+        Optional<OwnerDog> owner = ownersDogsRepository.findByChatId(ownerChatId);
 
-        if (ownerDog.isPresent()) {
+        if (owner.isPresent()) {
+            // If owner exist in clients_cats database - immediately call a volunteer
 
-            settingChat(ownerDog);
+            startingChat(owner.get());
 
         } else {
+            // If owner doesn't exist in clients_cats database than register him as new user and send a call to volunteer
 
             dogsHandler.newOwnerRegister(update);
 
             Optional<OwnerDog> ownerDogNew = ownersDogsRepository.findByChatId(ownerChatId);
 
-            settingChat(ownerDogNew);
+            if (ownerDogNew.isPresent()) {
+
+                startingChat(ownerDogNew.get());
+            }
+
         }
     }
 
+    // Method sends inquiry to volunteer for starting a chat
     @Override
-    public void settingChat(Optional<OwnerDog> ownerDog) {
+    public void startingChat(OwnerDog owner) {
 
-        if (ownerDog.isPresent()) {
+        Long ownerChatId = owner.getChatId();
+        Long ownerId = owner.getId();
 
-            OwnerDogDto volunteerDto = ownersDogsService.findDogsVolunteer();
-            Long volunteerChatId = volunteerDto.getChatId();
+        Optional<ChatDogs> chatByOwner = chatsDogsRepository.findByOwnerDogId(ownerId);
 
-            OwnerDog volunteer = ownersDogsService.constructOwner(volunteerDto);
+        if (chatByOwner.isPresent()) {
+            //  If owner already has a chat send him a message about it
 
             InlineKeyboardMarkup inlineKeyboardMarkup = new InlineKeyboardMarkup();
+
             inlineKeyboardMarkup.addRow(
-                    new InlineKeyboardButton("Ответить").callbackData("/cats_reply"),
                     new InlineKeyboardButton("Завершить").callbackData("/cats_close"));
 
-            SendMessage sendMessage = new SendMessage(volunteerChatId, """
-                Клиенту требуется консультация.
-                Пожалуйста, свяжитесь с ним в
-                ближайшее время, нажав *"Ответить"*.
-                По кончанию диалога нажмите *Завершить*
-                """)
+            SendMessage messageToOwner = new SendMessage(ownerChatId, """
+                    Вы уже ведете чат с волонтером.
+                    Введите свой вопрос. Для
+                    прекращения нажмите *Завершить*
+                    или введите команду */close*
+                    """)
                     .parseMode(ParseMode.Markdown)
                     .replyMarkup(inlineKeyboardMarkup);
 
-            telegramBot.execute(sendMessage);
+            telegramBot.execute(messageToOwner);
 
-            ChatDogs chat = new ChatDogs();
+        } else {
+            // If owner hasn't a chat searches for a free volunteer
 
-            chat.setIsChatting(true);
-            chat.setOwnerDog(ownerDog.get());
-            chat.setVolunteerDog(volunteer);
+            Optional<OwnerDog> volunteerOptional = ownersDogsRepository.findVolunteerByVolunteerIsTrueAndNoChatsOpened();
 
-            chatsDogsRepository.save(chat);
+            if (volunteerOptional.isEmpty()) {
+
+                // If no free volunteer exist send to owner a message about it
+
+                SendMessage messageToOwner = new SendMessage(ownerChatId, """
+                        К сожалению в настоящее время
+                        нет свободных волонтеров, которые
+                        могут вас проконсультировать.
+                        Пожалуйста, обратитесь позднее.
+                        """)
+                        .parseMode(ParseMode.Markdown);
+
+                telegramBot.execute(messageToOwner);
+
+            } else {
+
+                // If free volunteer exist set a chat with him
+
+                Long volunteerChatId = volunteerOptional.get().getChatId();
+
+//                volunteerOptional.get().setChatsOpened(1);
+
+                ownersDogsRepository.save(volunteerOptional.get());
+
+                // Set new chat in chat_cats database
+
+                ChatDogs chat = new ChatDogs();
+
+                chat.setIsChatting(false); // Till volunteer haven't pushed button /reply chat is not started
+                chat.setOwnerDog(owner);
+                chat.setVolunteerDog(volunteerOptional.get());
+                chat.setCreatedAt(LocalDateTime.now());
+
+                chatsDogsRepository.save(chat);
+
+                // Send message to volunteer
+
+                InlineKeyboardMarkup inlineKeyboardMarkup = new InlineKeyboardMarkup();
+
+                inlineKeyboardMarkup.addRow(
+                        new InlineKeyboardButton("Ответить").callbackData("/dogs_reply"),
+                        new InlineKeyboardButton("Завершить").callbackData("/dogs_close"));
+
+                SendMessage messageToVolunteer = new SendMessage(volunteerChatId, """
+                        Клиенту требуется консультация.
+                        Пожалуйста, свяжитесь с ним в
+                        ближайшее время, нажав *"Ответить"*.
+                        По завершению чата нажмите *Завершить*
+                        или введите команду */close*
+                        """)
+                        .parseMode(ParseMode.Markdown)
+                        .replyMarkup(inlineKeyboardMarkup);
+
+                telegramBot.execute(messageToVolunteer);
+
+                // Send message to owner
+
+                SendMessage messageToOwner = new SendMessage(ownerChatId, """
+                        Волонтеру направлен запрос на чат
+                        с вами. Пожалуйста, дождитесь
+                        ответа волонтера, либо введите
+                        команду */close* для завершения.
+                        """)
+                        .parseMode(ParseMode.Markdown);
+
+                telegramBot.execute(messageToOwner);
+
+            }
         }
-
     }
 
     /**
-     * Method sends request to the volunteer to set a chat.
-     * Volunteer answers to user clicking on button "Ответить"
+     * Method starts a chat when volunteer pushes on button "Ответить" - "/cats_reply" command
      */
     @Override
     public void executeReplyButtonCommandForVolunteer(Update update) {
 
-        if (update.callbackQuery().data().equals("/cats_reply") ||
-                update.message().text().equals("/cats_reply")) {
+        OwnerDog volunteer = returnVolunteerFromUpdate(update);
 
-            Long volunteerDogId;
+        if (volunteer != null) {
 
-            if (update.callbackQuery() != null) {
-                volunteerDogId = update.callbackQuery().from().id();
-            } else {
-                volunteerDogId = update.message().from().id();
+            Long volunteerId = volunteer.getId();
+
+            Optional<ChatDogs> chatByVolunteer = chatsDogsRepository.findByVolunteerDogId(volunteerId);
+
+            if (chatByVolunteer.isPresent()) {
+
+                chatByVolunteer.get().setIsChatting(true);
+
+                chatsDogsRepository.save(chatByVolunteer.get());
+
+                Long ownerChatId = chatByVolunteer.get().getOwnerDog().getChatId();
+
+                Long volunteerChatId = chatByVolunteer.get().getVolunteerDog().getChatId();
+
+                SendMessage messageToOwner = new SendMessage(ownerChatId, """
+                        Волонтер подтвердил готовность
+                        проконсультровать Вас. Отправьте
+                        ему свой вопрос. Для завершения
+                        консультации отправьте
+                        команду */close*
+                        """)
+                        .parseMode(ParseMode.Markdown);
+
+                telegramBot.execute(messageToOwner);
+
+                SendMessage sendMessage = new SendMessage(volunteerChatId, """
+                        Вы подтвердили чат с клиентом.
+                        Дождитесь вопроса от него. Для
+                        завершения консультации введите
+                        команду */close*
+                        """)
+                        .parseMode(ParseMode.Markdown);
+
+                telegramBot.execute(sendMessage);
+
             }
+        }
+    }
 
-            Optional<OwnerDog> volunteer = ownersDogsRepository.findByVolunteerIsTrueAndChatId(volunteerDogId);
+    /**
+     * Method closes a chat when volunteer or client sends - "/close" command
+     */
+    @Override
+    public void executeCloseButtonCommand(Update update) {
 
-            if (volunteer.isPresent()) {
+        OwnerDog owner = returnOwnerFromUpdate(update);
 
-                int chatsOpened = volunteer.get().getChatsOpened();
-                chatsOpened = chatsOpened + 1;
-                volunteer.get().setChatsOpened(chatsOpened);
+        if (owner == null) {
+            // If volunteer pushed close button
+            OwnerDog volunteer = returnVolunteerFromUpdate(update);
 
-                ownersDogsRepository.save(volunteer.get());
+            if (volunteer != null) {
 
-                Optional<ChatDogs> chat = chatsDogsRepository.findByVolunteerDogId(volunteerDogId);
+                Long volunteerId = volunteer.getId();
+                Long volunteerChatId = volunteer.getChatId();
 
-                if (chat.isPresent()) {
-                    Long chatId = chat.get().getOwnerDog().getChatId();
+                Optional<ChatDogs> chatOptional = chatsDogsRepository.findByVolunteerDogId(volunteerId);
 
-                    InlineKeyboardMarkup inlineKeyboardMarkup = new InlineKeyboardMarkup();
-                    inlineKeyboardMarkup.addRow(
-                            new InlineKeyboardButton("Ответить").callbackData("/reply"),
-                            new InlineKeyboardButton("Завершить").callbackData("/close"));
+                if (chatOptional.isPresent()) {
 
-                    SendMessage sendMessage = new SendMessage(chatId, """
-                            Волонтер подтвердил готовность
-                            проконсультровать Вас. Введите
-                            сообщение и нажмите кнопку отправить.
-                            Для завершения консультации отправьте
-                            команду /close" или нажмите "Завершить"
-                            """)
-                            .parseMode(ParseMode.Markdown)
-                            .replyMarkup(inlineKeyboardMarkup);
+                    String userName = chatOptional.get().getOwnerDog().getUserName();
+                    Long ownerChatId = chatOptional.get().getOwnerDog().getChatId();
+
+                    chatsDogsRepository.delete(chatOptional.get());
+
+//                    volunteer.setChatsOpened(0);
+
+                    ownersDogsRepository.save(volunteer);
+
+                    SendMessage sendMessage = new SendMessage(volunteerChatId, String.format("""
+                            Вы закрыли чат со следующим
+                            клиентом: %s
+                            """, userName))
+                            .parseMode(ParseMode.Markdown);
 
                     telegramBot.execute(sendMessage);
+
+
+                    // !!!!!!!!!!!!!!!!!!!!!!!!!!!!!! Вставить клавиатуру!!!!!!!!!!!!!!!!!!!!!!!!!)
+
+                    SendMessage messageToOwner = new SendMessage(ownerChatId, """
+                            Волонтер закрыл чат с вами.
+                            Для новой консультации нажмите
+                            кнопку *Позвать волонтера*
+                            """)
+                            .parseMode(ParseMode.Markdown);
+
+                    telegramBot.execute(messageToOwner);
+                }
+            }
+        } else {
+            // If owner pushed "close" button
+
+            Long ownerId = owner.getId();
+
+            Optional<ChatDogs> chatOptional = chatsDogsRepository.findByOwnerDogId(ownerId);
+
+            if (chatOptional.isPresent()) {
+
+                Long ownerChatId = chatOptional.get().getOwnerDog().getChatId();
+                String userName = chatOptional.get().getOwnerDog().getUserName();
+
+                Long volunteerChatId = chatOptional.get().getVolunteerDog().getChatId();
+                OwnerDog volunteer = chatOptional.get().getVolunteerDog();
+
+                chatsDogsRepository.delete(chatOptional.get());
+
+//                volunteer.setChatsOpened(0);
+
+                ownersDogsRepository.save(volunteer);
+
+                SendMessage messageToOwner = new SendMessage(ownerChatId, """
+                        Вы завершили чат с волонтером.
+                        """)
+                        .parseMode(ParseMode.Markdown);
+
+                telegramBot.execute(messageToOwner);
+
+                SendMessage messageToVolunteer = new SendMessage(volunteerChatId, String.format("""
+                        Пользователь %s завершил чат с вами.
+                        Диалог закрыт и удален из базы.
+                        """, userName))
+                        .parseMode(ParseMode.Markdown);
+
+                telegramBot.execute(messageToVolunteer);
+            }
+        }
+    }
+
+    /**
+     * Method that receives message and sand it to client or volunteer
+     */
+    @Override
+    public void sendMessageReceived(Update update) {
+
+        if (update.message().text() != null) {
+
+            Integer messageId = update.message().messageId();
+            String messageText = update.message().text();
+
+            OwnerDog owner = returnOwnerFromUpdate(update);
+
+            if (owner == null) {
+
+                OwnerDog volunteer = returnVolunteerFromUpdate(update);
+                Long volunteerId = volunteer.getId();
+
+                Optional<ChatDogs> chatOptional = chatsDogsRepository.findByVolunteerDogId(volunteerId);
+
+                if (chatOptional.isPresent()) {
+
+//                    chatOptional.get().setAnswerText(messageText);
+//                    chatOptional.get().setLastMessageId(messageId);
+                    chatOptional.get().setAnswerSentTime(LocalDateTime.now());
+
+                    chatsDogsRepository.save(chatOptional.get());
+
+                    Long ownerChatId = chatOptional.get().getOwnerDog().getChatId();
+
+                    SendMessage messageToOwner = new SendMessage(ownerChatId, messageText);
+
+                    telegramBot.execute(messageToOwner);
+
+                }
+            } else {
+
+                Long ownerId = owner.getId();
+
+                Optional<ChatDogs> chatOptional = chatsDogsRepository.findByOwnerDogId(ownerId);
+
+                if (chatOptional.isPresent()) {
+
+//                    chatOptional.get().setMessageText(messageText);
+//                    chatOptional.get().setLastMessageId(messageId);
+                    chatOptional.get().setMessageSentTime(LocalDateTime.now());
+
+                    chatsDogsRepository.save(chatOptional.get());
+
+                    Long volunteerChatId = chatOptional.get().getVolunteerDog().getChatId();
+
+                    SendMessage messageToVolunteer = new SendMessage(volunteerChatId, messageText);
+
+                    telegramBot.execute(messageToVolunteer);
+
                 }
             }
         }
     }
 
     @Override
-    public OwnerDog returnOwnerDogFromUpdate(Update update) {
+    public OwnerDog returnOwnerFromUpdate(@NotNull Update update) {
 
-        Long ownerDogChatId;
+        Long ownerChatId;
 
         if (update.callbackQuery() != null) {
-            ownerDogChatId = update.callbackQuery().from().id();
+            ownerChatId = update.callbackQuery().from().id();
         } else {
-            ownerDogChatId = update.message().from().id();
+            ownerChatId = update.message().from().id();
         }
 
-        Optional<OwnerDog> ownerDog = ownersDogsRepository.findByChatId(ownerDogChatId);
+        Optional<OwnerDog> owner = ownersDogsRepository.findByVolunteerIsFalseAndChatId(ownerChatId);
 
-        return ownerDog.orElseGet(OwnerDog::new);
+        return owner.orElse(null);
     }
 
     @Override
-    public OwnerDog returnVolunteerDogFromUpdate(Update update) {
+    public OwnerDog returnVolunteerFromUpdate(@NotNull Update update) {
 
-        Long volunteerDogChatId;
+        Long volunteerChatId;
 
         if (update.callbackQuery() != null) {
-            volunteerDogChatId = update.callbackQuery().from().id();
+            volunteerChatId = update.callbackQuery().from().id();
         } else {
-            volunteerDogChatId = update.message().from().id();
+            volunteerChatId = update.message().from().id();
         }
 
-        Optional<OwnerDog> volunteerDog = ownersDogsRepository.findByChatId(volunteerDogChatId);
+        Optional<OwnerDog> volunteerOptional = ownersDogsRepository.findByVolunteerIsTrueAndChatId(volunteerChatId);
 
-        if (volunteerDog.isPresent()) {
+        if (volunteerOptional.isPresent()) {
 
-            return volunteerDog.get().getVolunteer();
+            return volunteerOptional.get().getVolunteer();
         }
-        return new OwnerDog();
+        return null;
     }
-
-
-//    @Override
-//    private void executeCloseButtonCommand(Update update, Long chatId) {
-//        String text = update.message().text();
-//        SendMessage sendMessage = new SendMessage(chatId, text);
-//    }
-//
-//    private void startChatWithOwner(Update update) {
-//        while (!update.callbackQuery().data().equals("/close") || !update.message().text().equals("/close")) {
-//            String text = update.message().text();
-//
-//            OwnerCatDto catsVolunteer = ownersCatsService.findCatsVolunteer();
-//
-//            Long chatId = catsVolunteer.getChatId();
-//
-//            InlineKeyboardMarkup inlineKeyboardMarkup = new InlineKeyboardMarkup();
-//            inlineKeyboardMarkup.addRow(new InlineKeyboardButton("Ответить").callbackData("/answer"));
-//
-//            SendMessage sendMessage = new SendMessage(chatId, """
-//                    Клиенту требуется консультация.
-//                    Пожалуйста, свяжитесь с ним в ближайшее время,
-//                    нажав на кнопу *"Ответить"*.
-//                    """)
-//                    .parseMode(ParseMode.Markdown)
-//                    .replyMarkup(inlineKeyboardMarkup);
-//
-//            telegramBot.execute(sendMessage);
-//        }
-//
-//    }
 
 }

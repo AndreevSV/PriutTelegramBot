@@ -15,11 +15,11 @@ import omg.group.priuttelegrambot.entity.owners.OwnerCat;
 public class ChatCats extends Chat {
 
     @OneToOne()
-    @JoinColumn(name = "owner_id", referencedColumnName = "id")
+    @JoinColumn(name = "owner_id", referencedColumnName = "chat_id")
     private OwnerCat ownerCat;
 
     @OneToOne
-    @JoinColumn(name = "volunteer_id", referencedColumnName = "id")
+    @JoinColumn(name = "volunteer_id", referencedColumnName = "chat_id")
     private OwnerCat volunteerCat;
 
 }

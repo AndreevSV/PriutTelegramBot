@@ -61,11 +61,10 @@ public abstract class Owner {
     @Column(name = "chat_id")
     private Long chatId;
 
-//    @Column(name = "volunteer_id")
-//    private Long volunteerId;
+    @Column(name = "telegram_user_id")
+    private Long telegramUserId;
 
-    @Column(name = "chats_opened")
-    private Integer chatsOpened;
-
+    @Column(name = "volunteer_chat_opened")
+    private Boolean volunteerChatOpened;
 
 }
