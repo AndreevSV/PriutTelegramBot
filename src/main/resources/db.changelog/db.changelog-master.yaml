@@ -298,3 +298,33 @@ databaseChangeLog:
               - column:
                   name: volunteer_chat_opened
                   type: BOOLEAN
+  - changeSet:
+      id: 17
+      author: AndreevSV
+      changes:
+        - addColumn:
+            tableName: reports_cats
+            columns:
+              - column:
+                  name: hash_code
+                  type: INTEGER
+        - addColumn:
+            tableName: reports_dogs
+            columns:
+              - column:
+                  name: hash_code
+                  type: INTEGER
+  - changeSet:
+      id: 18
+      author: AndreevSV
+      changes:
+        - renameColumn:
+            tableName: reports_cats
+            oldColumnName: path
+            newColumnName: file_id
+            columnDataType: VARCHAR(255)
+        - renameColumn:
+            tableName: reports_dogs
+            oldColumnName: path
+            newColumnName: file_id
+            columnDataType: VARCHAR(255)

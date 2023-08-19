@@ -2,15 +2,15 @@ package omg.group.priuttelegrambot.handlers.owners;
 
 import com.pengrad.telegrambot.model.Update;
 import omg.group.priuttelegrambot.entity.owners.OwnerCat;
+import omg.group.priuttelegrambot.entity.owners.OwnerDog;
+import omg.group.priuttelegrambot.entity.pets.Cat;
+
+import java.util.List;
 
 public interface OwnersCatsHandler {
-    void callVolunteer(Update update);
-
-    void startingChat(OwnerCat owner);
-
-    void executeReplyButtonCommandForVolunteer(Update update);
-
-    void executeCloseButtonCommand(Update update);
-
-    void sendMessageReceived(Update update);
+    void newOwnerRegister(Update update);
+    OwnerCat checkForOwnerExist(Update update);
+    List<Cat> checkForOwnerHasCat(OwnerCat ownerCat);
+    OwnerCat returnOwnerFromUpdate(Update update);
+    OwnerCat returnVolunteerFromUpdate(Update update);
 }

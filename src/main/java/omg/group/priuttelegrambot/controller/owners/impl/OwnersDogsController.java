@@ -12,7 +12,7 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import omg.group.priuttelegrambot.dto.owners.OwnerDogDto;
 import omg.group.priuttelegrambot.entity.owners.OwnerDog;
-import omg.group.priuttelegrambot.service.OwnersDogsService;
+import omg.group.priuttelegrambot.service.owners.OwnersDogsService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;

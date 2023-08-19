@@ -25,6 +25,4 @@ public class OwnerCat extends Owner {
     @OneToMany(mappedBy = "ownerCat", fetch = FetchType.EAGER)
     @ToString.Exclude
     private List<Cat> cats;
-
-
 }

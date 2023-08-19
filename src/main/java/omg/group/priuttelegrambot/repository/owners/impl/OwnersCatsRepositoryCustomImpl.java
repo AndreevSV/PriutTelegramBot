@@ -17,7 +17,7 @@ public class OwnersCatsRepositoryCustomImpl implements OwnersCatsRepositoryCusto
     @Override
     public Optional<OwnerCat> findVolunteerByVolunteerIsTrueAndNoChatsOpened() {
 
-        String hql = "FROM OwnerCat WHERE isVolunteer = true AND volunteerChatOpened = false";
+        String hql = "FROM OwnerCat WHERE isVolunteer = true AND (volunteerChatOpened = false OR volunteerChatOpened = null)";
 
         return entityManager.createQuery(hql, OwnerCat.class)
                 .getResultList()

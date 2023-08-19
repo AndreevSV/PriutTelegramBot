@@ -11,11 +11,7 @@ import java.util.List;
 @EqualsAndHashCode(callSuper = true)
 @Data
 public class OwnerCatDto extends OwnerDto {
-
     private OwnerCat volunteer;
-
     private AddressesOwnersCats address;
-
     private List<Cat> cats;
-
 }
