@@ -36,10 +36,12 @@ public interface OwnersCatsService {
         owner.setDateIncome(ownerDto.getDateIncome());
         owner.setDateOutcome(ownerDto.getDateOutcome());
         owner.setBecameClient(ownerDto.getBecameClient());
-        owner.setIsVolunteer(owner.getIsVolunteer());
+        owner.setIsVolunteer(ownerDto.getIsVolunteer());
         owner.setCats(ownerDto.getCats());
         owner.setChatId(ownerDto.getChatId());
-        owner.setVolunteer(owner.getVolunteer());
+        owner.setVolunteer(ownerDto.getVolunteer());
+        owner.setTelegramUserId(ownerDto.getTelegramUserId());
+        owner.setVolunteerChatOpened(ownerDto.getVolunteerChatOpened());
 
         return owner;
     }

@@ -10,11 +10,11 @@ import java.util.Optional;
 @Repository
 public interface ChatsCatsRepository extends JpaRepository<ChatCats, Long> {
 
-    Optional<ChatCats> findByOwnerCatId(Long ownerCatId);
+    Optional<ChatCats> findByOwnerCatChatId(Long ownerCatId);
+
+    Optional<ChatCats> findByVolunteerCatChatId(Long volunteerCatId);
 
     Optional<ChatCats> findByChatId(Long chatId);
-
-    Optional<ChatCats> findByVolunteerCatId(Long volunteerCatId);
 
     List<ChatCats> findByIsChattingFalseAndVolunteerCatId(Long volunteerCatId);
 

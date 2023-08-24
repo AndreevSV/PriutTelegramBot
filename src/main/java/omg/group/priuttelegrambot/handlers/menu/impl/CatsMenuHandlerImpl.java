@@ -2,10 +2,9 @@ package omg.group.priuttelegrambot.handlers.menu.impl;
 
 import com.pengrad.telegrambot.TelegramBot;
 import com.pengrad.telegrambot.model.Update;
-import com.pengrad.telegrambot.model.request.InlineKeyboardButton;
-import com.pengrad.telegrambot.model.request.InlineKeyboardMarkup;
-import com.pengrad.telegrambot.model.request.ParseMode;
+import com.pengrad.telegrambot.model.request.*;
 import com.pengrad.telegrambot.request.EditMessageText;
+import com.pengrad.telegrambot.request.SendMessage;
 import omg.group.priuttelegrambot.handlers.menu.CatsMenuHandler;
 import omg.group.priuttelegrambot.service.knowledgebases.KnowledgebaseCatsService;
 import org.springframework.stereotype.Service;
@@ -133,4 +132,57 @@ public class CatsMenuHandlerImpl implements CatsMenuHandler {
             telegramBot.execute(editedMessage);
         }
     }
+
+    @Override
+    public void inquiryToVolunteerForChat(Long volunteerChatId, Long ownerChatId) {
+        // Send message to volunteer
+        KeyboardButton answerKeyboardButton = new KeyboardButton("/Ответить");
+        KeyboardButton closeKeyboardButton = new KeyboardButton("/Завершить");
+
+        ReplyKeyboardMarkup replyKeyboardMarkupForVolunteer = new ReplyKeyboardMarkup(answerKeyboardButton, closeKeyboardButton)
+                .resizeKeyboard(true)
+                .oneTimeKeyboard(true)
+                .isPersistent(true);
+
+        SendMessage messageToVolunteer = new SendMessage(volunteerChatId, """
+                Клиенту требуется консультация. Пожалуйста, свяжитесь с ним в ближайшее время, нажав */Ответить*.
+                По завершению чата нажмите *Завершить* или введите команду */Завершить*
+                """)
+                .parseMode(ParseMode.Markdown)
+                .replyMarkup(replyKeyboardMarkupForVolunteer);
+        telegramBot.execute(messageToVolunteer);
+
+        // Send message to owner
+        ReplyKeyboardMarkup replyKeyboardMarkupForOwner = new ReplyKeyboardMarkup(closeKeyboardButton)
+                .resizeKeyboard(true)
+                .oneTimeKeyboard(true)
+                .isPersistent(true);
+        SendMessage messageToOwner = new SendMessage(ownerChatId, """
+                Волонтеру направлен запрос на чат с вами.
+                Пожалуйста, дождитесь ответа волонтера, либо введите команду */Завершить* для завершения.
+                """)
+                .parseMode(ParseMode.Markdown)
+                .replyMarkup(replyKeyboardMarkupForOwner);
+        telegramBot.execute(messageToOwner);
+    }
+
+    @Override
+    public void chatAlreadySetToOwnerMessage(Long ownerChatId) {
+        // Send message to owner
+        KeyboardButton closeKeyboardButton = new KeyboardButton("/Завершить");
+
+        ReplyKeyboardMarkup replyKeyboardMarkupForVolunteer = new ReplyKeyboardMarkup(closeKeyboardButton)
+                .resizeKeyboard(true)
+                .oneTimeKeyboard(true)
+                .isPersistent(true);
+
+        SendMessage messageToOwner = new SendMessage(ownerChatId, """
+                Вы уже ведете чат с волонтером. Введите свой вопрос.
+                Для завершения чата нажмите кнопку */Завершить*
+                """)
+                .parseMode(ParseMode.Markdown)
+                .replyMarkup(replyKeyboardMarkupForVolunteer);
+        telegramBot.execute(messageToOwner);
+    }
+
 }

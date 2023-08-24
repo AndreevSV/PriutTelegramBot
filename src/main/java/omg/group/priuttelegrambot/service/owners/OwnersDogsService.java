@@ -1,10 +1,7 @@
 package omg.group.priuttelegrambot.service.owners;
 
-import omg.group.priuttelegrambot.dto.owners.OwnerCatDto;
 import omg.group.priuttelegrambot.dto.owners.OwnerDogDto;
-import omg.group.priuttelegrambot.entity.owners.OwnerCat;
 import omg.group.priuttelegrambot.entity.owners.OwnerDog;
-import org.springframework.http.HttpStatus;
 
 import java.util.List;
 
@@ -39,10 +36,12 @@ public interface OwnersDogsService {
         owner.setDateIncome(ownerDto.getDateIncome());
         owner.setDateOutcome(ownerDto.getDateOutcome());
         owner.setBecameClient(ownerDto.getBecameClient());
-        owner.setIsVolunteer(owner.getIsVolunteer());
+        owner.setIsVolunteer(ownerDto.getIsVolunteer());
         owner.setDogs(ownerDto.getDogs());
         owner.setChatId(ownerDto.getChatId());
-        owner.setVolunteer(owner.getVolunteer());
+        owner.setVolunteer(ownerDto.getVolunteer());
+        owner.setTelegramUserId(ownerDto.getTelegramUserId());
+        owner.setVolunteerChatOpened(ownerDto.getVolunteerChatOpened());
 
         return owner;
     }
@@ -69,6 +68,8 @@ public interface OwnersDogsService {
         ownerDto.setDogs(owner.getDogs());
         ownerDto.setChatId(owner.getChatId());
         ownerDto.setVolunteer(owner.getVolunteer());
+        ownerDto.setTelegramUserId(owner.getTelegramUserId());
+        ownerDto.setVolunteerChatOpened(owner.getVolunteerChatOpened());
 
         return ownerDto;
     }

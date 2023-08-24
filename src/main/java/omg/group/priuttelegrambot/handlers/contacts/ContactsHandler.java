@@ -1,4 +1,4 @@
-package omg.group.priuttelegrambot.handlers.contacts.impl;
+package omg.group.priuttelegrambot.handlers.contacts;
 
 import com.pengrad.telegrambot.model.Update;
 

@@ -2,10 +2,13 @@ package omg.group.priuttelegrambot.listener;
 
 import com.pengrad.telegrambot.TelegramBot;
 import com.pengrad.telegrambot.UpdatesListener;
+import com.pengrad.telegrambot.model.Contact;
 import com.pengrad.telegrambot.model.Update;
 import com.pengrad.telegrambot.model.request.InlineKeyboardMarkup;
 import lombok.Data;
-import omg.group.priuttelegrambot.handlers.contacts.impl.ContactsHandler;
+import omg.group.priuttelegrambot.handlers.contacts.ContactsHandler;
+import omg.group.priuttelegrambot.handlers.contacts.OwnersCatsContactsHandler;
+import omg.group.priuttelegrambot.handlers.contacts.OwnersDogsContactsHandler;
 import omg.group.priuttelegrambot.handlers.menu.CatsMenuHandler;
 import omg.group.priuttelegrambot.handlers.menu.DogsMenuHandler;
 import omg.group.priuttelegrambot.handlers.menu.MainMenuHandler;
@@ -22,7 +25,6 @@ import omg.group.priuttelegrambot.service.knowledgebases.KnowledgebaseCatsServic
 import omg.group.priuttelegrambot.service.knowledgebases.KnowledgebaseDogsService;
 import omg.group.priuttelegrambot.service.owners.OwnersCatsService;
 import omg.group.priuttelegrambot.service.owners.OwnersDogsService;
-import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
@@ -64,6 +66,8 @@ public class TelegramBotUpdatesListener implements UpdatesListener {
     private final OwnUpdatesHandler ownUpdatesHandler;
 
     private final ContactsHandler contactsHandler;
+    private final OwnersCatsContactsHandler ownersCatsContactsHandler;
+    private final OwnersDogsContactsHandler ownersDogsContactsHandler;
 
     Map<Long, OwnerCatFlag> ownersCatsFlagStatus = new ConcurrentHashMap<>();
     Map<Long, OwnerDogFlag> ownersDogsFlagStatus = new ConcurrentHashMap<>();
@@ -93,21 +97,22 @@ public class TelegramBotUpdatesListener implements UpdatesListener {
                                       OwnerDogFlag ownerDogFlag,
 
                                       OwnUpdatesHandler ownUpdatesHandler,
-                                      ContactsHandler contactsHandler) {
+
+                                      ContactsHandler contactsHandler,
+                                      OwnersCatsContactsHandler ownersCatsContactsHandler,
+                                      OwnersDogsContactsHandler ownersDogsContactsHandler) {
         this.telegramBot = telegramBot;
-        this.ownUpdatesHandler = ownUpdatesHandler;
-        this.contactsHandler = contactsHandler;
         this.telegramBot.setUpdatesListener(this);
 
         this.ownersCatsHandler = ownersCatsHandler;
         this.ownersDogsHandler = ownersDogsHandler;
 
+        this.mainMenuHandler = mainMenuHandler;
         this.catsMenuHandler = catsMenuHandler;
         this.dogsMenuHandler = dogsMenuHandler;
 
         this.reportsCatsHandler = reportsCatsHandler;
         this.reportsDogsHandler = reportsDogsHandler;
-        this.mainMenuHandler = mainMenuHandler;
 
         this.ownersCatsService = ownersCatsService;
         this.ownersDogsService = ownersDogsService;
@@ -120,6 +125,12 @@ public class TelegramBotUpdatesListener implements UpdatesListener {
 
         this.ownerCatFlag = ownerCatFlag;
         this.ownerDogFlag = ownerDogFlag;
+
+        this.ownUpdatesHandler = ownUpdatesHandler;
+
+        this.contactsHandler = contactsHandler;
+        this.ownersCatsContactsHandler = ownersCatsContactsHandler;
+        this.ownersDogsContactsHandler = ownersDogsContactsHandler;
     }
 
     @Override
@@ -134,8 +145,11 @@ public class TelegramBotUpdatesListener implements UpdatesListener {
 
     private void handleUpdate(Update update) {
 
+        LOG.info("Получен следующий апдэйт {}", update);
+
         Long chatId = ownUpdatesHandler.extractChatIdFromUpdate(update);
         String message = ownUpdatesHandler.extractTextFromUpdate(update);
+        int messageId = ownUpdatesHandler.extractMessageIdFromUpdate(update);
 
         if (ownersCatsFlagStatus.containsKey(chatId)) {
 
@@ -149,7 +163,6 @@ public class TelegramBotUpdatesListener implements UpdatesListener {
             boolean chatting = ownerCatFlag.isChatting();
 
             if (update.callbackQuery() == null && update.message() != null) {
-
                 if (waitingForPhoto) {
                     boolean photo = reportsCatsHandler.receivePhoto(update);
                     if (photo) {
@@ -171,10 +184,46 @@ public class TelegramBotUpdatesListener implements UpdatesListener {
                         ownersCatsFlagStatus.remove(chatId);
                     }
                 } else if (waitingForContacts) {
-//                    boolean contacts = reportsCatsHandler.receiveContacts();
-//                    if (contacts) {
-//                        ownersCatsFlagStatus.remove(chatId);
-//                    }
+                    Contact contact = update.message().contact();
+                    if (contact != null) {
+                        InlineKeyboardMarkup inlineKeyboardMarkup = catsMenuHandler.formInlineKeyboardForInfoMenuButton();
+                        mainMenuHandler.contactSavedOkMessage(chatId, inlineKeyboardMarkup);
+                        ownersCatsContactsHandler.savePhoneNumberFromContact(update);
+                        ownersCatsFlagStatus.remove(chatId);
+                    } else {
+                        //TODO: Сделать сопоставление клавиатуры в зависимости от раздела, где было нажато, т.к. кнопка Оставить контактные данные находится в двух разделах меню
+                        InlineKeyboardMarkup inlineKeyboardMarkup = catsMenuHandler.formInlineKeyboardForInfoMenuButton();
+                        mainMenuHandler.waitingForContactMessage(chatId, inlineKeyboardMarkup);
+                    }
+                } else if (chatting) {
+                    if (message.equals("/Завершить")) {
+                        chatsCatsHandler.executeCloseButtonCommand(update);
+                        ownersCatsFlagStatus.remove(chatId);
+                    } else if (message.equals("/Ответить")) {
+                        chatsCatsHandler.executeReplyButtonCommandForVolunteer(update);
+                        OwnerCatFlag flag = new OwnerCatFlag();
+                        flag.setChatting(true);
+                        ownersCatsFlagStatus.put(chatId, flag);
+                    } else if (!message.startsWith("/")) {
+                        chatsCatsHandler.forwardMessageReceived(update);
+                    }
+                }
+            } else if (update.callbackQuery() != null) {
+                if (waitingForRation) {
+                    InlineKeyboardMarkup inlineKeyboardMarkup = catsMenuHandler.formInlineKeyboardForInfoMenuButton();
+                    mainMenuHandler.executeSendRationButton(chatId, messageId, inlineKeyboardMarkup);
+                } else if (waitingForFeeling) {
+                    InlineKeyboardMarkup inlineKeyboardMarkup = catsMenuHandler.formInlineKeyboardForInfoMenuButton();
+                    mainMenuHandler.executeSendFeelingButton(chatId, messageId, inlineKeyboardMarkup);
+                } else if (waitingForChanges) {
+                    InlineKeyboardMarkup inlineKeyboardMarkup = catsMenuHandler.formInlineKeyboardForInfoMenuButton();
+                    mainMenuHandler.executeSendChangesButton(chatId, messageId, inlineKeyboardMarkup);
+                } else if (waitingForPhoto) {
+                    InlineKeyboardMarkup inlineKeyboardMarkup = catsMenuHandler.formInlineKeyboardForInfoMenuButton();
+                    mainMenuHandler.executeSendPhotoButton(chatId, messageId, inlineKeyboardMarkup);
+                } else if (waitingForContacts) {
+                    InlineKeyboardMarkup inlineKeyboardMarkup = catsMenuHandler.formInlineKeyboardForInfoMenuButton();
+                    mainMenuHandler.executeSendContactsButton(chatId, messageId, inlineKeyboardMarkup);
                 } else if (chatting) {
                     if (message.equals("/cats_close")) {
                         chatsCatsHandler.executeCloseButtonCommand(update);
@@ -182,34 +231,8 @@ public class TelegramBotUpdatesListener implements UpdatesListener {
                     } else if (message.equals("/cats_reply")) {
                         chatsCatsHandler.executeReplyButtonCommandForVolunteer(update);
                     } else {
-                        chatsCatsHandler.sendMessageReceived(update);
-                    }
-                }
-            } else if (update.callbackQuery() != null) {
-                if (waitingForRation) {
-                    InlineKeyboardMarkup inlineKeyboardMarkup = catsMenuHandler.formInlineKeyboardForInfoMenuButton();
-                    mainMenuHandler.executeSendRationButton(chatId, inlineKeyboardMarkup);
-                } else if (waitingForFeeling) {
-                    InlineKeyboardMarkup inlineKeyboardMarkup = catsMenuHandler.formInlineKeyboardForInfoMenuButton();
-                    mainMenuHandler.executeSendFeelingButton(chatId, inlineKeyboardMarkup);
-                } else if (waitingForChanges) {
-                    InlineKeyboardMarkup inlineKeyboardMarkup = catsMenuHandler.formInlineKeyboardForInfoMenuButton();
-                    mainMenuHandler.executeSendChangesButton(chatId, inlineKeyboardMarkup);
-                } else if (waitingForPhoto) {
-                    InlineKeyboardMarkup inlineKeyboardMarkup = catsMenuHandler.formInlineKeyboardForInfoMenuButton();
-                    mainMenuHandler.executeSendPhotoButton(chatId, inlineKeyboardMarkup);
-                } else if (waitingForContacts) {
-                    InlineKeyboardMarkup inlineKeyboardMarkup = catsMenuHandler.formInlineKeyboardForInfoMenuButton();
-                    mainMenuHandler.executeSendContactsButton(chatId, inlineKeyboardMarkup);
-                } else if (chatting) {
-                    if (message.equals("/cats_close")) {
-                        chatsCatsHandler.executeCloseButtonCommand(update);
-                        ownersCatsFlagStatus.remove(chatId);
-                } else if (message.equals("/cats_reply")) {
-                    chatsCatsHandler.executeReplyButtonCommandForVolunteer(update);
-                } else {
                         InlineKeyboardMarkup inlineKeyboardMarkup = catsMenuHandler.formPriutMainMenuButton();
-                        mainMenuHandler.executeCallVolunteerButton(chatId, inlineKeyboardMarkup);
+                        mainMenuHandler.executeCallVolunteerButton(chatId, messageId, inlineKeyboardMarkup);
                     }
                 }
             }
@@ -225,6 +248,7 @@ public class TelegramBotUpdatesListener implements UpdatesListener {
             boolean isChatting = ownerDogFlag.isChatting();
 
             if (update.callbackQuery() == null && update.message() != null) {
+
                 if (waitingForRation) {
                     boolean ration = reportsDogsHandler.receiveRation(update);
                     if (ration) {
@@ -246,42 +270,52 @@ public class TelegramBotUpdatesListener implements UpdatesListener {
                         ownersDogsFlagStatus.remove(chatId);
                     }
                 } else if (waitingForContacts) {
-//                    boolean contacts = reportsDogsHandler.receiveContacts();
-//                    if (contacts) {
-//                        ownersDogsFlagStatus.remove(chatId);
-//                    }
+                    Contact contact = update.message().contact();
+                    if (contact != null) {
+                        ownersDogsContactsHandler.savePhoneNumberFromContact(update);
+                        ownersDogsFlagStatus.remove(chatId);
+                        //TODO: Сделать сопоставление клавиатуры в зависимости от раздела, где было нажато, т.к. кнопка Оставить контактные данные находится в двух разделах меню
+                        InlineKeyboardMarkup inlineKeyboardMarkup = dogsMenuHandler.formInlineKeyboardForInfoMenuButton();
+//                        mainMenuHandler.contactSavedOkMessage(chatId, messageId, inlineKeyboardMarkup);
+                    } else {
+                        //TODO: Сделать сопоставление клавиатуры в зависимости от раздела, где было нажато, т.к. кнопка Оставить контактные данные находится в двух разделах меню
+                        InlineKeyboardMarkup inlineKeyboardMarkup = dogsMenuHandler.formInlineKeyboardForInfoMenuButton();
+//                        mainMenuHandler.waitingForContactMessage(chatId, messageId, inlineKeyboardMarkup);
+                    }
                 } else if (isChatting) {
                     chatsDogsHandler.sendMessageReceived(update);
                 }
+
             } else if (update.callbackQuery() != null) {
+
                 if (waitingForRation) {
                     InlineKeyboardMarkup inlineKeyboardMarkup = dogsMenuHandler.formInlineKeyboardForInfoMenuButton();
-                    mainMenuHandler.executeSendRationButton(chatId, inlineKeyboardMarkup);
+                    mainMenuHandler.executeSendRationButton(chatId, messageId, inlineKeyboardMarkup);
                 } else if (waitingForFeeling) {
                     InlineKeyboardMarkup inlineKeyboardMarkup = dogsMenuHandler.formInlineKeyboardForInfoMenuButton();
-                    mainMenuHandler.executeSendFeelingButton(chatId, inlineKeyboardMarkup);
+                    mainMenuHandler.executeSendFeelingButton(chatId, messageId, inlineKeyboardMarkup);
                 } else if (waitingForChanges) {
                     InlineKeyboardMarkup inlineKeyboardMarkup = dogsMenuHandler.formInlineKeyboardForInfoMenuButton();
-                    mainMenuHandler.executeSendChangesButton(chatId, inlineKeyboardMarkup);
+                    mainMenuHandler.executeSendChangesButton(chatId, messageId, inlineKeyboardMarkup);
                 } else if (waitingForPhoto) {
                     InlineKeyboardMarkup inlineKeyboardMarkup = dogsMenuHandler.formInlineKeyboardForInfoMenuButton();
-                    mainMenuHandler.executeSendPhotoButton(chatId, inlineKeyboardMarkup);
+                    mainMenuHandler.executeSendPhotoButton(chatId, messageId, inlineKeyboardMarkup);
                 } else if (waitingForContacts) {
                     InlineKeyboardMarkup inlineKeyboardMarkup = dogsMenuHandler.formInlineKeyboardForInfoMenuButton();
-                    mainMenuHandler.executeSendContactsButton(chatId, inlineKeyboardMarkup);
+                    mainMenuHandler.executeSendContactsButton(chatId, messageId, inlineKeyboardMarkup);
                 } else if (isChatting) {
                     InlineKeyboardMarkup inlineKeyboardMarkup = dogsMenuHandler.formInlineKeyboardForInfoMenuButton();
-                    mainMenuHandler.executeCallVolunteerButton(chatId, inlineKeyboardMarkup);
+                    mainMenuHandler.executeCallVolunteerButton(chatId, messageId, inlineKeyboardMarkup);
                 }
             }
-        } else {
+        } else if (update.callbackQuery() != null || (update.message().text() != null && update.message().text().startsWith("/"))) {
             processButton(update);
+        } else {
+            mainMenuHandler.noSuchCommandSendMessage(update);
         }
     }
 
-    private void processButton(@NotNull Update update) {
-
-        LOG.info("Получен следующий апдэйт {}", update);
+    private void processButton(Update update) {
 
         Long chatId = ownUpdatesHandler.extractChatIdFromUpdate(update);
         String command = ownUpdatesHandler.extractTextFromUpdate(update);
@@ -308,7 +342,7 @@ public class TelegramBotUpdatesListener implements UpdatesListener {
             case "/cat_send_report" -> {
                 if (reportsCatsHandler.isReportCompleted(update)) {
                     InlineKeyboardMarkup inlineKeyboardMarkup = catsMenuHandler.formPriutMainMenuButton();
-                    mainMenuHandler.reportAlreadySent(chatId, messageId, inlineKeyboardMarkup);
+                    mainMenuHandler.reportAlreadySentMessage(chatId, messageId, inlineKeyboardMarkup);
                 } else {
                     InlineKeyboardMarkup inlineKeyboardMarkup = catsMenuHandler.formInlineKeyboardForSendReportButton();
                     catsMenuHandler.executeButtonOrCommand(update, inlineKeyboardMarkup);
@@ -317,7 +351,7 @@ public class TelegramBotUpdatesListener implements UpdatesListener {
             case "/cat_send_photo" -> {
                 if (reportsCatsHandler.isPhoto(update)) {
                     InlineKeyboardMarkup inlineKeyboardMarkup = catsMenuHandler.formInlineKeyboardForSendReportButton();
-                    mainMenuHandler.photoAlreadySent(chatId, messageId, inlineKeyboardMarkup);
+                    mainMenuHandler.photoAlreadySentMessage(chatId, messageId, inlineKeyboardMarkup);
                 } else {
                     OwnerCatFlag flag = new OwnerCatFlag();
                     flag.setWaitingForPhoto(true);
@@ -329,7 +363,7 @@ public class TelegramBotUpdatesListener implements UpdatesListener {
             case "/cat_send_ration" -> {
                 if (reportsCatsHandler.isRation(update)) {
                     InlineKeyboardMarkup inlineKeyboardMarkup = catsMenuHandler.formInlineKeyboardForSendReportButton();
-                    mainMenuHandler.rationAlreadySent(chatId, messageId, inlineKeyboardMarkup);
+                    mainMenuHandler.rationAlreadySentMessage(chatId, messageId, inlineKeyboardMarkup);
                 } else {
                     OwnerCatFlag flag = new OwnerCatFlag();
                     flag.setWaitingForRation(true);
@@ -341,7 +375,7 @@ public class TelegramBotUpdatesListener implements UpdatesListener {
             case "/cat_send_feeling" -> {
                 if (reportsCatsHandler.isFeeling(update)) {
                     InlineKeyboardMarkup inlineKeyboardMarkup = catsMenuHandler.formInlineKeyboardForSendReportButton();
-                    mainMenuHandler.feelingAlreadySent(chatId, messageId, inlineKeyboardMarkup);
+                    mainMenuHandler.feelingAlreadySentMessage(chatId, messageId, inlineKeyboardMarkup);
                 } else {
                     OwnerCatFlag flag = new OwnerCatFlag();
                     flag.setWaitingForFeeling(true);
@@ -353,7 +387,7 @@ public class TelegramBotUpdatesListener implements UpdatesListener {
             case "/cat_send_changes" -> {
                 if (reportsCatsHandler.isChanges(update)) {
                     InlineKeyboardMarkup inlineKeyboardMarkup = catsMenuHandler.formInlineKeyboardForSendReportButton();
-                    mainMenuHandler.changesAlreadySent(chatId, messageId, inlineKeyboardMarkup);
+                    mainMenuHandler.changesAlreadySentMessage(chatId, messageId, inlineKeyboardMarkup);
                 } else {
                     OwnerCatFlag flag = new OwnerCatFlag();
                     flag.setWaitingForChanges(true);
@@ -369,13 +403,20 @@ public class TelegramBotUpdatesListener implements UpdatesListener {
             case "/cat_volunteer" -> {
                 if (ownersCatsFlagStatus.containsKey(chatId) && ownersCatsFlagStatus.get(chatId).isChatting()) {
                     InlineKeyboardMarkup inlineKeyboardMarkup = catsMenuHandler.formPriutMainMenuButton();
-                    mainMenuHandler.chattingAlready(chatId, messageId, inlineKeyboardMarkup);
+                    mainMenuHandler.chatAlreadySetMessage(chatId, messageId, inlineKeyboardMarkup);
                 } else {
                     OwnerCatFlag flag = new OwnerCatFlag();
                     flag.setChatting(true);
                     ownersCatsFlagStatus.put(chatId, flag);
                     chatsCatsHandler.callVolunteer(update);
                 }
+            }
+            case "/cats_reply" -> {
+                chatsCatsHandler.executeReplyButtonCommandForVolunteer(update);
+            }
+            case "/cats_close" -> {
+                chatsCatsHandler.executeCloseButtonCommand(update);
+                ownersCatsFlagStatus.remove(chatId);
             }
             case "/cat_receive_contacts" -> {
                 OwnerCatFlag flag = new OwnerCatFlag();
@@ -400,7 +441,7 @@ public class TelegramBotUpdatesListener implements UpdatesListener {
             case "/dog_send_report" -> {
                 if (reportsDogsHandler.isReportCompleted(update)) {
                     InlineKeyboardMarkup inlineKeyboardMarkup = dogsMenuHandler.formPriutMainMenuButton();
-                    mainMenuHandler.reportAlreadySent(chatId, messageId, inlineKeyboardMarkup);
+                    mainMenuHandler.reportAlreadySentMessage(chatId, messageId, inlineKeyboardMarkup);
                 } else {
                     InlineKeyboardMarkup inlineKeyboardMarkup = dogsMenuHandler.formInlineKeyboardForSendReportButton();
                     dogsMenuHandler.executeButtonOrCommand(update, inlineKeyboardMarkup);
@@ -409,7 +450,7 @@ public class TelegramBotUpdatesListener implements UpdatesListener {
             case "/dog_send_photo" -> {
                 if (reportsDogsHandler.isPhoto(update)) {
                     InlineKeyboardMarkup inlineKeyboardMarkup = dogsMenuHandler.formInlineKeyboardForSendReportButton();
-                    mainMenuHandler.photoAlreadySent(chatId, messageId, inlineKeyboardMarkup);
+                    mainMenuHandler.photoAlreadySentMessage(chatId, messageId, inlineKeyboardMarkup);
                 } else {
                     OwnerDogFlag flag = new OwnerDogFlag();
                     flag.setWaitingForPhoto(true);
@@ -421,7 +462,7 @@ public class TelegramBotUpdatesListener implements UpdatesListener {
             case "/dog_send_ration" -> {
                 if (reportsDogsHandler.isRation(update)) {
                     InlineKeyboardMarkup inlineKeyboardMarkup = dogsMenuHandler.formInlineKeyboardForSendReportButton();
-                    mainMenuHandler.rationAlreadySent(chatId, messageId, inlineKeyboardMarkup);
+                    mainMenuHandler.rationAlreadySentMessage(chatId, messageId, inlineKeyboardMarkup);
                 } else {
                     OwnerDogFlag flag = new OwnerDogFlag();
                     flag.setWaitingForRation(true);
@@ -433,7 +474,7 @@ public class TelegramBotUpdatesListener implements UpdatesListener {
             case "/dog_send_feeling" -> {
                 if (reportsDogsHandler.isFeeling(update)) {
                     InlineKeyboardMarkup inlineKeyboardMarkup = dogsMenuHandler.formInlineKeyboardForSendReportButton();
-                    mainMenuHandler.feelingAlreadySent(chatId, messageId, inlineKeyboardMarkup);
+                    mainMenuHandler.feelingAlreadySentMessage(chatId, messageId, inlineKeyboardMarkup);
                 } else {
                     OwnerDogFlag flag = new OwnerDogFlag();
                     flag.setWaitingForFeeling(true);
@@ -445,7 +486,7 @@ public class TelegramBotUpdatesListener implements UpdatesListener {
             case "/dog_send_changes" -> {
                 if (reportsDogsHandler.isChanges(update)) {
                     InlineKeyboardMarkup inlineKeyboardMarkup = dogsMenuHandler.formInlineKeyboardForSendReportButton();
-                    mainMenuHandler.changesAlreadySent(chatId, messageId, inlineKeyboardMarkup);
+                    mainMenuHandler.changesAlreadySentMessage(chatId, messageId, inlineKeyboardMarkup);
                 } else {
                     OwnerDogFlag flag = new OwnerDogFlag();
                     flag.setWaitingForChanges(true);
@@ -459,9 +500,15 @@ public class TelegramBotUpdatesListener implements UpdatesListener {
                 dogsMenuHandler.executeButtonOrCommand(update, inlineKeyboardMarkup);
             }
             case "/dog_volunteer" -> {
-                InlineKeyboardMarkup inlineKeyboardMarkup = dogsMenuHandler.formInlineKeyboardForSendReportButton();
-                dogsMenuHandler.executeButtonOrCommand(update, inlineKeyboardMarkup);
-                chatsDogsHandler.callVolunteer(update);
+                if (ownersDogsFlagStatus.containsKey(chatId) && ownersDogsFlagStatus.get(chatId).isChatting()) {
+                    InlineKeyboardMarkup inlineKeyboardMarkup = dogsMenuHandler.formPriutMainMenuButton();
+                    mainMenuHandler.chatAlreadySetMessage(chatId, messageId, inlineKeyboardMarkup);
+                } else {
+                    OwnerDogFlag flag = new OwnerDogFlag();
+                    flag.setChatting(true);
+                    ownersDogsFlagStatus.put(chatId, flag);
+                    chatsDogsHandler.callVolunteer(update);
+                }
             }
             case "/dogs_reply" -> {
                 chatsDogsHandler.executeReplyButtonCommandForVolunteer(update);
@@ -479,8 +526,6 @@ public class TelegramBotUpdatesListener implements UpdatesListener {
             default -> mainMenuHandler.noSuchCommandSendMessage(update);
         }
     }
-
-
 }
 
 

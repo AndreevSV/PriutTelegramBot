@@ -5,8 +5,10 @@ import com.pengrad.telegrambot.model.request.InlineKeyboardMarkup;
 import jakarta.validation.constraints.NotNull;
 import omg.group.priuttelegrambot.entity.pets.Cat;
 import omg.group.priuttelegrambot.entity.owners.OwnerCat;
+import omg.group.priuttelegrambot.entity.reports.ReportCat;
 
 import java.util.List;
+import java.util.Optional;
 
 public interface ReportsCatsHandler {
 
@@ -22,4 +24,5 @@ public interface ReportsCatsHandler {
     boolean isRation(Update update);
     boolean isFeeling(Update update);
     boolean isChanges(Update update);
+    Optional<ReportCat> returnReportCatOptional(Update update);
 }

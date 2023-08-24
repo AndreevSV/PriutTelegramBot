@@ -10,9 +10,9 @@ import omg.group.priuttelegrambot.entity.owners.OwnerDog;
 import omg.group.priuttelegrambot.entity.pets.Dog;
 import omg.group.priuttelegrambot.handlers.menu.DogsMenuHandler;
 import omg.group.priuttelegrambot.handlers.owners.OwnersDogsHandler;
+import omg.group.priuttelegrambot.handlers.updates.OwnUpdatesHandler;
 import omg.group.priuttelegrambot.repository.owners.OwnersDogsRepository;
 import omg.group.priuttelegrambot.service.owners.OwnersDogsService;
-import org.jetbrains.annotations.NotNull;
 import org.springframework.stereotype.Service;
 
 import java.time.Instant;
@@ -29,22 +29,25 @@ public class OwnersDogsHandlerImpl implements OwnersDogsHandler {
     private final DogsMenuHandler dogsMenuHandler;
     private final OwnersDogsRepository ownersDogsRepository;
     private final OwnersDogsService ownersDogsService;
+    private final OwnUpdatesHandler ownUpdatesHandler;
 
     public OwnersDogsHandlerImpl(TelegramBot telegramBot,
                                  DogsMenuHandler dogsMenuHandler,
                                  OwnersDogsRepository ownersDogsRepository,
-                                 OwnersDogsService ownersDogsService) {
+                                 OwnersDogsService ownersDogsService,
+                                 OwnUpdatesHandler ownUpdatesHandler) {
         this.telegramBot = telegramBot;
         this.dogsMenuHandler = dogsMenuHandler;
         this.ownersDogsRepository = ownersDogsRepository;
         this.ownersDogsService = ownersDogsService;
+        this.ownUpdatesHandler = ownUpdatesHandler;
     }
 
     /**
      * New user for the Dog's shelter registration - put in the database
      */
     @Override
-    public void newOwnerRegister(@NotNull Update update) {
+    public void newOwnerRegister(Update update) {
 
         String userName = "";
         String firstName = "";
@@ -102,9 +105,9 @@ public class OwnersDogsHandlerImpl implements OwnersDogsHandler {
         } else {
             InlineKeyboardMarkup inlineKeyboardMarkup = dogsMenuHandler.formInlineKeyboardForTakeMenuButton();
             telegramBot.execute(new SendMessage(chatId, """
-                    Вы еще не зарегистрированы как владелец животного.
-                    Просмотрите информацию, как взять себе питомца.
-                    Для этого нажмите соответствующу кнопку ниже""")
+                    Вы еще не зарегистрированы как владелец животного. Просмотрите информацию, как взять себе питомца.
+                    Для этого нажмите соответствующу кнопку ниже
+                    """)
                     .parseMode(ParseMode.Markdown)
                     .replyMarkup(inlineKeyboardMarkup));
             return new OwnerDog();
@@ -124,9 +127,7 @@ public class OwnersDogsHandlerImpl implements OwnersDogsHandler {
         } else {
             InlineKeyboardMarkup inlineKeyboardMarkup = dogsMenuHandler.formInlineKeyboardForTakeMenuButton();
             telegramBot.execute(new SendMessage(chatId, """
-                    У Вас еще нет домашнего питомца
-                    и Вы не можете отправлять отчет.
-                    Просмотрите информацию, как взять себе питомца.
+                    У Вас еще нет домашнего питомца и Вы не можете отправлять отчет. Просмотрите информацию, как взять себе питомца.
                     Для этого нажмите соответствующу кнопку ниже""")
                     .parseMode(ParseMode.Markdown)
                     .replyMarkup(inlineKeyboardMarkup));
@@ -135,15 +136,9 @@ public class OwnersDogsHandlerImpl implements OwnersDogsHandler {
     }
 
     @Override
-    public OwnerDog returnOwnerFromUpdate(@NotNull Update update) {
+    public OwnerDog returnOwnerFromUpdate(Update update) {
 
-        Long ownerChatId;
-
-        if (update.callbackQuery() != null) {
-            ownerChatId = update.callbackQuery().from().id();
-        } else {
-            ownerChatId = update.message().from().id();
-        }
+        Long ownerChatId = ownUpdatesHandler.extractChatIdFromUpdate(update);
 
         Optional<OwnerDog> owner = ownersDogsRepository.findByVolunteerIsFalseAndChatId(ownerChatId);
 
@@ -151,22 +146,12 @@ public class OwnersDogsHandlerImpl implements OwnersDogsHandler {
     }
 
     @Override
-    public OwnerDog returnVolunteerFromUpdate(@NotNull Update update) {
+    public OwnerDog returnVolunteerFromUpdate(Update update) {
 
-        Long volunteerChatId;
+        Long volunteerChatId = ownUpdatesHandler.extractChatIdFromUpdate(update);;
 
-        if (update.callbackQuery() != null) {
-            volunteerChatId = update.callbackQuery().from().id();
-        } else {
-            volunteerChatId = update.message().from().id();
-        }
+        Optional<OwnerDog> volunteer = ownersDogsRepository.findByVolunteerIsTrueAndChatId(volunteerChatId);
 
-        Optional<OwnerDog> volunteerOptional = ownersDogsRepository.findByVolunteerIsTrueAndChatId(volunteerChatId);
-
-        if (volunteerOptional.isPresent()) {
-
-            return volunteerOptional.get().getVolunteer();
-        }
-        return null;
+        return volunteer.orElse(null);
     }
 }

@@ -555,19 +555,10 @@ public class ReportsDogsHandlerImpl implements ReportsDogsHandler {
 
     @Override
     public boolean isReportCompleted(Update update) {
-        OwnerDog ownerDog = ownersDogsHandler.checkForOwnerExist(update);
-        Dog dog = dogsHandler.returnOneDogOnProbation(update);
-
-        Long clientId = ownerDog.getId();
-        Long dogId = dog.getId();
-        LocalDate date = LocalDate.now();
-
-        Optional<ReportDog> reportDogOptional = reportsDogsRepository.findByClientIdAndAnimalIdAndDateReport(clientId, dogId, date);
+        Optional<ReportDog> reportDogOptional = returnReportCatOptional(update);
 
         if (reportDogOptional.isPresent()) {
-
             ReportDog reportDog = reportDogOptional.get();
-
             return reportDog.getFileId() != null &&
                     reportDog.getRation() != null &&
                     reportDog.getFeeling() != null &&
@@ -578,19 +569,10 @@ public class ReportsDogsHandlerImpl implements ReportsDogsHandler {
 
     @Override
     public boolean isPhoto(Update update) {
-        OwnerDog ownerDog = ownersDogsHandler.checkForOwnerExist(update);
-        Dog dog = dogsHandler.returnOneDogOnProbation(update);
-
-        Long clientId = ownerDog.getId();
-        Long dogId = dog.getId();
-        LocalDate date = LocalDate.now();
-
-        Optional<ReportDog> reportDogOptional = reportsDogsRepository.findByClientIdAndAnimalIdAndDateReport(clientId, dogId, date);
+        Optional<ReportDog> reportDogOptional = returnReportCatOptional(update);
 
         if (reportDogOptional.isPresent()) {
-
             ReportDog reportDog = reportDogOptional.get();
-
             return reportDog.getFileId() != null;
         }
         return false;
@@ -598,19 +580,10 @@ public class ReportsDogsHandlerImpl implements ReportsDogsHandler {
 
     @Override
     public boolean isRation(Update update) {
-        OwnerDog ownerDog = ownersDogsHandler.checkForOwnerExist(update);
-        Dog dog = dogsHandler.returnOneDogOnProbation(update);
-
-        Long clientId = ownerDog.getId();
-        Long dogId = dog.getId();
-        LocalDate date = LocalDate.now();
-
-        Optional<ReportDog> reportDogOptional = reportsDogsRepository.findByClientIdAndAnimalIdAndDateReport(clientId, dogId, date);
+        Optional<ReportDog> reportDogOptional = returnReportCatOptional(update);
 
         if (reportDogOptional.isPresent()) {
-
             ReportDog reportDog = reportDogOptional.get();
-
             return reportDog.getRation() != null;
         }
         return false;
@@ -618,19 +591,10 @@ public class ReportsDogsHandlerImpl implements ReportsDogsHandler {
 
     @Override
     public boolean isFeeling(Update update) {
-        OwnerDog ownerDog = ownersDogsHandler.checkForOwnerExist(update);
-        Dog dog = dogsHandler.returnOneDogOnProbation(update);
-
-        Long clientId = ownerDog.getId();
-        Long dogId = dog.getId();
-        LocalDate date = LocalDate.now();
-
-        Optional<ReportDog> reportDogOptional = reportsDogsRepository.findByClientIdAndAnimalIdAndDateReport(clientId, dogId, date);
+        Optional<ReportDog> reportDogOptional = returnReportCatOptional(update);
 
         if (reportDogOptional.isPresent()) {
-
             ReportDog reportDog = reportDogOptional.get();
-
             return reportDog.getFeeling() != null;
         }
         return false;
@@ -638,6 +602,17 @@ public class ReportsDogsHandlerImpl implements ReportsDogsHandler {
 
     @Override
     public boolean isChanges(Update update) {
+        Optional<ReportDog> reportDogOptional = returnReportCatOptional(update);
+
+        if (reportDogOptional.isPresent()) {
+            ReportDog reportDog = reportDogOptional.get();
+            return reportDog.getChanges() != null;
+        }
+        return false;
+    }
+
+    @Override
+    public Optional<ReportDog> returnReportCatOptional(Update update) {
         OwnerDog ownerDog = ownersDogsHandler.checkForOwnerExist(update);
         Dog dog = dogsHandler.returnOneDogOnProbation(update);
 
@@ -645,15 +620,7 @@ public class ReportsDogsHandlerImpl implements ReportsDogsHandler {
         Long dogId = dog.getId();
         LocalDate date = LocalDate.now();
 
-        Optional<ReportDog> reportDogOptional = reportsDogsRepository.findByClientIdAndAnimalIdAndDateReport(clientId, dogId, date);
-
-        if (reportDogOptional.isPresent()) {
-
-            ReportDog reportDog = reportDogOptional.get();
-
-            return reportDog.getChanges() != null;
-        }
-        return false;
+        return reportsDogsRepository.findByClientIdAndAnimalIdAndDateReport(clientId, dogId, date);
     }
 
 }

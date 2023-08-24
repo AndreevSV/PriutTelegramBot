@@ -13,7 +13,6 @@ import omg.group.priuttelegrambot.handlers.owners.OwnersCatsHandler;
 import omg.group.priuttelegrambot.handlers.updates.OwnUpdatesHandler;
 import omg.group.priuttelegrambot.repository.owners.OwnersCatsRepository;
 import omg.group.priuttelegrambot.service.owners.OwnersCatsService;
-import org.jetbrains.annotations.NotNull;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -48,7 +47,7 @@ public class OwnersCatsHandlerImpl implements OwnersCatsHandler {
      * New user for the Cat's shelter registration - put in the database
      */
     @Override
-    public void newOwnerRegister(@NotNull Update update) {
+    public void newOwnerRegister(Update update) {
 
         String userName = "";
         String firstName = "";
@@ -107,11 +106,8 @@ public class OwnersCatsHandlerImpl implements OwnersCatsHandler {
         } else {
             InlineKeyboardMarkup inlineKeyboardMarkup = catsMenuHandler.formInlineKeyboardForTakeMenuButton();
             telegramBot.execute(new SendMessage(chatId, """
-                    Вы еще не зарегистрированы как
-                    владелец животного. Просмотрите
-                    информацию, как взять себе питомца.
-                    Для этого нажмите соответствующу
-                    кнопку ниже""")
+                    Вы еще не зарегистрированы как владелец животного. Просмотрите информацию, как взять себе питомца.
+                    Для этого нажмите соответствующу кнопку ниже""")
                     .parseMode(ParseMode.Markdown)
                     .replyMarkup(inlineKeyboardMarkup));
             return new OwnerCat();
@@ -132,11 +128,8 @@ public class OwnersCatsHandlerImpl implements OwnersCatsHandler {
         } else {
             InlineKeyboardMarkup inlineKeyboardMarkup = catsMenuHandler.formInlineKeyboardForTakeMenuButton();
             telegramBot.execute(new SendMessage(chatId, """
-                    У Вас еще нет домашнего питомца
-                    и Вы не можете отправлять отчет.
-                    Просмотрите информацию, как взять
-                    себе питомца. Для этого нажмите
-                    соответствующу кнопку ниже
+                    У Вас еще нет домашнего питомца и Вы не можете отправлять отчет. Просмотрите информацию, как взять себе питомца. 
+                    Для этого нажмите соответствующу кнопку ниже
                     """)
                     .parseMode(ParseMode.Markdown)
                     .replyMarkup(inlineKeyboardMarkup));
@@ -145,38 +138,22 @@ public class OwnersCatsHandlerImpl implements OwnersCatsHandler {
     }
 
     @Override
-    public OwnerCat returnOwnerFromUpdate(@NotNull Update update) {
+    public OwnerCat returnOwnerFromUpdate(Update update) {
 
-        Long ownerChatId;
+        Long ownerChatId = ownUpdatesHandler.extractChatIdFromUpdate(update);
 
-        if (update.callbackQuery() != null) {
-            ownerChatId = update.callbackQuery().from().id();
-        } else {
-            ownerChatId = update.message().from().id();
-        }
-
-        Optional<OwnerCat> owner = ownersCatsRepository.findByVolunteerIsFalseAndChatId(ownerChatId);
+        Optional<OwnerCat> owner = ownersCatsRepository.findByIsVolunteerIsFalseAndChatId(ownerChatId);
 
         return owner.orElse(null);
     }
 
     @Override
-    public OwnerCat returnVolunteerFromUpdate(@NotNull Update update) {
+    public OwnerCat returnVolunteerFromUpdate(Update update) {
 
-        Long volunteerChatId;
+        Long volunteerChatId = ownUpdatesHandler.extractChatIdFromUpdate(update);
 
-        if (update.callbackQuery() != null) {
-            volunteerChatId = update.callbackQuery().from().id();
-        } else {
-            volunteerChatId = update.message().from().id();
-        }
+        Optional<OwnerCat> volunteer = ownersCatsRepository.findByVolunteerIsTrueAndChatId(volunteerChatId);
 
-        Optional<OwnerCat> volunteerOptional = ownersCatsRepository.findByVolunteerIsTrueAndChatId(volunteerChatId);
-
-        if (volunteerOptional.isPresent()) {
-
-            return volunteerOptional.get().getVolunteer();
-        }
-        return null;
+        return volunteer.orElse(null);
     }
 }

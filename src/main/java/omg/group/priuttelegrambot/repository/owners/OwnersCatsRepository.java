@@ -10,21 +10,13 @@ import java.util.Optional;
 
 @Repository
 public interface OwnersCatsRepository extends JpaRepository<OwnerCat, Long>, OwnersCatsRepositoryCustom {
-
     @NotNull
     Optional<OwnerCat> findById(@NotNull Long id);
-
     Optional<OwnerCat> findByChatId(Long chatId);
-
-    Optional<OwnerCat> findByVolunteerIsFalseAndChatId (Long chatId);
-
+    Optional<OwnerCat> findByIsVolunteerIsFalseAndChatId(Long chatId);
     List<OwnerCat> findByUserNameContainingIgnoreCase(String username);
-
     List<OwnerCat> findBySurnameContainingIgnoreCase(String surname);
-
     List<OwnerCat> findByTelephoneContainingIgnoreCase(String telephone);
-
     Optional<OwnerCat> findByVolunteerIsTrueAndChatId(Long chatId);
-
-
+    Optional<OwnerCat> findOwnerCatByVolunteer(OwnerCat volunteer);
 }

@@ -64,8 +64,8 @@ public class MainMenuHandlerImpl implements MainMenuHandler {
     }
 
     @Override
-    public void executeSendRationButton(Long chatId, InlineKeyboardMarkup inlineKeyboardMarkup) {
-        telegramBot.execute(new SendMessage(chatId, """
+    public void executeSendRationButton(Long chatId, int messageId, InlineKeyboardMarkup inlineKeyboardMarkup) {
+        telegramBot.execute(new EditMessageText(chatId, messageId, """
                 Ранее вы нажали на кнопку *Отправить рацион*.
                 Теперь нажатие кнопок недоступно, пока вы не отправите *рацион* питомца.
                 Введите текстом рацион и нажимте кнопку *Отправить*
@@ -75,8 +75,8 @@ public class MainMenuHandlerImpl implements MainMenuHandler {
     }
 
     @Override
-    public void executeSendFeelingButton(Long chatId, InlineKeyboardMarkup inlineKeyboardMarkup) {
-        telegramBot.execute(new SendMessage(chatId, """
+    public void executeSendFeelingButton(Long chatId, int messageId, InlineKeyboardMarkup inlineKeyboardMarkup) {
+        telegramBot.execute(new EditMessageText(chatId, messageId, """
                 Ранее вы нажали на кнопку *Отправить самочувствие*.
                 Теперь нажатие кнопок недоступно, пока вы не отправите *самочувствие* питомца.
                 Введите текстом самочувствие и нажимте кнопку "Отправить"
@@ -86,8 +86,8 @@ public class MainMenuHandlerImpl implements MainMenuHandler {
     }
 
     @Override
-    public void executeSendChangesButton(Long chatId, InlineKeyboardMarkup inlineKeyboardMarkup) {
-        telegramBot.execute(new SendMessage(chatId, """
+    public void executeSendChangesButton(Long chatId, int messageId, InlineKeyboardMarkup inlineKeyboardMarkup) {
+        telegramBot.execute(new EditMessageText(chatId, messageId, """
                 Ранее вы нажали на кнопку *Отправить изменения*.
                 Теперь нажатие кнопок недоступно, пока вы не отправите *изменения в поведении* питомца.
                 Введите текстом изменения и нажимте кнопку *Отправить*
@@ -97,8 +97,8 @@ public class MainMenuHandlerImpl implements MainMenuHandler {
     }
 
     @Override
-    public void executeSendPhotoButton(Long chatId, InlineKeyboardMarkup inlineKeyboardMarkup) {
-        telegramBot.execute(new SendMessage(chatId, """
+    public void executeSendPhotoButton(Long chatId, int messageId, InlineKeyboardMarkup inlineKeyboardMarkup) {
+        telegramBot.execute(new EditMessageText(chatId, messageId, """
                 Ранее вы нажали на кнопку *Отправить фотографию*.
                 Теперь нажатие кнопок недоступно, пока вы не отправите *фотографию* питомца.
                 Загрузите фотографию и нажимте кнопку *Отправить*
@@ -108,8 +108,8 @@ public class MainMenuHandlerImpl implements MainMenuHandler {
     }
 
     @Override
-    public void executeSendContactsButton(Long chatId, InlineKeyboardMarkup inlineKeyboardMarkup) {
-        telegramBot.execute(new SendMessage(chatId, """
+    public void executeSendContactsButton(Long chatId, int messageId, InlineKeyboardMarkup inlineKeyboardMarkup) {
+        telegramBot.execute(new EditMessageText(chatId, messageId, """
                 Ранее вы нажали на кнопку *Отправить контакты*.
                 Теперь нажатие кнопок недоступно, пока вы не отправите свой *контакт*.
                 Выберите свой контакт и нажмите кнопку *Отправить*
@@ -119,8 +119,8 @@ public class MainMenuHandlerImpl implements MainMenuHandler {
     }
 
     @Override
-    public void executeCallVolunteerButton(Long chatId, InlineKeyboardMarkup inlineKeyboardMarkup) {
-        telegramBot.execute(new SendMessage(chatId, """
+    public void executeCallVolunteerButton(Long chatId, int messageId, InlineKeyboardMarkup inlineKeyboardMarkup) {
+        telegramBot.execute(new EditMessageText(chatId, messageId, """
                 Ранее вы нажали на кнопку *Позвать волонтера*.
                 Теперь нажатие кнопок недоступно, пока вы не завершите чат.
                 Нажмите на кнопку *Завершить чат* или отправьте команду */cats_close*
@@ -130,7 +130,7 @@ public class MainMenuHandlerImpl implements MainMenuHandler {
     }
 
     @Override
-    public void reportAlreadySent(Long chatId, int messageId, InlineKeyboardMarkup inlineKeyboardMarkup) {
+    public void reportAlreadySentMessage(Long chatId, int messageId, InlineKeyboardMarkup inlineKeyboardMarkup) {
         telegramBot.execute(new EditMessageText(chatId, messageId, """
                 Вы отправили сегодня отчет. Больше сегодня отправлять ничего не нужно.
                 Выберите другой пункт меню:
@@ -140,7 +140,7 @@ public class MainMenuHandlerImpl implements MainMenuHandler {
     }
 
     @Override
-    public void photoAlreadySent(Long chatId, int messageId, InlineKeyboardMarkup inlineKeyboardMarkup) {
+    public void photoAlreadySentMessage(Long chatId, int messageId, InlineKeyboardMarkup inlineKeyboardMarkup) {
         telegramBot.execute(new EditMessageText(chatId, messageId, """
                 Вы отправили сегодня фотографию. Отправлять сегодня фотографию не нужно.
                 Выберите другой пункт меню:
@@ -150,7 +150,7 @@ public class MainMenuHandlerImpl implements MainMenuHandler {
     }
 
     @Override
-    public void rationAlreadySent(Long chatId, int messageId, InlineKeyboardMarkup inlineKeyboardMarkup) {
+    public void rationAlreadySentMessage(Long chatId, int messageId, InlineKeyboardMarkup inlineKeyboardMarkup) {
         telegramBot.execute(new EditMessageText(chatId, messageId, """
                 Вы отправили сегодня рацион. Отправлять сегодня рацион больше не нужно.
                 Выберите другой пункт меню:
@@ -160,7 +160,7 @@ public class MainMenuHandlerImpl implements MainMenuHandler {
     }
 
     @Override
-    public void feelingAlreadySent(Long chatId, int messageId, InlineKeyboardMarkup inlineKeyboardMarkup) {
+    public void feelingAlreadySentMessage(Long chatId, int messageId, InlineKeyboardMarkup inlineKeyboardMarkup) {
         telegramBot.execute(new EditMessageText(chatId, messageId, """
                 Вы отправили сегодня информацию о самочувствии. Отправлять сегодня информацию о самочувствии больше не нужно.
                 Выберите другой пункт меню:
@@ -170,7 +170,7 @@ public class MainMenuHandlerImpl implements MainMenuHandler {
     }
 
     @Override
-    public void changesAlreadySent(Long chatId, int messageId, InlineKeyboardMarkup inlineKeyboardMarkup) {
+    public void changesAlreadySentMessage(Long chatId, int messageId, InlineKeyboardMarkup inlineKeyboardMarkup) {
         telegramBot.execute(new EditMessageText(chatId, messageId, """
                 Вы отправили сегодня изменения в поведении животного. Отправлять сегодня изменени больше не нужно.
                 Выберите другой пункт меню:
@@ -180,11 +180,99 @@ public class MainMenuHandlerImpl implements MainMenuHandler {
     }
 
     @Override
-    public void chattingAlready(Long chatId, int messageId, InlineKeyboardMarkup inlineKeyboardMarkup) {
+    public void chatAlreadySetMessage(Long chatId, int messageId, InlineKeyboardMarkup inlineKeyboardMarkup) {
         telegramBot.execute(new EditMessageText(chatId, messageId, """
                 У вас уже открыт чат с волонтером. Для завершения отправьте *cats_close*
                 """)
                 .parseMode(ParseMode.Markdown)
                 .replyMarkup(inlineKeyboardMarkup));
+    }
+
+//    @Override
+//    public void waitingForContactMessage(Long chatId, int messageId, InlineKeyboardMarkup inlineKeyboardMarkup) {
+//        telegramBot.execute(new EditMessageText(chatId, messageId, """
+//                Вы нажали кнопку *Оставить контактные данные* и мы ожидаем подтверждение отправки.
+//                Нажмите кнопку "Поделиться контактом* под клавиатурой.
+//                """)
+//                .parseMode(ParseMode.Markdown)
+//                .replyMarkup(inlineKeyboardMarkup));
+//    }
+
+    @Override
+    public void waitingForContactMessage(Long chatId, InlineKeyboardMarkup inlineKeyboardMarkup) {
+        telegramBot.execute(new SendMessage(chatId, """
+                Вы нажали кнопку *Оставить контактные данные* и мы ожидаем подтверждение отправки.
+                Нажмите кнопку "Поделиться контактом* под клавиатурой.
+                """)
+                .parseMode(ParseMode.Markdown)
+                .replyMarkup(inlineKeyboardMarkup));
+    }
+
+    @Override
+    public void contactSavedOkMessage(Long chatId, InlineKeyboardMarkup inlineKeyboardMarkup) {
+        telegramBot.execute(new SendMessage(chatId, """
+                Ваш телефон успешно сохранен.
+                """)
+                .parseMode(ParseMode.Markdown)
+                .replyMarkup(inlineKeyboardMarkup));
+    }
+
+    @Override
+    public void volunteerOpenedChatMessage(Long ownerChatId, Long volunteerChatId) {
+        SendMessage messageToOwner = new SendMessage(ownerChatId, """
+                Волонтер подтвердил готовность проконсультровать Вас. Отправьте ему свой вопрос.
+                Для завершения чата отправьте команду */cats_close*.
+                """)
+                .parseMode(ParseMode.Markdown);
+        telegramBot.execute(messageToOwner);
+
+        SendMessage sendMessage = new SendMessage(volunteerChatId, """
+                Вы подтвердили чат с клиентом. Дождитесь вопроса от него.
+                Для завершения чата отправьте команду */cats_close*.
+                """)
+                .parseMode(ParseMode.Markdown);
+        telegramBot.execute(sendMessage);
+    }
+
+
+    @Override
+    public void ownerClosedChatMessage(Long ownerChatId, Long volunteerChatId) {
+        SendMessage messageToOwner = new SendMessage(ownerChatId, """
+                        Вы завершили чат с волонтером. Чтобы начать новую консультацию снова нажмите кнопу "Позвать волонтера"
+                        """)
+                .parseMode(ParseMode.Markdown);
+        telegramBot.execute(messageToOwner);
+
+        SendMessage messageToVolunteer = new SendMessage(volunteerChatId, """
+                        Пользователь завершил чат с вами. Чат закрыт и удален из базы.
+                        """)
+                .parseMode(ParseMode.Markdown);
+        telegramBot.execute(messageToVolunteer);
+    }
+
+    @Override
+    public void volunteerClosedChatMessage(Long volunteerChatId, Long ownerChatId) {
+        SendMessage messageToVolunteer = new SendMessage(volunteerChatId, """
+                        Вы завершили чат с пользователем. Чат закрыт и удален из базы.
+                        """)
+                .parseMode(ParseMode.Markdown);
+        telegramBot.execute(messageToVolunteer);
+
+        SendMessage messageToOwner = new SendMessage(ownerChatId, """
+                        Волонтер завершил чат с Вами. Чтобы начать новую консультацию снова нажмите кнопу "Позвать волонтера"
+                        """)
+                .parseMode(ParseMode.Markdown);
+        telegramBot.execute(messageToOwner);
+    }
+
+    @Override
+    public void noFreeVolunteerAvailableMessage(Long ownerChatId) {
+        SendMessage messageToOwner = new SendMessage(ownerChatId, """
+                К сожалению в настоящее время нет свободных волонтеров, которые могут вас проконсультировать.
+                Пожалуйста, обратитесь позднее.
+                """)
+                .parseMode(ParseMode.Markdown);
+
+        telegramBot.execute(messageToOwner);
     }
 }

@@ -5,8 +5,7 @@ import omg.group.priuttelegrambot.entity.owners.OwnerCat;
 
 public interface ChatsCatsHandler {
     void callVolunteer(Update update);
-    void startingChat(OwnerCat owner);
     void executeReplyButtonCommandForVolunteer(Update update);
-    void executeCloseButtonCommand(Update update);
-    void sendMessageReceived(Update update);
+    Long executeCloseButtonCommand(Update update);
+    void forwardMessageReceived(Update update);
 }

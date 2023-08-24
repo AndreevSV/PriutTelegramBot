@@ -578,20 +578,10 @@ public class ReportsCatsHandlerImpl implements ReportsCatsHandler {
 
     @Override
     public boolean isReportCompleted(Update update) {
-        OwnerCat ownerCat = ownersCatsHandler.checkForOwnerExist(update);
-        Cat cat = catsHandler.returnOneCatOnProbation(update);
-
-        Long clientId = ownerCat.getId();
-        Long catId = cat.getId();
-        LocalDate date = LocalDate.now();
-
-        Optional<ReportCat> reportCatOptional = reportsCatsRepository
-                .findByClientIdAndAnimalIdAndDateReport(clientId, catId, date);
+        Optional<ReportCat> reportCatOptional = returnReportCatOptional(update);
 
         if (reportCatOptional.isPresent()) {
-
             ReportCat reportCat = reportCatOptional.get();
-
             return reportCat.getFileId() != null &&
                     reportCat.getRation() != null &&
                     reportCat.getFeeling() != null &&
@@ -602,20 +592,10 @@ public class ReportsCatsHandlerImpl implements ReportsCatsHandler {
 
     @Override
     public boolean isPhoto(Update update) {
-        OwnerCat ownerCat = ownersCatsHandler.checkForOwnerExist(update);
-        Cat cat = catsHandler.returnOneCatOnProbation(update);
-
-        Long clientId = ownerCat.getId();
-        Long catId = cat.getId();
-        LocalDate date = LocalDate.now();
-
-        Optional<ReportCat> reportCatOptional = reportsCatsRepository
-                .findByClientIdAndAnimalIdAndDateReport(clientId, catId, date);
+        Optional<ReportCat> reportCatOptional = returnReportCatOptional(update);
 
         if (reportCatOptional.isPresent()) {
-
             ReportCat reportCat = reportCatOptional.get();
-
             return reportCat.getFileId() != null;
         }
         return false;
@@ -623,20 +603,10 @@ public class ReportsCatsHandlerImpl implements ReportsCatsHandler {
 
     @Override
     public boolean isRation(Update update) {
-        OwnerCat ownerCat = ownersCatsHandler.checkForOwnerExist(update);
-        Cat cat = catsHandler.returnOneCatOnProbation(update);
-
-        Long clientId = ownerCat.getId();
-        Long catId = cat.getId();
-        LocalDate date = LocalDate.now();
-
-        Optional<ReportCat> reportCatOptional = reportsCatsRepository
-                .findByClientIdAndAnimalIdAndDateReport(clientId, catId, date);
+        Optional<ReportCat> reportCatOptional = returnReportCatOptional(update);
 
         if (reportCatOptional.isPresent()) {
-
             ReportCat reportCat = reportCatOptional.get();
-
             return reportCat.getRation() != null;
         }
         return false;
@@ -644,20 +614,10 @@ public class ReportsCatsHandlerImpl implements ReportsCatsHandler {
 
     @Override
     public boolean isFeeling(Update update) {
-        OwnerCat ownerCat = ownersCatsHandler.checkForOwnerExist(update);
-        Cat cat = catsHandler.returnOneCatOnProbation(update);
-
-        Long clientId = ownerCat.getId();
-        Long catId = cat.getId();
-        LocalDate date = LocalDate.now();
-
-        Optional<ReportCat> reportCatOptional = reportsCatsRepository
-                .findByClientIdAndAnimalIdAndDateReport(clientId, catId, date);
+        Optional<ReportCat> reportCatOptional = returnReportCatOptional(update);
 
         if (reportCatOptional.isPresent()) {
-
             ReportCat reportCat = reportCatOptional.get();
-
             return reportCat.getFeeling() != null;
         }
         return false;
@@ -665,6 +625,18 @@ public class ReportsCatsHandlerImpl implements ReportsCatsHandler {
 
     @Override
     public boolean isChanges(Update update) {
+        Optional<ReportCat> reportCatOptional = returnReportCatOptional(update);
+
+        if (reportCatOptional.isPresent()) {
+            ReportCat reportCat = reportCatOptional.get();
+            return reportCat.getChanges() != null;
+        }
+        return false;
+    }
+
+    @Override
+    public Optional<ReportCat> returnReportCatOptional(Update update) {
+
         OwnerCat ownerCat = ownersCatsHandler.checkForOwnerExist(update);
         Cat cat = catsHandler.returnOneCatOnProbation(update);
 
@@ -672,16 +644,8 @@ public class ReportsCatsHandlerImpl implements ReportsCatsHandler {
         Long catId = cat.getId();
         LocalDate date = LocalDate.now();
 
-        Optional<ReportCat> reportCatOptional = reportsCatsRepository
-                .findByClientIdAndAnimalIdAndDateReport(clientId, catId, date);
+        return reportsCatsRepository.findByClientIdAndAnimalIdAndDateReport(clientId, catId, date);
 
-        if (reportCatOptional.isPresent()) {
-
-            ReportCat reportCat = reportCatOptional.get();
-
-            return reportCat.getChanges() != null;
-        }
-        return false;
     }
 
 }

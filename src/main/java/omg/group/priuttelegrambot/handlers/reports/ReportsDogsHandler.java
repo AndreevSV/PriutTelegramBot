@@ -4,9 +4,11 @@ import com.pengrad.telegrambot.model.Update;
 import com.pengrad.telegrambot.model.request.InlineKeyboardMarkup;
 import omg.group.priuttelegrambot.entity.pets.Dog;
 import omg.group.priuttelegrambot.entity.owners.OwnerDog;
+import omg.group.priuttelegrambot.entity.reports.ReportDog;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
+import java.util.Optional;
 
 public interface ReportsDogsHandler {
     boolean isReportExist(Update update);
@@ -20,4 +22,6 @@ public interface ReportsDogsHandler {
     boolean isRation(Update update);
     boolean isFeeling(Update update);
     boolean isChanges(Update update);
+
+    Optional<ReportDog> returnReportCatOptional(Update update);
 }
