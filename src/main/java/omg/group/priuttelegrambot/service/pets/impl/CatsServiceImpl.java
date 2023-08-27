@@ -3,6 +3,7 @@ package omg.group.priuttelegrambot.service.pets.impl;
 import lombok.Data;
 import lombok.RequiredArgsConstructor;
 import omg.group.priuttelegrambot.dto.pets.CatDto;
+import omg.group.priuttelegrambot.entity.owners.OwnerCat;
 import omg.group.priuttelegrambot.entity.pets.Cat;
 import omg.group.priuttelegrambot.entity.pets.petsenum.CatsBreed;
 import omg.group.priuttelegrambot.entity.pets.petsenum.Sex;
@@ -10,6 +11,7 @@ import omg.group.priuttelegrambot.repository.pets.CatsRepository;
 import omg.group.priuttelegrambot.service.pets.CatsService;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.Collections;
 import java.util.Date;
@@ -29,7 +31,6 @@ public class CatsServiceImpl implements CatsService {
 
         Cat cat = constructCatFromCatDto(catDto);
         cat.setCreatedAt(LocalDateTime.now());
-
         catsRepository.save(cat);
     }
 
@@ -49,10 +50,10 @@ public class CatsServiceImpl implements CatsService {
     @Override
     public List<CatDto> findById(Long id) {
 
-        Optional<Cat> сatOptional = catsRepository.findById(id);
+        Optional<Cat> catOptional = catsRepository.findById(id);
 
-        if (сatOptional.isPresent()) {
-            Cat cat = сatOptional.get();
+        if (catOptional.isPresent()) {
+            Cat cat = catOptional.get();
             CatDto catDto = constructCatDtoFromCat(cat);
             return Collections.singletonList(catDto);
         } else {
@@ -110,5 +111,25 @@ public class CatsServiceImpl implements CatsService {
             System.out.println((String.format("Кот/кошка с id %d не найден", id)));
         }
     }
+
+    @Override
+    public void setOwnerAndFirstProbationPeriod(Long id, OwnerCat ownerCat, LocalDate date) {
+
+        final int PROBATION_PERIOD_DAYS = 14;
+
+        List<CatDto> byId = findById(id);
+
+
+        Cat cat = constructCatFromCatDto(catDto);
+        cat.setUpdatedAt(LocalDateTime.now());
+
+        if (catsRepository.existsById(id)) {
+            catsRepository.save(cat);
+        } else {
+            System.out.println((String.format("Кот/кошка с id %d не найден", id)));
+        }
+    }
+
+
 
 }

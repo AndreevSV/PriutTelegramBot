@@ -3,6 +3,10 @@ package omg.group.priuttelegrambot.handlers.chats.impl;
 import com.pengrad.telegrambot.TelegramBot;
 import com.pengrad.telegrambot.model.Update;
 import com.pengrad.telegrambot.request.SendMessage;
+import omg.group.priuttelegrambot.dto.chats.ChatCatsDto;
+import omg.group.priuttelegrambot.dto.chats.ChatCatsMapper;
+import omg.group.priuttelegrambot.dto.owners.OwnerCatDto;
+import omg.group.priuttelegrambot.dto.owners.OwnerCatMapper;
 import omg.group.priuttelegrambot.entity.chats.ChatCats;
 import omg.group.priuttelegrambot.entity.owners.OwnerCat;
 import omg.group.priuttelegrambot.handlers.chats.ChatsCatsHandler;
@@ -25,20 +29,19 @@ public class ChatsCatsHandlerImpl implements ChatsCatsHandler {
     private final ChatsCatsRepository chatsCatsRepository;
     private final OwnUpdatesHandler ownUpdatesHandler;
     private final MainMenuHandler mainMenuHandler;
-    private final CatsMenuHandler catsMenuHandler;
 
     public ChatsCatsHandlerImpl(TelegramBot telegramBot,
                                 OwnersCatsRepository ownersCatsRepository,
                                 OwnersCatsHandler ownersCatsHandler,
                                 ChatsCatsRepository chatsCatsRepository,
-                                OwnUpdatesHandler ownUpdatesHandler, MainMenuHandler mainMenuHandler, CatsMenuHandler catsMenuHandler) {
+                                OwnUpdatesHandler ownUpdatesHandler,
+                                MainMenuHandler mainMenuHandler) {
         this.telegramBot = telegramBot;
         this.ownersCatsRepository = ownersCatsRepository;
         this.ownersCatsHandler = ownersCatsHandler;
         this.chatsCatsRepository = chatsCatsRepository;
         this.ownUpdatesHandler = ownUpdatesHandler;
         this.mainMenuHandler = mainMenuHandler;
-        this.catsMenuHandler = catsMenuHandler;
     }
 
     /**
@@ -48,16 +51,17 @@ public class ChatsCatsHandlerImpl implements ChatsCatsHandler {
      * To not duplicate code method works with startingChat method below
      */
     @Override
-    public void callVolunteer(Update update) {
+    public OwnerCatDto callVolunteer(Update update) {
 
-        OwnerCat owner = ownersCatsHandler.returnOwnerFromUpdate(update);
+        OwnerCatDto ownerCatDto = ownersCatsHandler.returnOwnerCatDtoFromUpdate(update);
 
-        Long ownerChatId = owner.getChatId();
+        Long ownerChatId = ownerCatDto.getChatId();
         Optional<ChatCats> chatOptional = chatsCatsRepository.findByOwnerCatChatId(ownerChatId);
 
         if (chatOptional.isPresent()) {
             //  If owner already has a chat send him a message about it
-            catsMenuHandler.chatAlreadySetToOwnerMessage(ownerChatId);
+            mainMenuHandler.chatAlreadySetToOwnerMessage(ownerChatId);
+            return null;
         } else {
             // If owner hasn't a chat searches for a free volunteer
             Optional<OwnerCat> volunteerOptional = ownersCatsRepository.findVolunteerByVolunteerIsTrueAndNoChatsOpened();
@@ -65,6 +69,7 @@ public class ChatsCatsHandlerImpl implements ChatsCatsHandler {
             if (volunteerOptional.isEmpty()) {
                 // If no free volunteer exist send to owner a message about it
                 mainMenuHandler.noFreeVolunteerAvailableMessage(ownerChatId);
+                return null;
             } else {
                 // If free volunteer exist
                 // 1. Set to Volunteer field volunteer_chat_opened in clients_cats database to true
@@ -74,19 +79,30 @@ public class ChatsCatsHandlerImpl implements ChatsCatsHandler {
                 ownersCatsRepository.save(volunteer);
 
                 // 2. Set to Owner a Volunteer in clients_cats_database
-                owner.setVolunteer(volunteer);
+                ownerCatDto.setVolunteer(volunteer);
+                ownerCatDto.setUpdatedAt(LocalDateTime.now());
+                OwnerCat owner = OwnerCatMapper.toEntity(ownerCatDto);
                 ownersCatsRepository.save(owner);
 
                 // 3. Put new chat in chat_cats database with Owner and Volunteer
                 ChatCats chat = new ChatCats();
                 chat.setIsChatting(false); // Till volunteer haven't pushed button /reply chat is not started
-                chat.setOwnerCat(owner);
-                chat.setVolunteerCat(volunteer);
+                chat.setOwner(owner);
+                chat.setVolunteer(volunteer);
                 chat.setCreatedAt(LocalDateTime.now());
                 chatsCatsRepository.save(chat);
 
                 // 4. Send messages to Volunteer and Owner that inquiry was sent
-                catsMenuHandler.inquiryToVolunteerForChat(volunteerChatId, ownerChatId);
+                mainMenuHandler.inquiryToVolunteerForChat(volunteerChatId, ownerChatId);
+
+                // 5. Get volunteer and create VolunteerDto
+                Optional<OwnerCat> volunteerOptionalByChatId = ownersCatsRepository.findByChatId(volunteerChatId);
+                if (volunteerOptionalByChatId.isPresent()) {
+                    OwnerCat volunteerCat = volunteerOptionalByChatId.get();
+                    return OwnerCatMapper.toDto(volunteerCat);
+                } else {
+                    return null;
+                }
             }
         }
     }
@@ -96,14 +112,12 @@ public class ChatsCatsHandlerImpl implements ChatsCatsHandler {
      */
     @Override
     public void executeReplyButtonCommandForVolunteer(Update update) {
-
         Long volunteerChatId = ownUpdatesHandler.extractChatIdFromUpdate(update);
-
         Optional<ChatCats> chatOptional = chatsCatsRepository.findByVolunteerCatChatId(volunteerChatId);
 
         if (chatOptional.isPresent()) {
             ChatCats chat = chatOptional.get();
-            Long ownerChatId = chat.getOwnerCat().getChatId();
+            Long ownerChatId = chat.getOwner().getChatId();
             chat.setIsChatting(true);
             chat.setMessageSentTime(LocalDateTime.now());
             chatsCatsRepository.save(chat);
@@ -122,23 +136,24 @@ public class ChatsCatsHandlerImpl implements ChatsCatsHandler {
     @Override
     public Long executeCloseButtonCommand(Update update) {
 
-        OwnerCat owner = ownersCatsHandler.returnOwnerFromUpdate(update);
+        OwnerCatDto ownerDto = ownersCatsHandler.returnOwnerCatDtoFromUpdate(update);
 
-        if (owner != null) {
+        if (ownerDto != null) {
             // If "/cats_close" button was pushed by Owner
             // Get a volunteer from owner
-            OwnerCat volunteer = owner.getVolunteer();
+            OwnerCat volunteer = ownerDto.getVolunteer();
             Long volunteerChatId = volunteer.getChatId();
             // Set to volunteer field volunteer_chat_opened to false
             volunteer.setVolunteerChatOpened(false);
             volunteer.setUpdatedAt(LocalDateTime.now());
             ownersCatsRepository.save(volunteer);
             //Deleting volunteer out of Owner
-            owner.setVolunteer(null);
-            owner.setUpdatedAt(LocalDateTime.now());
+            ownerDto.setVolunteer(null);
+            ownerDto.setUpdatedAt(LocalDateTime.now());
+            OwnerCat owner = OwnerCatMapper.toEntity(ownerDto);
             ownersCatsRepository.save(owner);
             //Deleting chat in chat_cats database
-            Long ownerChatId = owner.getChatId();
+            Long ownerChatId = ownerDto.getChatId();
             Optional<ChatCats> chatOptional = chatsCatsRepository.findByOwnerCatChatId(ownerChatId);
             if (chatOptional.isPresent()) {
                 ChatCats chat = chatOptional.get();
@@ -152,11 +167,12 @@ public class ChatsCatsHandlerImpl implements ChatsCatsHandler {
         } else {
             // If "/cats_close" button was pushed by Volunteer
             // Get Volunteer from update
-            OwnerCat volunteer = ownersCatsHandler.returnVolunteerFromUpdate(update);
+            OwnerCatDto volunteerDto = ownersCatsHandler.returnVolunteerCatDtoFromUpdate(update);
             // Set to volunteer field volunteer_chat_opened to false
-            Long volunteerChatId = volunteer.getChatId();
-            volunteer.setVolunteerChatOpened(false);
-            volunteer.setUpdatedAt(LocalDateTime.now());
+            Long volunteerChatId = volunteerDto.getChatId();
+            volunteerDto.setVolunteerChatOpened(false);
+            volunteerDto.setUpdatedAt(LocalDateTime.now());
+            OwnerCat volunteer = OwnerCatMapper.toEntity(volunteerDto);
             ownersCatsRepository.save(volunteer);
             // Get an owner from volunteer
             Optional<OwnerCat> ownerOptional = ownersCatsRepository.findOwnerCatByVolunteer(volunteer);
@@ -191,7 +207,7 @@ public class ChatsCatsHandlerImpl implements ChatsCatsHandler {
             if (chatByVolunteerOptional.isPresent()) {
 
                 ChatCats chat = chatByVolunteerOptional.get();
-                Long ownerChatId = chat.getOwnerCat().getChatId();
+                Long ownerChatId = chat.getOwner().getChatId();
                 SendMessage message = new SendMessage(ownerChatId, text);
                 telegramBot.execute(message);
 
@@ -200,12 +216,24 @@ public class ChatsCatsHandlerImpl implements ChatsCatsHandler {
             }
         } else {
             ChatCats chat = chatByOwnerOptional.get();
-            Long volunteerChatId = chat.getVolunteerCat().getChatId();
+            Long volunteerChatId = chat.getVolunteer().getChatId();
             SendMessage message = new SendMessage(volunteerChatId, text);
             telegramBot.execute(message);
             chat.setMessageSentTime(LocalDateTime.now());
             chatsCatsRepository.save(chat);
         }
     }
+
+    @Override
+    public ChatCatsDto findByOwnerCatChatId(Long ownerCatChatId) {
+        Optional<ChatCats> chatCats = chatsCatsRepository.findByOwnerCatChatId(ownerCatChatId);
+        if (chatCats.isPresent()) {
+            ChatCats chat = chatCats.get();
+            return ChatCatsMapper.toDto(chat);
+        } else {
+            return null;
+        }
+    }
+
 }
 

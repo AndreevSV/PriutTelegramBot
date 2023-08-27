@@ -6,6 +6,7 @@ import com.pengrad.telegrambot.model.request.InlineKeyboardMarkup;
 import com.pengrad.telegrambot.model.request.ParseMode;
 import com.pengrad.telegrambot.request.SendMessage;
 import omg.group.priuttelegrambot.dto.owners.OwnerCatDto;
+import omg.group.priuttelegrambot.dto.owners.OwnerCatMapper;
 import omg.group.priuttelegrambot.entity.owners.OwnerCat;
 import omg.group.priuttelegrambot.entity.pets.Cat;
 import omg.group.priuttelegrambot.handlers.menu.CatsMenuHandler;
@@ -95,14 +96,14 @@ public class OwnersCatsHandlerImpl implements OwnersCatsHandler {
      * Method checks if Owner of the Cat(s) exists
      */
     @Override
-    public OwnerCat checkForOwnerExist(Update update) {
+    public OwnerCatDto checkForOwnerExist(Update update) {
 
         Long chatId = ownUpdatesHandler.extractChatIdFromUpdate(update);
-
         Optional<OwnerCat> ownerCat = ownersCatsRepository.findByChatId(chatId);
 
         if (ownerCat.isPresent()) {
-            return ownerCat.get();
+            OwnerCat owner = ownerCat.get();
+            return OwnerCatMapper.toDto(owner);
         } else {
             InlineKeyboardMarkup inlineKeyboardMarkup = catsMenuHandler.formInlineKeyboardForTakeMenuButton();
             telegramBot.execute(new SendMessage(chatId, """
@@ -110,7 +111,7 @@ public class OwnersCatsHandlerImpl implements OwnersCatsHandler {
                     Для этого нажмите соответствующу кнопку ниже""")
                     .parseMode(ParseMode.Markdown)
                     .replyMarkup(inlineKeyboardMarkup));
-            return new OwnerCat();
+            return null;
         }
     }
 
@@ -138,22 +139,26 @@ public class OwnersCatsHandlerImpl implements OwnersCatsHandler {
     }
 
     @Override
-    public OwnerCat returnOwnerFromUpdate(Update update) {
-
+    public OwnerCatDto returnOwnerCatDtoFromUpdate(Update update) {
         Long ownerChatId = ownUpdatesHandler.extractChatIdFromUpdate(update);
-
-        Optional<OwnerCat> owner = ownersCatsRepository.findByIsVolunteerIsFalseAndChatId(ownerChatId);
-
-        return owner.orElse(null);
+        Optional<OwnerCat> ownerCat = ownersCatsRepository.findByIsVolunteerIsFalseAndChatId(ownerChatId);
+        if (ownerCat.isPresent()) {
+            OwnerCat owner = ownerCat.get();
+            return OwnerCatMapper.toDto(owner);
+        } else {
+            return null;
+        }
     }
 
     @Override
-    public OwnerCat returnVolunteerFromUpdate(Update update) {
-
+    public OwnerCatDto returnVolunteerCatDtoFromUpdate(Update update) {
         Long volunteerChatId = ownUpdatesHandler.extractChatIdFromUpdate(update);
-
-        Optional<OwnerCat> volunteer = ownersCatsRepository.findByVolunteerIsTrueAndChatId(volunteerChatId);
-
-        return volunteer.orElse(null);
+        Optional<OwnerCat> volunteerCat = ownersCatsRepository.findByIsVolunteerIsTrueAndChatId(volunteerChatId);
+        if (volunteerCat.isPresent()) {
+            OwnerCat volunteer = volunteerCat.get();
+            return OwnerCatMapper.toDto(volunteer);
+        } else {
+            return null;
+        }
     }
 }

@@ -14,8 +14,6 @@ public interface ChatsCatsRepository extends JpaRepository<ChatCats, Long> {
 
     Optional<ChatCats> findByVolunteerCatChatId(Long volunteerCatId);
 
-    Optional<ChatCats> findByChatId(Long chatId);
-
     List<ChatCats> findByIsChattingFalseAndVolunteerCatId(Long volunteerCatId);
 
     List<ChatCats> findByIsChattingTrueAndVolunteerCatId(Long volunteerCatId);

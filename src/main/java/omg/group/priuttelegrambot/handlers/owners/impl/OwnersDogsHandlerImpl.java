@@ -6,6 +6,7 @@ import com.pengrad.telegrambot.model.request.InlineKeyboardMarkup;
 import com.pengrad.telegrambot.model.request.ParseMode;
 import com.pengrad.telegrambot.request.SendMessage;
 import omg.group.priuttelegrambot.dto.owners.OwnerDogDto;
+import omg.group.priuttelegrambot.dto.owners.OwnerDogMapper;
 import omg.group.priuttelegrambot.entity.owners.OwnerDog;
 import omg.group.priuttelegrambot.entity.pets.Dog;
 import omg.group.priuttelegrambot.handlers.menu.DogsMenuHandler;
@@ -95,13 +96,14 @@ public class OwnersDogsHandlerImpl implements OwnersDogsHandler {
      * Method checks if Owner of the Dog(s) exists
      */
     @Override
-    public OwnerDog checkForOwnerExist(Update update) {
+    public OwnerDogDto checkForOwnerExist(Update update) {
 
-        Long chatId = update.message().from().id();
+        Long chatId = ownUpdatesHandler.extractChatIdFromUpdate(update);
         Optional<OwnerDog> ownerDog = ownersDogsRepository.findByChatId(chatId);
 
         if (ownerDog.isPresent()) {
-            return ownerDog.get();
+            OwnerDog owner = ownerDog.get();
+            return OwnerDogMapper.toDto(owner);
         } else {
             InlineKeyboardMarkup inlineKeyboardMarkup = dogsMenuHandler.formInlineKeyboardForTakeMenuButton();
             telegramBot.execute(new SendMessage(chatId, """
@@ -110,7 +112,7 @@ public class OwnersDogsHandlerImpl implements OwnersDogsHandler {
                     """)
                     .parseMode(ParseMode.Markdown)
                     .replyMarkup(inlineKeyboardMarkup));
-            return new OwnerDog();
+            return null;
         }
     }
 
@@ -136,22 +138,29 @@ public class OwnersDogsHandlerImpl implements OwnersDogsHandler {
     }
 
     @Override
-    public OwnerDog returnOwnerFromUpdate(Update update) {
+    public OwnerDogDto returnOwnerDogDtoFromUpdate(Update update) {
 
         Long ownerChatId = ownUpdatesHandler.extractChatIdFromUpdate(update);
+        Optional<OwnerDog> ownerDog = ownersDogsRepository.findByIsVolunteerIsFalseAndChatId(ownerChatId);
 
-        Optional<OwnerDog> owner = ownersDogsRepository.findByVolunteerIsFalseAndChatId(ownerChatId);
+        if (ownerDog.isPresent()) {
+            OwnerDog owner = ownerDog.get();
+            return OwnerDogMapper.toDto(owner);
+        } else {
+            return null;
+        }
 
-        return owner.orElse(null);
     }
 
     @Override
-    public OwnerDog returnVolunteerFromUpdate(Update update) {
-
+    public OwnerDogDto returnVolunteerDogDtoFromUpdate(Update update) {
         Long volunteerChatId = ownUpdatesHandler.extractChatIdFromUpdate(update);;
-
-        Optional<OwnerDog> volunteer = ownersDogsRepository.findByVolunteerIsTrueAndChatId(volunteerChatId);
-
-        return volunteer.orElse(null);
+        Optional<OwnerDog> volunteerDog = ownersDogsRepository.findByIsVolunteerIsTrueAndChatId(volunteerChatId);
+        if (volunteerDog.isPresent()) {
+            OwnerDog volunteer = volunteerDog.get();
+            return OwnerDogMapper.toDto(volunteer);
+        } else {
+            return null;
+        }
     }
 }

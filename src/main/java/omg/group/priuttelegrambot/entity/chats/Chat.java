@@ -26,7 +26,4 @@ public abstract class Chat {
     @Column(name = "created_at")
     private LocalDateTime createdAt;
 
-    @Column(name = "chat_id")
-    private Long chatId;
-
 }

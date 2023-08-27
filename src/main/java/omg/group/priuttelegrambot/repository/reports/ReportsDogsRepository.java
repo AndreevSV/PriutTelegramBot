@@ -1,5 +1,7 @@
 package omg.group.priuttelegrambot.repository.reports;
 
+import omg.group.priuttelegrambot.entity.owners.OwnerDog;
+import omg.group.priuttelegrambot.entity.pets.Dog;
 import omg.group.priuttelegrambot.entity.reports.ReportDog;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
@@ -10,7 +12,7 @@ import java.util.Optional;
 @Repository
 public interface ReportsDogsRepository extends JpaRepository<ReportDog, Long> {
 
-    Optional<ReportDog> findByClientIdAndAnimalIdAndDateReport(Long clientId, Long animalId, LocalDate dateReport);
+    Optional<ReportDog> findReportDogByOwnerDogAndDogAndDateReport(OwnerDog owner, Dog dog, LocalDate date);
 
     Optional<ReportDog> findByDateReport(LocalDate date);
 

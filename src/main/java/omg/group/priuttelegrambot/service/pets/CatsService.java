@@ -44,7 +44,7 @@ public interface CatsService {
         cat.setDateOutcome(catDto.getDateOutcome());
         cat.setPhotoPath(catDto.getPhotoPath());
         cat.setVolunteer(catDto.getVolunteer());
-        cat.setOwnerCat(catDto.getOwner());
+        cat.setOwner(catDto.getOwner());
 
         return cat;
     }
@@ -63,7 +63,7 @@ public interface CatsService {
         catDto.setDescription(cat.getDescription());
         catDto.setPhotoPath(cat.getPhotoPath());
         catDto.setVolunteer(cat.getVolunteer());
-        catDto.setOwner(cat.getOwnerCat());
+        catDto.setOwner(cat.getOwner());
 
         return catDto;
     }

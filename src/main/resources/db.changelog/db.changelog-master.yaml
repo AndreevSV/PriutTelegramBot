@@ -328,3 +328,15 @@ databaseChangeLog:
             oldColumnName: path
             newColumnName: file_id
             columnDataType: VARCHAR(255)
+  - changeSet:
+      id: 19
+      author: AndreevSV
+      changes:
+        - sqlFile:
+            path: db.changelog/init7.sql
+  - changeSet:
+      id: 20
+      author: AndreevSV
+      changes:
+        - sqlFile:
+            path: db.changelog/init8.sql

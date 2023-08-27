@@ -13,7 +13,6 @@ import java.util.List;
 @Entity
 @Table(name = "clients_cats")
 public class OwnerCat extends Owner {
-
     @ManyToOne
     @JoinColumn(name = "address", referencedColumnName = "id")
     private AddressesOwnersCats address;
@@ -22,7 +21,9 @@ public class OwnerCat extends Owner {
     @JoinColumn(name = "volunteer_id", referencedColumnName = "id")
     private OwnerCat volunteer;
 
-    @OneToMany(mappedBy = "ownerCat", fetch = FetchType.EAGER)
+    @OneToMany(mappedBy = "owner", fetch = FetchType.EAGER)
     @ToString.Exclude
     private List<Cat> cats;
+
+
 }

@@ -23,11 +23,11 @@ public class ChatDogs extends Chat {
 
     @OneToOne()
     @JoinColumn(name = "owner_id", referencedColumnName = "chat_id")
-    private OwnerDog ownerDog;
+    private OwnerDog owner;
 
     @OneToOne
     @JoinColumn(name = "volunteer_id", referencedColumnName = "chat_id")
-    private OwnerDog volunteerDog;
+    private OwnerDog volunteer;
 
     @Override
     public final boolean equals(Object o) {

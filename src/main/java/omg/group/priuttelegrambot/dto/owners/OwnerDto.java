@@ -1,9 +1,6 @@
 package omg.group.priuttelegrambot.dto.owners;
 
-import jakarta.validation.constraints.Email;
-import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.NotNull;
-import jakarta.validation.constraints.Pattern;
+import jakarta.validation.constraints.*;
 import lombok.Data;
 import lombok.RequiredArgsConstructor;
 
@@ -14,15 +11,13 @@ import java.util.Date;
 @RequiredArgsConstructor
 public class OwnerDto {
     private Long id;
-    @NotBlank(message = "Field Name couldn't be blank")
-    @NotNull(message = "Field Name couldn't be Null")
     private String userName;
     private String name;
     private String surname;
     private String patronymic;
-    @Pattern(regexp = "", message = "Date in format: dd:MM:yyyy") //!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+    @Past(message = "Birthday should be in the past")
     private Date birthday;
-    @Pattern(regexp = "", message = "Date in format: dd:MM:yyyy") //!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+    @Pattern(regexp = "\\+\\d{11}", message = "Phone number should be in format: +79991234567")
     private String telephone;
     @Email(message = "This is email field and you have to write correct email")
     private String email;

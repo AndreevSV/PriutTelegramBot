@@ -9,9 +9,9 @@ import java.util.Optional;
 @Repository
 public interface ChatsDogsRepository extends JpaRepository<ChatDogs, Long> {
 
-    Optional<ChatDogs> findByChatId(Long chatId);
+//    Optional<ChatDogs> findByChatId(Long chatId);
 
-    Optional<ChatDogs> findByOwnerDogId(Long ownerDogId);
+    Optional<ChatDogs> findByOwnerDogChatId(Long ownerDogId);
 
-    Optional<ChatDogs> findByVolunteerDogId(Long volunteerDogId);
+    Optional<ChatDogs> findByVolunteerDogChatId(Long volunteerDogId);
 }

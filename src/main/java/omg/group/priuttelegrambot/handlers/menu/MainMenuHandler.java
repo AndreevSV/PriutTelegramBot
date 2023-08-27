@@ -8,31 +8,47 @@ public interface MainMenuHandler {
 
     void noSuchCommandSendMessage(Update update);
 
-    void executeSendRationButton(Long chatId, int messageId, InlineKeyboardMarkup inlineKeyboardMarkup);
+    void noReportExistMessage(Long chatId, int messageId, InlineKeyboardMarkup inlineKeyboardMarkup);
 
-    void executeSendFeelingButton(Long chatId, int messageId, InlineKeyboardMarkup inlineKeyboardMarkup);
+    void executeSendRationButtonMessage(Long chatId, int messageId, InlineKeyboardMarkup inlineKeyboardMarkup);
 
-    void executeSendChangesButton(Long chatId, int messageId, InlineKeyboardMarkup inlineKeyboardMarkup);
+    void executeSendFeelingButtonMessage(Long chatId, int messageId, InlineKeyboardMarkup inlineKeyboardMarkup);
 
-    void executeSendPhotoButton(Long chatId, int messageId, InlineKeyboardMarkup inlineKeyboardMarkup);
+    void executeSendChangesButtonMessage(Long chatId, int messageId, InlineKeyboardMarkup inlineKeyboardMarkup);
 
-    void executeSendContactsButton(Long chatId, int messageId, InlineKeyboardMarkup inlineKeyboardMarkup);
+    void executeSendPhotoButtonMessage(Long chatId, int messageId, InlineKeyboardMarkup inlineKeyboardMarkup);
 
-    void executeCallVolunteerButton(Long chatId, int messageId, InlineKeyboardMarkup inlineKeyboardMarkup);
+    void executeSendContactsButtonMessage(Long chatId, int messageId, InlineKeyboardMarkup inlineKeyboardMarkup);
+
+    void executeCallVolunteerButtonMessage(Long chatId, int messageId, InlineKeyboardMarkup inlineKeyboardMarkup);
 
     void reportAlreadySentMessage(Long chatId, int messageId, InlineKeyboardMarkup inlineKeyboardMarkup);
 
     void photoAlreadySentMessage(Long chatId, int messageId, InlineKeyboardMarkup inlineKeyboardMarkup);
 
+    void photoDublicateSentMessage(Long chatId, int messageId, InlineKeyboardMarkup inlineKeyboardMarkup);
+
+    void photoSavedOkMessage(Long chatId, int messageId, InlineKeyboardMarkup inlineKeyboardMarkup);
+
+    void notPhotoMessage(Long chatId, int messageId, InlineKeyboardMarkup inlineKeyboardMarkup);
+
     void rationAlreadySentMessage(Long chatId, int messageId, InlineKeyboardMarkup inlineKeyboardMarkup);
+
+    void rationSavedOkMessage(Long chatId, int messageId, InlineKeyboardMarkup inlineKeyboardMarkup);
 
     void feelingAlreadySentMessage(Long chatId, int messageId, InlineKeyboardMarkup inlineKeyboardMarkup);
 
+    void feelingSavedOkMessage(Long chatId, int messageId, InlineKeyboardMarkup inlineKeyboardMarkup);
+
     void changesAlreadySentMessage(Long chatId, int messageId, InlineKeyboardMarkup inlineKeyboardMarkup);
+
+    void changesSavedOkMessage(Long chatId, int messageId, InlineKeyboardMarkup inlineKeyboardMarkup);
 
     void chatAlreadySetMessage(Long chatId, int messageId, InlineKeyboardMarkup inlineKeyboardMarkup);
 
-//    void waitingForContactMessage(Long chatId, int messageId, InlineKeyboardMarkup inlineKeyboardMarkup);
+    void telephoneAlreadySetMessage(Long chatId, int messageId, InlineKeyboardMarkup inlineKeyboardMarkup);
+
+    //    void waitingForContactMessage(Long chatId, int messageId, InlineKeyboardMarkup inlineKeyboardMarkup);
     void waitingForContactMessage(Long chatId, InlineKeyboardMarkup inlineKeyboardMarkup);
 
 //    void contactSavedOkMessage(Long chatId, int messageId, InlineKeyboardMarkup inlineKeyboardMarkup);
@@ -46,4 +62,8 @@ public interface MainMenuHandler {
     void volunteerClosedChatMessage(Long volunteerChatId, Long ownerChatId);
 
     void noFreeVolunteerAvailableMessage(Long ownerChatId);
+
+    void inquiryToVolunteerForChat(Long volunteerChatId, Long ownerChatId);
+
+    void chatAlreadySetToOwnerMessage(Long ownerChatId);
 }

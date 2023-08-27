@@ -15,7 +15,4 @@ public interface CatsMenuHandler {
 
     void executeButtonOrCommand(Update update, InlineKeyboardMarkup inlineKeyboardMarkup);
 
-    void inquiryToVolunteerForChat(Long volunteerChatId, Long ownerChatId);
-
-    void chatAlreadySetToOwnerMessage(Long ownerChatId);
 }

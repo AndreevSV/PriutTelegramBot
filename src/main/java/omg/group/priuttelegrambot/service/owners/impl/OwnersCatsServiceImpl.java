@@ -137,7 +137,7 @@ public class OwnersCatsServiceImpl implements OwnersCatsService {
 
         List<Cat> cats = catsRepository.findAllById(catsIds);
         for (Cat cat : cats) {
-            cat.setOwnerCat(owner);
+            cat.setOwner(owner);
         }
 
         owner.setCats(cats);

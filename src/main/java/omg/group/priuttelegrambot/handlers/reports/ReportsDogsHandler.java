@@ -11,17 +11,18 @@ import java.util.List;
 import java.util.Optional;
 
 public interface ReportsDogsHandler {
-    boolean isReportExist(Update update);
+    ReportDog isReportExist(Update update);
     boolean receivePhoto(Update update);
     boolean receiveRation(Update update);
     boolean receiveFeeling(Update update);
     boolean receiveChanges(Update update);
-    boolean checkForProbationPeriodSetAndValid(@NotNull Update update);
-    boolean isReportCompleted(Update update);
-    boolean isPhoto(Update update);
-    boolean isRation(Update update);
-    boolean isFeeling(Update update);
-    boolean isChanges(Update update);
+    ReportDog isReportCompleted(ReportDog report);
 
-    Optional<ReportDog> returnReportCatOptional(Update update);
+    ReportDog returnReportFromUpdate(Update update);
+
+    ReportDog isPhoto(ReportDog report);
+    ReportDog isRation(ReportDog report);
+    ReportDog isFeeling(ReportDog report);
+    ReportDog isChanges(ReportDog report);
+
 }

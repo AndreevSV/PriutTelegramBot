@@ -10,4 +10,8 @@ public interface OwnUpdatesHandler {
     int extractMessageIdFromUpdate(Update update);
 
     long extractUserIdFromUpdate(Update update);
+
+    String extractTelephoneFromUpdate(Update update);
+
+    int extractDateFromUpdate(Update update);
 }

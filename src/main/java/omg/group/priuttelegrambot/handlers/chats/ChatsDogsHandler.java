@@ -1,12 +1,13 @@
 package omg.group.priuttelegrambot.handlers.chats;
 
 import com.pengrad.telegrambot.model.Update;
-import omg.group.priuttelegrambot.entity.owners.OwnerDog;
+import omg.group.priuttelegrambot.dto.chats.ChatDogsDto;
+import omg.group.priuttelegrambot.dto.owners.OwnerDogDto;
 
 public interface ChatsDogsHandler {
-    void callVolunteer(Update update);
-    void startingChat(OwnerDog owner);
+    OwnerDogDto callVolunteer(Update update);
     void executeReplyButtonCommandForVolunteer(Update update);
-    void executeCloseButtonCommand(Update update);
-    void sendMessageReceived(Update update);
+    Long executeCloseButtonCommand(Update update);
+    void forwardMessageReceived(Update update);
+    ChatDogsDto findByOwnerDogChatId(Long ownerDogChatId);
 }

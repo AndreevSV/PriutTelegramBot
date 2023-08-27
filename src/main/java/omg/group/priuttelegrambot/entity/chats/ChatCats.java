@@ -22,13 +22,13 @@ import java.util.Objects;
 @Table(name = "chat_cats")
 public class ChatCats extends Chat {
 
-    @OneToOne()
+    @OneToOne
     @JoinColumn(name = "owner_id", referencedColumnName = "chat_id")
-    private OwnerCat ownerCat;
+    private OwnerCat owner;
 
     @OneToOne
     @JoinColumn(name = "volunteer_id", referencedColumnName = "chat_id")
-    private OwnerCat volunteerCat;
+    private OwnerCat volunteer;
 
     @Override
     public final boolean equals(Object o) {

@@ -9,46 +9,59 @@ public class OwnUpdatesHandlerImpl implements OwnUpdatesHandler {
 
     @Override
     public Long extractChatIdFromUpdate(Update update) {
-        Long chatId = 0L;
         if (update.callbackQuery() != null) {
-            chatId = update.callbackQuery().message().chat().id();
+            return update.callbackQuery().message().chat().id();
         } else if (update.message() != null) {
-            chatId = update.message().chat().id();
+            return update.message().chat().id();
         }
-        return chatId;
+        return 0L;
     }
 
     @Override
     public String extractTextFromUpdate(Update update) {
-        String text = "";
         if (update.callbackQuery() != null) {
-            text = update.callbackQuery().data();
+            return update.callbackQuery().data();
         } else if (update.message() != null) {
-            text = update.message().text();
+            return update.message().text();
         }
-        return text;
+        return null;
     }
 
     @Override
     public int extractMessageIdFromUpdate(Update update) {
-        int messageId = 0;
         if (update.callbackQuery() != null) {
-            messageId = update.callbackQuery().message().messageId();
+            return update.callbackQuery().message().messageId();
         } else if (update.message() != null) {
-            messageId = update.message().messageId();
+            return update.message().messageId();
         }
-        return messageId;
+        return 0;
     }
 
     @Override
     public long extractUserIdFromUpdate(Update update) {
-        long userId = 0;
         if (update.callbackQuery() != null) {
-            userId = update.callbackQuery().message().from().id();
+            return update.callbackQuery().message().from().id();
         } else if (update.message() != null) {
-            userId = update.message().from().id();
+            return update.message().from().id();
         }
-        return userId;
+        return 0;
     }
 
+    @Override
+    public String extractTelephoneFromUpdate(Update update) {
+        if (update.message().contact() != null) {
+            return update.message().contact().phoneNumber();
+        }
+        return null;
+    }
+
+    @Override
+    public int extractDateFromUpdate(Update update) {
+        if (update.callbackQuery() != null) {
+            return update.callbackQuery().message().date();
+        } else if (update.message() != null) {
+            return update.message().date();
+        }
+        return 0;
+    }
 }

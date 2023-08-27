@@ -2,10 +2,12 @@ package omg.group.priuttelegrambot.entity.pets;
 
 import jakarta.persistence.*;
 import lombok.*;
+import omg.group.priuttelegrambot.entity.flags.OwnersDogsFlags;
 import omg.group.priuttelegrambot.entity.pets.petsenum.DogsBreed;
 import omg.group.priuttelegrambot.entity.owners.OwnerDog;
 import org.hibernate.proxy.HibernateProxy;
 
+import java.util.List;
 import java.util.Objects;
 
 @Getter
@@ -26,7 +28,10 @@ public class Dog extends Pet {
 
     @ManyToOne
     @JoinColumn(name = "clients_dogs_id", referencedColumnName = "id")
-    private OwnerDog ownerDog;
+    private OwnerDog owner;
+
+    @OneToMany(mappedBy = "dog", cascade = CascadeType.ALL)
+    private List<OwnersDogsFlags> flags;
 
     @Override
     public final boolean equals(Object o) {

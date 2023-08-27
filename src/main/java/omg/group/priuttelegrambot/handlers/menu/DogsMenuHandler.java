@@ -13,4 +13,5 @@ public interface DogsMenuHandler {
     InlineKeyboardMarkup formInlineKeyboardForSendReportButton();
 
     void executeButtonOrCommand(Update update, InlineKeyboardMarkup inlineKeyboardMarkup);
+
 }

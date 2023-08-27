@@ -74,14 +74,6 @@ public abstract class Pet {
     @Column(name = "passed_second_probation")
     private Boolean passedSecondProbation;
 
-
-
-
-
-
-
-
-
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;

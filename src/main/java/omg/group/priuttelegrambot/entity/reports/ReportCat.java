@@ -1,14 +1,15 @@
 package omg.group.priuttelegrambot.entity.reports;
 
 import jakarta.persistence.Entity;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
-import org.hibernate.proxy.HibernateProxy;
-
-import java.util.Objects;
+import omg.group.priuttelegrambot.entity.owners.OwnerCat;
+import omg.group.priuttelegrambot.entity.pets.Cat;
 
 @Getter
 @Setter
@@ -18,19 +19,12 @@ import java.util.Objects;
 @Table(name = "reports_cats")
 public class ReportCat extends Report {
 
-    @Override
-    public final boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null) return false;
-        Class<?> oEffectiveClass = o instanceof HibernateProxy ? ((HibernateProxy) o).getHibernateLazyInitializer().getPersistentClass() : o.getClass();
-        Class<?> thisEffectiveClass = this instanceof HibernateProxy ? ((HibernateProxy) this).getHibernateLazyInitializer().getPersistentClass() : this.getClass();
-        if (thisEffectiveClass != oEffectiveClass) return false;
-        ReportCat reportCat = (ReportCat) o;
-        return getId() != null && Objects.equals(getId(), reportCat.getId());
-    }
+    @ManyToOne
+    @JoinColumn(name = "id_client", referencedColumnName = "id")
+    private OwnerCat owner;
 
-    @Override
-    public final int hashCode() {
-        return getClass().hashCode();
-    }
+    @ManyToOne
+    @JoinColumn(name = "id_animal", referencedColumnName = "id")
+    private Cat cat;
+
 }

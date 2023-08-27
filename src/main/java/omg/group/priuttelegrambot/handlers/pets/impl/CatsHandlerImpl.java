@@ -103,8 +103,7 @@ public class CatsHandlerImpl implements CatsHandler {
             StringBuilder stringBuilder = new StringBuilder();
 
             String startMessage = """
-                    Вы на испытательном сроке
-                    со следующими кошками:
+                    Вы на испытательном сроке со следующими кошками:
                     """;
 
             for (Cat cat : cats) {
@@ -136,16 +135,13 @@ public class CatsHandlerImpl implements CatsHandler {
 
             if (!found) {
                 SendMessage message = new SendMessage(chatId, """
-                        Введенный вами номер животного
-                        или кличка не верны. Попробуйте
-                        ввести снова ЛИБО номер ЛИБО кличку.
+                        Введенный вами номер животного или кличка не верны. Попробуйте ввести снова ЛИБО номер ЛИБО кличку.
                         """);
                 telegramBot.execute(message);
             }
         } else {
             SendMessage message = new SendMessage(chatId, """
-                    У вас нет животного на испытательном
-                    сроке, вы не можете ничего отправить.
+                    У вас нет животного на испытательном сроке, вы не можете ничего отправить.
                     """);
             telegramBot.execute(message);
         }

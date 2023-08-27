@@ -18,5 +18,7 @@ public interface OwnersCatsRepository extends JpaRepository<OwnerCat, Long>, Own
     List<OwnerCat> findBySurnameContainingIgnoreCase(String surname);
     List<OwnerCat> findByTelephoneContainingIgnoreCase(String telephone);
     Optional<OwnerCat> findByVolunteerIsTrueAndChatId(Long chatId);
+    Optional<OwnerCat> findByIsVolunteerIsTrueAndChatId(Long chatId);
+
     Optional<OwnerCat> findOwnerCatByVolunteer(OwnerCat volunteer);
 }

@@ -22,9 +22,10 @@ public class OwnerDog extends Owner {
     @JoinColumn(name = "volunteer_id", referencedColumnName = "id")
     private OwnerDog volunteer;
 
-    @OneToMany(mappedBy = "ownerDog", fetch = FetchType.EAGER)
+    @OneToMany(mappedBy = "owner", fetch = FetchType.EAGER)
     @ToString.Exclude
     private List<Dog> dogs;
+
 
 
 }

@@ -134,7 +134,7 @@ public class OwnersDogsServiceImpl implements OwnersDogsService {
 
         List<Dog> dogs = dogsRepository.findAllById(dogsIds);
         for (Dog dog : dogs) {
-            dog.setOwnerDog(owner);
+            dog.setOwner(owner);
         }
 
         owner.setDogs(dogs);

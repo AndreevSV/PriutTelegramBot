@@ -44,7 +44,7 @@ public interface DogsService {
         dog.setDateOutcome(dogDto.getDateOutcome());
         dog.setPhotoPath(dogDto.getPhotoPath());
         dog.setVolunteer(dogDto.getVolunteer());
-        dog.setOwnerDog(dogDto.getOwner());
+        dog.setOwner(dogDto.getOwner());
 
         return dog;
     }
@@ -63,7 +63,7 @@ public interface DogsService {
         dogDto.setDescription(dog.getDescription());
         dogDto.setPhotoPath(dog.getPhotoPath());
         dogDto.setVolunteer(dog.getVolunteer());
-        dogDto.setOwner(dog.getOwnerDog());
+        dogDto.setOwner(dog.getOwner());
 
         return dogDto;
     }
