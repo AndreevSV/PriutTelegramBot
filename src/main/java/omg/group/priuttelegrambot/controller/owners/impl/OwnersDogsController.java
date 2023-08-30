@@ -20,6 +20,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDate;
+import java.util.Collections;
 import java.util.List;
 
 @RestController
@@ -139,7 +140,7 @@ public class OwnersDogsController {
             @RequestParam(required = false) String telephone) {
 
         if (id != null) {
-            return ResponseEntity.ok().body(ownersDogsService.findById(id));
+            return ResponseEntity.ok().body(Collections.singletonList(ownersDogsService.findById(id)));
         }
         if (username != null && !username.isBlank()) {
             return ResponseEntity.ok(ownersDogsService.findByUsername(username));
