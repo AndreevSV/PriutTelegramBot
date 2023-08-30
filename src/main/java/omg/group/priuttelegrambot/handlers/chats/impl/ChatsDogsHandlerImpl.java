@@ -1,8 +1,6 @@
 package omg.group.priuttelegrambot.handlers.chats.impl;
 
-import com.pengrad.telegrambot.TelegramBot;
 import com.pengrad.telegrambot.model.Update;
-import com.pengrad.telegrambot.request.SendMessage;
 import omg.group.priuttelegrambot.dto.chats.ChatDogsDto;
 import omg.group.priuttelegrambot.dto.chats.ChatDogsMapper;
 import omg.group.priuttelegrambot.dto.owners.OwnerDogDto;
@@ -22,19 +20,17 @@ import java.util.Optional;
 
 @Service
 public class ChatsDogsHandlerImpl implements ChatsDogsHandler {
-
-    private final TelegramBot telegramBot;
     private final OwnersDogsRepository ownersDogsRepository;
     private final OwnersDogsHandler ownersDogsHandler;
     private final ChatsDogsRepository chatsDogsRepository;
     private final OwnUpdatesHandler ownUpdatesHandler;
     private final MainMenuHandler mainMenuHandler;
 
-    public ChatsDogsHandlerImpl(TelegramBot telegramBot,
-                                OwnersDogsRepository ownersDogsRepository,
+    public ChatsDogsHandlerImpl(OwnersDogsRepository ownersDogsRepository,
                                 OwnersDogsHandler ownersDogsHandler,
-                                ChatsDogsRepository chatsDogsRepository, OwnUpdatesHandler ownUpdatesHandler, MainMenuHandler mainMenuHandler) {
-        this.telegramBot = telegramBot;
+                                ChatsDogsRepository chatsDogsRepository,
+                                OwnUpdatesHandler ownUpdatesHandler,
+                                MainMenuHandler mainMenuHandler) {
         this.ownersDogsRepository = ownersDogsRepository;
         this.ownersDogsHandler = ownersDogsHandler;
         this.chatsDogsRepository = chatsDogsRepository;
@@ -54,7 +50,8 @@ public class ChatsDogsHandlerImpl implements ChatsDogsHandler {
         OwnerDogDto ownerDogDto = ownersDogsHandler.returnOwnerDogDtoFromUpdate(update);
 
         Long ownerChatId = ownerDogDto.getChatId();
-        Optional<ChatDogs> chatOptional = chatsDogsRepository.findByOwnerDogChatId(ownerChatId);
+        OwnerDog owner = OwnerDogMapper.toEntity(ownerDogDto);
+        Optional<ChatDogs> chatOptional = chatsDogsRepository.findByOwner(owner);
 
         if (chatOptional.isPresent()) {
             //  If owner already has a chat send him a message about it
@@ -77,15 +74,15 @@ public class ChatsDogsHandlerImpl implements ChatsDogsHandler {
                 ownersDogsRepository.save(volunteer);
 
                 // 2. Set to Owner a Volunteer in clients_cats_database
-                ownerDogDto.setVolunteer(volunteer);
+                ownerDogDto.setVolunteerDto(OwnerDogMapper.toDto(volunteer));
                 ownerDogDto.setUpdatedAt(LocalDateTime.now());
-                OwnerDog owner = OwnerDogMapper.toEntity(ownerDogDto);
-                ownersDogsRepository.save(owner);
+                OwnerDog ownerRenewed = OwnerDogMapper.toEntity(ownerDogDto);
+                ownersDogsRepository.save(ownerRenewed);
 
                 // 3. Put new chat in chat_cats database with Owner and Volunteer
                 ChatDogs chat = new ChatDogs();
                 chat.setIsChatting(false); // Till volunteer haven't pushed button /reply chat is not started
-                chat.setOwner(owner);
+                chat.setOwner(ownerRenewed);
                 chat.setVolunteer(volunteer);
                 chat.setCreatedAt(LocalDateTime.now());
                 chatsDogsRepository.save(chat);
@@ -110,17 +107,20 @@ public class ChatsDogsHandlerImpl implements ChatsDogsHandler {
      */
     @Override
     public void executeReplyButtonCommandForVolunteer(Update update) {
-        Long volunteerChatId = ownUpdatesHandler.extractChatIdFromUpdate(update);
-        Optional<ChatDogs> chatOptional = chatsDogsRepository.findByVolunteerDogChatId(volunteerChatId);
+        Long volunteerChatId = ownUpdatesHandler.getChatId(update);
+        Optional<OwnerDog> volunteerOptional = ownersDogsRepository.findByChatId(volunteerChatId);
+        if (volunteerOptional.isPresent()) {
+            OwnerDog volunteer = volunteerOptional.get();
+            Optional<ChatDogs> chatOptional = chatsDogsRepository.findByVolunteer(volunteer);
+            if (chatOptional.isPresent()) {
+                ChatDogs chat = chatOptional.get();
+                Long ownerChatId = chat.getOwner().getChatId();
+                chat.setIsChatting(true);
+                chat.setMessageSentTime(LocalDateTime.now());
+                chatsDogsRepository.save(chat);
 
-        if (chatOptional.isPresent()) {
-            ChatDogs chat = chatOptional.get();
-            Long ownerChatId = chat.getOwner().getChatId();
-            chat.setIsChatting(true);
-            chat.setMessageSentTime(LocalDateTime.now());
-            chatsDogsRepository.save(chat);
-
-            mainMenuHandler.volunteerOpenedChatMessage(ownerChatId, volunteerChatId);
+                mainMenuHandler.volunteerOpenedChatMessage(ownerChatId, volunteerChatId);
+            }
         }
     }
 
@@ -139,27 +139,26 @@ public class ChatsDogsHandlerImpl implements ChatsDogsHandler {
         if (ownerDto != null) {
             // If "/cats_close" button was pushed by Owner
             // Get a volunteer from owner
-            OwnerDog volunteer = ownerDto.getVolunteer();
-            Long volunteerChatId = volunteer.getChatId();
+            OwnerDogDto volunteerDto = ownerDto.getVolunteerDto();
+            Long volunteerChatId = volunteerDto.getChatId();
             // Set to volunteer field volunteer_chat_opened to false
-            volunteer.setVolunteerChatOpened(false);
-            volunteer.setUpdatedAt(LocalDateTime.now());
+            volunteerDto.setVolunteerChatOpened(false);
+            volunteerDto.setUpdatedAt(LocalDateTime.now());
+            OwnerDog volunteer = OwnerDogMapper.toEntity(volunteerDto);
             ownersDogsRepository.save(volunteer);
             //Deleting volunteer out of Owner
-            ownerDto.setVolunteer(null);
+            ownerDto.setVolunteerDto(null);
             ownerDto.setUpdatedAt(LocalDateTime.now());
             OwnerDog owner = OwnerDogMapper.toEntity(ownerDto);
             ownersDogsRepository.save(owner);
             //Deleting chat in chat_cats database
             Long ownerChatId = ownerDto.getChatId();
-            Optional<ChatDogs> chatOptional = chatsDogsRepository.findByOwnerDogChatId(ownerChatId);
+            Optional<ChatDogs> chatOptional = chatsDogsRepository.findByOwner(owner);
             if (chatOptional.isPresent()) {
                 ChatDogs chat = chatOptional.get();
                 chatsDogsRepository.delete(chat);
                 //Send message to Owner and Volunteer that chat was closed by Owner
                 mainMenuHandler.ownerClosedChatMessage(ownerChatId, volunteerChatId);
-            } else {
-                System.out.println("Чат с таким OwnerChatId не найден");
             }
             return volunteerChatId;
         } else {
@@ -181,11 +180,15 @@ public class ChatsDogsHandlerImpl implements ChatsDogsHandler {
                 ownerDog.setVolunteer(null);
                 ownerDog.setUpdatedAt(LocalDateTime.now());
                 ownersDogsRepository.save(ownerDog);
-                //Send message to Volunteer and Owner that chat was closed by Volunteer
-                mainMenuHandler.volunteerClosedChatMessage(volunteerChatId, ownerChatId);
-                return ownerChatId;
-            } else {
-                System.out.println("Owner с таким Volunteer не найден");
+                //Deleting chat in chat_cats database
+                Optional<ChatDogs> chatDogsOptional = chatsDogsRepository.findByVolunteer(volunteer);
+                if (chatDogsOptional.isPresent()) {
+                    ChatDogs chat = chatDogsOptional.get();
+                    chatsDogsRepository.delete(chat);
+                    //Send message to Volunteer and Owner that chat was closed by Volunteer
+                    mainMenuHandler.volunteerClosedChatMessage(volunteerChatId, ownerChatId);
+                    return ownerChatId;
+                }
             }
         }
         return null;
@@ -196,37 +199,44 @@ public class ChatsDogsHandlerImpl implements ChatsDogsHandler {
      */
     @Override
     public void forwardMessageReceived(Update update) {
-
-        Long chatId = ownUpdatesHandler.extractChatIdFromUpdate(update);
-        String text = ownUpdatesHandler.extractTextFromUpdate(update);
-
-        Optional<ChatDogs> chatByOwnerOptional = chatsDogsRepository.findByOwnerDogChatId(chatId);
-
-        if (chatByOwnerOptional.isEmpty()) {
-            Optional<ChatDogs> chatByVolunteerOptional = chatsDogsRepository.findByVolunteerDogChatId(chatId);
-            if (chatByVolunteerOptional.isPresent()) {
-
-                ChatDogs chat = chatByVolunteerOptional.get();
-                Long ownerChatId = chat.getOwner().getChatId();
-                SendMessage message = new SendMessage(ownerChatId, text);
-                telegramBot.execute(message);
-
-                chat.setAnswerSentTime(LocalDateTime.now());
+        Long chatId = ownUpdatesHandler.getChatId(update);
+        ChatDogsDto chatDogsDtoByOwner = findByVolunteerDogChatId(chatId);
+        if (chatDogsDtoByOwner != null) {
+            Long volunteerChatId = chatDogsDtoByOwner.getVolunteerDto().getChatId();
+            mainMenuHandler.chatForwardMessageWithCloseButton(volunteerChatId, update);
+            chatDogsDtoByOwner.setMessageSentTime(LocalDateTime.now());
+            ChatDogs chat = ChatDogsMapper.toEntity(chatDogsDtoByOwner);
+            chatsDogsRepository.save(chat);
+        } else {
+            ChatDogsDto chatDogsDtoByVolunteer = findByVolunteerDogChatId(chatId);
+            if (chatDogsDtoByVolunteer != null) {
+                Long ownerChatId = chatDogsDtoByVolunteer.getOwnerDto().getChatId();
+                mainMenuHandler.chatForwardMessageWithCloseButton(ownerChatId, update);
+                chatDogsDtoByVolunteer.setAnswerSentTime(LocalDateTime.now());
+                ChatDogs chat = ChatDogsMapper.toEntity(chatDogsDtoByVolunteer);
                 chatsDogsRepository.save(chat);
             }
-        } else {
-            ChatDogs chat = chatByOwnerOptional.get();
-            Long volunteerChatId = chat.getVolunteer().getChatId();
-            SendMessage message = new SendMessage(volunteerChatId, text);
-            telegramBot.execute(message);
-            chat.setMessageSentTime(LocalDateTime.now());
-            chatsDogsRepository.save(chat);
         }
     }
 
     @Override
     public ChatDogsDto findByOwnerDogChatId(Long ownerDogChatId) {
-        Optional<ChatDogs> chatDogs = chatsDogsRepository.findByOwnerDogChatId(ownerDogChatId);
+        OwnerDogDto ownerDto = ownersDogsHandler.returnOwnerOrVolunteerDogDtoByChatId(ownerDogChatId);
+        OwnerDog owner = OwnerDogMapper.toEntity(ownerDto);
+        Optional<ChatDogs> chatDogs = chatsDogsRepository.findByOwner(owner);
+        if (chatDogs.isPresent()) {
+            ChatDogs chat = chatDogs.get();
+            return ChatDogsMapper.toDto(chat);
+        } else {
+            return null;
+        }
+    }
+
+    @Override
+    public ChatDogsDto findByVolunteerDogChatId(Long volunteerDogChatId) {
+        OwnerDogDto volunteerDto = ownersDogsHandler.returnOwnerOrVolunteerDogDtoByChatId(volunteerDogChatId);
+        OwnerDog volunteer = OwnerDogMapper.toEntity(volunteerDto);
+        Optional<ChatDogs> chatDogs = chatsDogsRepository.findByVolunteer(volunteer);
         if (chatDogs.isPresent()) {
             ChatDogs chat = chatDogs.get();
             return ChatDogsMapper.toDto(chat);

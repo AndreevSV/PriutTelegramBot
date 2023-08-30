@@ -340,3 +340,9 @@ databaseChangeLog:
       changes:
         - sqlFile:
             path: db.changelog/init8.sql
+  - changeSet:
+      id: 21
+      author: AndreevSV
+      changes:
+        - sqlFile:
+            path: db.changelog/init9.sql

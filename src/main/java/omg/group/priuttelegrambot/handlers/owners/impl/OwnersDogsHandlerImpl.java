@@ -1,15 +1,13 @@
 package omg.group.priuttelegrambot.handlers.owners.impl;
 
-import com.pengrad.telegrambot.TelegramBot;
 import com.pengrad.telegrambot.model.Update;
 import com.pengrad.telegrambot.model.request.InlineKeyboardMarkup;
-import com.pengrad.telegrambot.model.request.ParseMode;
-import com.pengrad.telegrambot.request.SendMessage;
 import omg.group.priuttelegrambot.dto.owners.OwnerDogDto;
 import omg.group.priuttelegrambot.dto.owners.OwnerDogMapper;
+import omg.group.priuttelegrambot.dto.pets.DogDto;
 import omg.group.priuttelegrambot.entity.owners.OwnerDog;
-import omg.group.priuttelegrambot.entity.pets.Dog;
 import omg.group.priuttelegrambot.handlers.menu.DogsMenuHandler;
+import omg.group.priuttelegrambot.handlers.menu.MainMenuHandler;
 import omg.group.priuttelegrambot.handlers.owners.OwnersDogsHandler;
 import omg.group.priuttelegrambot.handlers.updates.OwnUpdatesHandler;
 import omg.group.priuttelegrambot.repository.owners.OwnersDogsRepository;
@@ -19,29 +17,28 @@ import org.springframework.stereotype.Service;
 import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
 @Service
 public class OwnersDogsHandlerImpl implements OwnersDogsHandler {
 
-    private final TelegramBot telegramBot;
     private final DogsMenuHandler dogsMenuHandler;
     private final OwnersDogsRepository ownersDogsRepository;
     private final OwnersDogsService ownersDogsService;
     private final OwnUpdatesHandler ownUpdatesHandler;
+    private final MainMenuHandler mainMenuHandler;
 
-    public OwnersDogsHandlerImpl(TelegramBot telegramBot,
-                                 DogsMenuHandler dogsMenuHandler,
+    public OwnersDogsHandlerImpl(DogsMenuHandler dogsMenuHandler,
                                  OwnersDogsRepository ownersDogsRepository,
                                  OwnersDogsService ownersDogsService,
-                                 OwnUpdatesHandler ownUpdatesHandler) {
-        this.telegramBot = telegramBot;
+                                 OwnUpdatesHandler ownUpdatesHandler,
+                                 MainMenuHandler mainMenuHandler) {
         this.dogsMenuHandler = dogsMenuHandler;
         this.ownersDogsRepository = ownersDogsRepository;
         this.ownersDogsService = ownersDogsService;
         this.ownUpdatesHandler = ownUpdatesHandler;
+        this.mainMenuHandler = mainMenuHandler;
     }
 
     /**
@@ -98,7 +95,7 @@ public class OwnersDogsHandlerImpl implements OwnersDogsHandler {
     @Override
     public OwnerDogDto checkForOwnerExist(Update update) {
 
-        Long chatId = ownUpdatesHandler.extractChatIdFromUpdate(update);
+        Long chatId = ownUpdatesHandler.getChatId(update);
         Optional<OwnerDog> ownerDog = ownersDogsRepository.findByChatId(chatId);
 
         if (ownerDog.isPresent()) {
@@ -106,12 +103,7 @@ public class OwnersDogsHandlerImpl implements OwnersDogsHandler {
             return OwnerDogMapper.toDto(owner);
         } else {
             InlineKeyboardMarkup inlineKeyboardMarkup = dogsMenuHandler.formInlineKeyboardForTakeMenuButton();
-            telegramBot.execute(new SendMessage(chatId, """
-                    Вы еще не зарегистрированы как владелец животного. Просмотрите информацию, как взять себе питомца.
-                    Для этого нажмите соответствующу кнопку ниже
-                    """)
-                    .parseMode(ParseMode.Markdown)
-                    .replyMarkup(inlineKeyboardMarkup));
+            mainMenuHandler.noOwnOfPetRegisteredMessage(chatId, inlineKeyboardMarkup);
             return null;
         }
     }
@@ -120,27 +112,22 @@ public class OwnersDogsHandlerImpl implements OwnersDogsHandler {
      * Method checks if Owner has a Dog(s)
      */
     @Override
-    public List<Dog> checkForOwnerHasDog(OwnerDog ownerDog) {
+    public List<DogDto> checkForOwnerHasDog(OwnerDogDto ownerDto) {
 
-        Long chatId = ownerDog.getChatId();
+        Long chatId = ownerDto.getChatId();
 
-        if (!ownerDog.getDogs().isEmpty()) {
-            return ownerDog.getDogs();
+        if (!ownerDto.getDogsDto().isEmpty()) {
+            return ownerDto.getDogsDto();
         } else {
             InlineKeyboardMarkup inlineKeyboardMarkup = dogsMenuHandler.formInlineKeyboardForTakeMenuButton();
-            telegramBot.execute(new SendMessage(chatId, """
-                    У Вас еще нет домашнего питомца и Вы не можете отправлять отчет. Просмотрите информацию, как взять себе питомца.
-                    Для этого нажмите соответствующу кнопку ниже""")
-                    .parseMode(ParseMode.Markdown)
-                    .replyMarkup(inlineKeyboardMarkup));
-            return new ArrayList<>();
+            mainMenuHandler.noPetMessage(chatId, inlineKeyboardMarkup);
+            return null;
         }
     }
 
     @Override
     public OwnerDogDto returnOwnerDogDtoFromUpdate(Update update) {
-
-        Long ownerChatId = ownUpdatesHandler.extractChatIdFromUpdate(update);
+        Long ownerChatId = ownUpdatesHandler.getChatId(update);
         Optional<OwnerDog> ownerDog = ownersDogsRepository.findByIsVolunteerIsFalseAndChatId(ownerChatId);
 
         if (ownerDog.isPresent()) {
@@ -149,16 +136,27 @@ public class OwnersDogsHandlerImpl implements OwnersDogsHandler {
         } else {
             return null;
         }
-
     }
 
     @Override
     public OwnerDogDto returnVolunteerDogDtoFromUpdate(Update update) {
-        Long volunteerChatId = ownUpdatesHandler.extractChatIdFromUpdate(update);;
+        Long volunteerChatId = ownUpdatesHandler.getChatId(update);;
         Optional<OwnerDog> volunteerDog = ownersDogsRepository.findByIsVolunteerIsTrueAndChatId(volunteerChatId);
+
         if (volunteerDog.isPresent()) {
             OwnerDog volunteer = volunteerDog.get();
             return OwnerDogMapper.toDto(volunteer);
+        } else {
+            return null;
+        }
+    }
+
+    @Override
+    public OwnerDogDto returnOwnerOrVolunteerDogDtoByChatId(Long chatId) {
+        Optional<OwnerDog> ownerOptional = ownersDogsRepository.findByChatId(chatId);
+        if (ownerOptional.isPresent()) {
+            OwnerDog owner = ownerOptional.get();
+            return OwnerDogMapper.toDto(owner);
         } else {
             return null;
         }

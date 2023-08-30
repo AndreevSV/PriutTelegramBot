@@ -6,26 +6,26 @@ import omg.group.priuttelegrambot.entity.chats.ChatDogs;
 
 public class ChatDogsMapper {
     public static ChatDogsDto toDto(ChatDogs chat) {
-        return new ChatDogsDto(
-                chat.getId(),
-                chat.getIsChatting(),
-                OwnerDogMapper.toDto(chat.getOwner()),
-                OwnerDogMapper.toDto(chat.getVolunteer()),
-                chat.getMessageSentTime(),
-                chat.getAnswerSentTime(),
-                chat.getCreatedAt());
+        ChatDogsDto dto = new ChatDogsDto();
+        dto.setId(chat.getId());
+        dto.setIsChatting(chat.getIsChatting());
+        dto.setOwnerDto(OwnerDogMapper.toDto(chat.getOwner()));
+        dto.setVolunteerDto(OwnerDogMapper.toDto(chat.getVolunteer()));
+        dto.setMessageSentTime(chat.getMessageSentTime());
+        dto.setAnswerSentTime(chat.getAnswerSentTime());
+        dto.setCreatedAt(chat.getCreatedAt());
+        return dto;
     }
 
     public static ChatDogs toEntity(ChatDogsDto dto) {
         ChatDogs chat = new ChatDogs();
-        chat.setId(dto.id());
-        chat.setIsChatting(dto.isChatting());
-        chat.setOwner(OwnerDogMapper.toEntity(dto.ownerDto()));
-        chat.setVolunteer(OwnerDogMapper.toEntity(dto.volunteerDto()));
-        chat.setMessageSentTime(dto.messageSentTime());
-        chat.setAnswerSentTime(dto.answerSentTime());
-        chat.setCreatedAt(dto.createdAt());
-
+        chat.setId(dto.getId());
+        chat.setIsChatting(dto.getIsChatting());
+        chat.setOwner(OwnerDogMapper.toEntity(dto.getOwnerDto()));
+        chat.setVolunteer(OwnerDogMapper.toEntity(dto.getVolunteerDto()));
+        chat.setMessageSentTime(dto.getMessageSentTime());
+        chat.setAnswerSentTime(dto.getAnswerSentTime());
+        chat.setCreatedAt(dto.getCreatedAt());
         return chat;
     }
 }

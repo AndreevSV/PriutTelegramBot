@@ -1,6 +1,8 @@
 package omg.group.priuttelegrambot.handlers.contacts.impl;
 
 import com.pengrad.telegrambot.model.Update;
+import omg.group.priuttelegrambot.dto.owners.OwnerDogDto;
+import omg.group.priuttelegrambot.dto.owners.OwnerDogMapper;
 import omg.group.priuttelegrambot.entity.owners.OwnerDog;
 import omg.group.priuttelegrambot.handlers.contacts.OwnersDogsContactsHandler;
 import omg.group.priuttelegrambot.handlers.owners.OwnersDogsHandler;
@@ -27,17 +29,18 @@ public class OwnersDogsContactsHandlerImpl implements OwnersDogsContactsHandler 
 
     @Override
     public void savePhoneNumberFromContact(Update update) {
-        OwnerDog owner = ownersDogsHandler.returnOwnerDogDtoFromUpdate(update);
-        String telephone = ownUpdatesHandler.extractTelephoneFromUpdate(update);
+        OwnerDogDto ownerDogDto = ownersDogsHandler.returnOwnerDogDtoFromUpdate(update);
+        String telephone = ownUpdatesHandler.getPhoneNumber(update);
 
-        owner.setTelephone(telephone);
-        owner.setUpdatedAt(LocalDateTime.now());
+        ownerDogDto.setTelephone(telephone);
+        ownerDogDto.setUpdatedAt(LocalDateTime.now());
+        OwnerDog owner = OwnerDogMapper.toEntity(ownerDogDto);
         ownersDogsRepository.save(owner);
     }
 
     @Override
     public boolean isTelephone(Update update) {
-        OwnerDog owner = ownersDogsHandler.returnOwnerDogDtoFromUpdate(update);
-        return !owner.getTelephone().isEmpty();
+        OwnerDogDto ownerDogDto = ownersDogsHandler.returnOwnerDogDtoFromUpdate(update);
+        return !ownerDogDto.getTelephone().isEmpty();
     }
 }

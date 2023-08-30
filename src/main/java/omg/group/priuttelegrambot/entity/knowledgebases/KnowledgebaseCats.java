@@ -8,7 +8,6 @@ import lombok.RequiredArgsConstructor;
 
 @EqualsAndHashCode(callSuper = true)
 @Data
-@RequiredArgsConstructor
 @Entity
 @Table(name = "knowledge_base_cats")
 public class KnowledgebaseCats extends Knowledgebase{

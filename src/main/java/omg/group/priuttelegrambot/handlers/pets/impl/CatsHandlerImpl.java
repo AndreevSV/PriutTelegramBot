@@ -3,10 +3,11 @@ package omg.group.priuttelegrambot.handlers.pets.impl;
 import com.pengrad.telegrambot.TelegramBot;
 import com.pengrad.telegrambot.model.Update;
 import com.pengrad.telegrambot.request.SendMessage;
-import omg.group.priuttelegrambot.entity.owners.OwnerCat;
-import omg.group.priuttelegrambot.entity.pets.Cat;
+import omg.group.priuttelegrambot.dto.owners.OwnerCatDto;
+import omg.group.priuttelegrambot.dto.pets.CatDto;
 import omg.group.priuttelegrambot.handlers.owners.OwnersCatsHandler;
 import omg.group.priuttelegrambot.handlers.pets.CatsHandler;
+import omg.group.priuttelegrambot.handlers.updates.OwnUpdatesHandler;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
@@ -17,39 +18,43 @@ public class CatsHandlerImpl implements CatsHandler {
 
     private final TelegramBot telegramBot;
     private final OwnersCatsHandler ownersCatsHandler;
+    private final OwnUpdatesHandler ownUpdatesHandler;
 
-    public CatsHandlerImpl(TelegramBot telegramBot, OwnersCatsHandler ownersCatsHandler) {
+    public CatsHandlerImpl(TelegramBot telegramBot,
+                           OwnersCatsHandler ownersCatsHandler,
+                           OwnUpdatesHandler ownUpdatesHandler) {
         this.telegramBot = telegramBot;
         this.ownersCatsHandler = ownersCatsHandler;
+        this.ownUpdatesHandler = ownUpdatesHandler;
     }
 
     /**
      * Method checks if Cat(s) on the probation period
      */
     @Override
-    public List<Cat>  checkForCatsOnProbation(List<Cat> cats) {
+    public List<CatDto> checkForCatsOnProbation(List<CatDto> catsDto) {
 
-        if (!cats.isEmpty()) {
+        if (!catsDto.isEmpty()) {
 
-            List<Cat> catsOnProbation = new ArrayList<>();
+            List<CatDto> catsOnProbationDto = new ArrayList<>();
 
-            for (Cat cat : cats) {
-                if ((cat.getFirstProbation() != null && cat.getFirstProbation().equals(true)) ||
-                        ((cat.getSecondProbation() != null && cat.getSecondProbation().equals(true)))) {
-                    catsOnProbation.add(cat);
+            for (CatDto catDto : catsDto) {
+                if ((catDto.getFirstProbation() != null && catDto.getFirstProbation().equals(true)) ||
+                        ((catDto.getSecondProbation() != null && catDto.getSecondProbation().equals(true)))) {
+                    catsOnProbationDto.add(catDto);
                 }
             }
-            return catsOnProbation;
+            return catsOnProbationDto;
         }
-        return new ArrayList<>();
+        return null;
     }
 
     /**
      * Method checks if quantity Cat(s) in the probation period more than 1, then - true
      */
     @Override
-    public boolean checkForCatsOnProbationMoreThanOne(List<Cat> cats) {
-        return cats.size() > 1;
+    public boolean checkForCatsOnProbationMoreThanOne(List<CatDto> catsDto) {
+        return catsDto.size() > 1;
     }
 
     /**
@@ -57,45 +62,37 @@ public class CatsHandlerImpl implements CatsHandler {
      * list of cats on a probation
      */
     @Override
-    public List<Cat> returnCatsOnProbation(Update update) {
+    public List<CatDto> returnCatsOnProbation(Update update) {
 
-        OwnerCat ownerCat = ownersCatsHandler.checkForOwnerExist(update);
+        OwnerCatDto ownerCatDto = ownersCatsHandler.checkForOwnerExist(update);
 
-        if (ownerCat != null) {
-            List<Cat> cats = ownersCatsHandler.checkForOwnerHasCat(ownerCat);
-            if (!cats.isEmpty()) {
-                List<Cat> catsInProbation = checkForCatsOnProbation(cats);
-                if (!catsInProbation.isEmpty()) {
-                    return catsInProbation;
+        if (ownerCatDto != null) {
+            List<CatDto> catsDto = ownersCatsHandler.checkForOwnerHasCat(ownerCatDto);
+            if (!catsDto.isEmpty()) {
+                List<CatDto> catsInProbationDto = checkForCatsOnProbation(catsDto);
+                if (!catsInProbationDto.isEmpty()) {
+                    return catsInProbationDto;
                 }
             }
         }
-        return new ArrayList<>();
+        return null;
     }
 
     /**
      * Method returns one animal on probation
      */
     @Override
-    public Cat returnOneCatOnProbation(Update update) {
+    public CatDto returnOneCatOnProbation(Update update) {
+        Long chatId = ownUpdatesHandler.getChatId(update);
+        String text = ownUpdatesHandler.getText(update);
 
-        Long chatId = 0L;
-        String text = "";
+        List<CatDto> catsDto = returnCatsOnProbation(update);
 
-        if (update.message() != null) {
-            chatId = update.message().chat().id();
-            text = update.message().text();
-        } else if (update.callbackQuery() != null) {
-            chatId = update.callbackQuery().message().chat().id();
-        }
+        if (!checkForCatsOnProbationMoreThanOne(catsDto) && !catsDto.isEmpty()) {
 
-        List<Cat> cats = returnCatsOnProbation(update);
+            return catsDto.get(0);
 
-        if (!checkForCatsOnProbationMoreThanOne(cats) && !cats.isEmpty()) {
-
-            return cats.get(0);
-
-        } else if (checkForCatsOnProbationMoreThanOne(cats) && update.message().text().isEmpty()) {
+        } else if (checkForCatsOnProbationMoreThanOne(catsDto) && update.message().text().isEmpty()) {
 
             Long id;
             String nickName;
@@ -106,11 +103,11 @@ public class CatsHandlerImpl implements CatsHandler {
                     Вы на испытательном сроке со следующими кошками:
                     """;
 
-            for (Cat cat : cats) {
-                id = cat.getId();
-                nickName = cat.getNickName();
+            for (CatDto catDto : catsDto) {
+                id = catDto.getId();
+                nickName = catDto.getNickName();
                 String string = String.format("""
-                        Номер %d, кличка %s
+                        Номер: %d, кличка: %s
                         """, id, nickName);
                 stringBuilder.append(string);
             }
@@ -121,21 +118,22 @@ public class CatsHandlerImpl implements CatsHandler {
                             "отчет по которой вы хотите отправить:");
             telegramBot.execute(message);
 
-        } else if (checkForCatsOnProbationMoreThanOne(cats) && !update.message().text().isEmpty()) {
+        } else if (checkForCatsOnProbationMoreThanOne(catsDto) && !update.message().text().isEmpty()) {
 
             Long idCat = Long.valueOf(text);
 
             boolean found = false;
 
-            for (Cat cat : cats) {
-                if (cat.getId().equals(idCat) || cat.getNickName().equals(text)) {
-                    return cat;
+            for (CatDto catDto : catsDto) {
+                if (catDto.getId().equals(idCat) || catDto.getNickName().equals(text)) {
+                    return catDto;
                 }
             }
 
             if (!found) {
                 SendMessage message = new SendMessage(chatId, """
-                        Введенный вами номер животного или кличка не верны. Попробуйте ввести снова ЛИБО номер ЛИБО кличку.
+                        Введенный вами номер животного или кличка не верны.
+                        Попробуйте ввести снова ЛИБО номер ЛИБО кличку.
                         """);
                 telegramBot.execute(message);
             }

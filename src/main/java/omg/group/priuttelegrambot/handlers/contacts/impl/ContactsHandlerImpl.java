@@ -22,8 +22,8 @@ public class ContactsHandlerImpl implements ContactsHandler {
     @Override
     public void askForContact(Update update) {
 
-        Long chatId = ownUpdatesHandler.extractChatIdFromUpdate(update);
-        int messageId = ownUpdatesHandler.extractMessageIdFromUpdate(update);
+        Long chatId = ownUpdatesHandler.getChatId(update);
+        int messageId = ownUpdatesHandler.getMessageId(update);
 
         KeyboardButton keyboardButton = new KeyboardButton("Поделиться контактом").requestContact(true);
         ReplyKeyboardMarkup keyboardMarkup = new ReplyKeyboardMarkup(keyboardButton)

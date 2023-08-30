@@ -11,6 +11,7 @@ import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import omg.group.priuttelegrambot.dto.owners.OwnerDogDto;
+import omg.group.priuttelegrambot.entity.owners.OwnerCat;
 import omg.group.priuttelegrambot.entity.owners.OwnerDog;
 import omg.group.priuttelegrambot.service.owners.OwnersDogsService;
 import org.springframework.http.HttpStatus;
@@ -18,6 +19,7 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.time.LocalDate;
 import java.util.List;
 
 @RestController
@@ -180,39 +182,9 @@ public class OwnersDogsController {
         return ResponseEntity.ok().build();
     }
 
-    @PutMapping("/volunteer/{id}")
-    @Operation(
-            summary = "Установление сотруднику статуса Волонтера и назначение ему курируемых животных",
-            description = "Сотрудник ищется по id и ему передается список id курируемых животных json-файла"
-    )
-    @ApiResponses(value = {
-            @ApiResponse(
-                    responseCode = "200",
-                    description = "Статус на статус Волонтер успешно обновлен и ему назначены животные",
-                    content = {
-                            @Content(
-                                    mediaType = "application/json",
-                                    array = @ArraySchema(schema = @Schema(implementation = OwnerDog.class))
-                            )
-                    }
-            ),
-            @ApiResponse(
-                    responseCode = "400",
-                    description = "Параметры запроса отсутствуют или имеют некорректный формат"
-
-            ),
-            @ApiResponse(
-                    responseCode = "500",
-                    description = "Произошла ошибка, не зависящая от вызывающей стороны"
-            )
-    })
-    public ResponseEntity<HttpStatus> setVolunteer(@PathVariable Long id, @RequestBody List<Long> dogsIds) {
-        ownersDogsService.setVolunteer(id, dogsIds);
-        return ResponseEntity.ok().build();
-    }
-
+//    @PutMapping("/volunteer/{id}")
 //    @Operation(
-//            summary = "Установление животному хозяина и назначение хозяину испытательный срок",
+//            summary = "Установление сотруднику статуса Волонтера и назначение ему курируемых животных",
 //            description = "Сотрудник ищется по id и ему передается список id курируемых животных json-файла"
 //    )
 //    @ApiResponses(value = {
@@ -222,7 +194,7 @@ public class OwnersDogsController {
 //                    content = {
 //                            @Content(
 //                                    mediaType = "application/json",
-//                                    array = @ArraySchema(schema = @Schema(implementation = OwnerCat.class))
+//                                    array = @ArraySchema(schema = @Schema(implementation = OwnerDog.class))
 //                            )
 //                    }
 //            ),
@@ -236,11 +208,41 @@ public class OwnersDogsController {
 //                    description = "Произошла ошибка, не зависящая от вызывающей стороны"
 //            )
 //    })
-//    @PutMapping("/owner/{id}")
-//    public ResponseEntity<HttpStatus> setAnimalToOwnerAndSetStartOfProbationPeriod(@PathVariable Long id, @RequestBody List<Long> catsIds) {
-//        ownersCatsService.setVolunteer(id, catsIds);
+//    public ResponseEntity<HttpStatus> setVolunteer(@PathVariable Long id, @RequestBody List<Long> dogsIds) {
+//        ownersDogsService.setVolunteer(id, dogsIds);
 //        return ResponseEntity.ok().build();
 //    }
+
+    @Operation(
+            summary = "Передача клиенту животных и назначение первого испытательного срока",
+            description = "Сотрудник ищется по id и ему передается список id курируемых животных json-файла"
+    )
+    @ApiResponses(value = {
+            @ApiResponse(
+                    responseCode = "200",
+                    description = "Сотрудник найден и ему назначены животные",
+                    content = {
+                            @Content(
+                                    mediaType = "application/json",
+                                    array = @ArraySchema(schema = @Schema(implementation = OwnerCat.class))
+                            )
+                    }
+            ),
+            @ApiResponse(
+                    responseCode = "400",
+                    description = "Параметры запроса отсутствуют или имеют некорректный формат"
+
+            ),
+            @ApiResponse(
+                    responseCode = "500",
+                    description = "Произошла ошибка, не зависящая от вызывающей стороны"
+            )
+    })
+    @PutMapping("/owner/{id}")
+    public ResponseEntity<HttpStatus> setAnimalsToOwnerAndSetStartOfProbationPeriod(@PathVariable Long id, @RequestBody List<Long> catsIds, LocalDate dateStart) {
+        ownersDogsService.setPetsToOwnerAndSetStartOfProbationPeriod(id, catsIds, dateStart);
+        return ResponseEntity.ok().build();
+    }
 
 }
 

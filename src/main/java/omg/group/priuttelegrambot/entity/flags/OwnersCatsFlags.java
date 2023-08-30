@@ -9,7 +9,6 @@ import omg.group.priuttelegrambot.entity.pets.Cat;
 
 @EqualsAndHashCode(callSuper = true)
 @Data
-@RequiredArgsConstructor
 @Entity
 @Table(name = "flags_cats")
 public class OwnersCatsFlags extends Flags {

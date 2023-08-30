@@ -3,15 +3,17 @@ package omg.group.priuttelegrambot.handlers.updates;
 import com.pengrad.telegrambot.model.Update;
 
 public interface OwnUpdatesHandler {
-    Long extractChatIdFromUpdate(Update update);
+    Long getChatId(Update update);
 
-    String extractTextFromUpdate(Update update);
+    String getFirstName(Update update);
 
-    int extractMessageIdFromUpdate(Update update);
+    String getText(Update update);
 
-    long extractUserIdFromUpdate(Update update);
+    int getMessageId(Update update);
 
-    String extractTelephoneFromUpdate(Update update);
+    long getUserId(Update update);
 
-    int extractDateFromUpdate(Update update);
+    String getPhoneNumber(Update update);
+
+    int getDate(Update update);
 }

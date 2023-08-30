@@ -7,14 +7,15 @@ import com.pengrad.telegrambot.model.Update;
 import com.pengrad.telegrambot.model.request.InlineKeyboardMarkup;
 import lombok.Data;
 import omg.group.priuttelegrambot.dto.chats.ChatCatsDto;
-import omg.group.priuttelegrambot.entity.flags.OwnersCatsFlags;
-import omg.group.priuttelegrambot.entity.flags.OwnersDogsFlags;
-import omg.group.priuttelegrambot.entity.owners.OwnerCat;
-import omg.group.priuttelegrambot.entity.owners.OwnerDog;
-import omg.group.priuttelegrambot.entity.pets.Cat;
-import omg.group.priuttelegrambot.entity.pets.Dog;
-import omg.group.priuttelegrambot.entity.reports.ReportCat;
-import omg.group.priuttelegrambot.entity.reports.ReportDog;
+import omg.group.priuttelegrambot.dto.chats.ChatDogsDto;
+import omg.group.priuttelegrambot.dto.flags.OwnersCatsFlagsDto;
+import omg.group.priuttelegrambot.dto.flags.OwnersDogsFlagsDto;
+import omg.group.priuttelegrambot.dto.owners.OwnerCatDto;
+import omg.group.priuttelegrambot.dto.owners.OwnerDogDto;
+import omg.group.priuttelegrambot.dto.pets.CatDto;
+import omg.group.priuttelegrambot.dto.pets.DogDto;
+import omg.group.priuttelegrambot.dto.reports.ReportsCatsDto;
+import omg.group.priuttelegrambot.dto.reports.ReportsDogsDto;
 import omg.group.priuttelegrambot.handlers.contacts.ContactsHandler;
 import omg.group.priuttelegrambot.handlers.contacts.OwnersCatsContactsHandler;
 import omg.group.priuttelegrambot.handlers.contacts.OwnersDogsContactsHandler;
@@ -152,186 +153,194 @@ public class TelegramBotUpdatesListener implements UpdatesListener {
 
         LOG.info("Получен следующий апдэйт {}", update);
 
-        Long chatId = ownUpdatesHandler.extractChatIdFromUpdate(update);
-        String message = ownUpdatesHandler.extractTextFromUpdate(update);
-        int messageId = ownUpdatesHandler.extractMessageIdFromUpdate(update);
+        Long chatId = ownUpdatesHandler.getChatId(update);
+        String text = ownUpdatesHandler.getText(update);
+        int messageId = ownUpdatesHandler.getMessageId(update);
 
-        OwnerCat ownerCat = ownersCatsHandler.returnOwnerCatDtoFromUpdate(update);
-        OwnerDog ownerDog = ownersDogsHandler.returnOwnerDogDtoFromUpdate(update);
+        OwnerCatDto ownerCatDtoFromUpdate = ownersCatsHandler.returnOwnerCatDtoFromUpdate(update);
+        OwnerCatDto volunteerCatDtoFromUpdate = ownersCatsHandler.returnVolunteerCatDtoFromUpdate(update);
+        OwnerDogDto ownerDogDtoFromUpdate = ownersDogsHandler.returnOwnerDogDtoFromUpdate(update);
+        OwnerDogDto volunteerDogDtoFromUpdate = ownersDogsHandler.returnVolunteerDogDtoFromUpdate(update);
 
-        if (ownerCat != null) {
-            OwnersCatsFlags catFlag = ownersCatsFlagsHandler.findOwnersCatsFlagsByOwner(ownerCat);
-            if (catFlag != null) {
-                OwnerCat volunteerCat = catFlag.getVolunteer();
-                boolean waitingForPhoto = catFlag.isWaitingForPhoto();
-                boolean waitingForRation = catFlag.isWaitingForRation();
-                boolean waitingForFeeling = catFlag.isWaitingForFeeling();
-                boolean waitingForChanges = catFlag.isWaitingForChanges();
-                boolean waitingForContacts = catFlag.isWaitingForContacts();
-                boolean chatting = catFlag.isChatting();
+        OwnersCatsFlagsDto catFlagDtoByOwner = (ownerCatDtoFromUpdate != null) ? ownersCatsFlagsHandler.findFlagByOwner(ownerCatDtoFromUpdate) : null;
+        OwnersCatsFlagsDto catFlagDtoByVolunteer = (volunteerCatDtoFromUpdate != null) ? ownersCatsFlagsHandler.findFlagByVolunteer(volunteerCatDtoFromUpdate) : null;
+        OwnersDogsFlagsDto dogFlagDtoByOwner = (ownerDogDtoFromUpdate != null) ? ownersDogsFlagsHandler.findFlagByOwner(ownerDogDtoFromUpdate) : null;
+        OwnersDogsFlagsDto dogFlagDtoByVolunteer = (volunteerDogDtoFromUpdate != null) ? ownersDogsFlagsHandler.findFlagByVolunteer(volunteerDogDtoFromUpdate) : null;
 
-                if (update.callbackQuery() == null && update.message() != null) {
-                    if (waitingForPhoto) {
-                        boolean photo = reportsCatsHandler.receivePhoto(update);
-                        if (photo) {
-                            ownersCatsFlagsHandler.removeFlag(catFlag);
-                        }
-                    } else if (waitingForRation) {
-                        boolean ration = reportsCatsHandler.receiveRation(update);
-                        if (ration) {
-                            ownersCatsFlagsHandler.removeFlag(catFlag);
-                        }
-                    } else if (waitingForChanges) {
-                        boolean changes = reportsCatsHandler.receiveChanges(update);
-                        if (changes) {
-                            ownersCatsFlagsHandler.removeFlag(catFlag);
-                        }
-                    } else if (waitingForFeeling) {
-                        boolean feeling = reportsCatsHandler.receiveFeeling(update);
-                        if (feeling) {
-                            ownersCatsFlagsHandler.removeFlag(catFlag);
-                        }
-                    } else if (waitingForContacts) {
-                        Contact contact = update.message().contact();
-                        if (contact != null) {
-                            InlineKeyboardMarkup inlineKeyboardMarkup = catsMenuHandler.formInlineKeyboardForInfoMenuButton();
-                            mainMenuHandler.contactSavedOkMessage(chatId, inlineKeyboardMarkup);
-                            ownersCatsContactsHandler.savePhoneNumberFromContact(update);
-                            ownersCatsFlagsHandler.removeFlag(catFlag);
-                        } else {
-                            InlineKeyboardMarkup inlineKeyboardMarkup = catsMenuHandler.formInlineKeyboardForInfoMenuButton();
-                            mainMenuHandler.waitingForContactMessage(chatId, inlineKeyboardMarkup);
-                        }
-                    } else if (chatting) {
-                        if (message.equals("/Завершить")) {
-                            chatsCatsHandler.executeCloseButtonCommand(update);
-                            ownersCatsFlagsHandler.removeFlag(catFlag);
-                        } else if (message.equals("/Ответить")) {
-                            chatsCatsHandler.executeReplyButtonCommandForVolunteer(update);
-                            ownersCatsFlagsHandler.createChattingFlag(ownerCat, volunteerCat);
-                        } else if (!message.startsWith("/")) {
-                            chatsCatsHandler.forwardMessageReceived(update);
-                        }
-                    }
-                } else if (update.callbackQuery() != null) {
-                    if (waitingForRation) {
-                        InlineKeyboardMarkup inlineKeyboardMarkup = catsMenuHandler.formInlineKeyboardForInfoMenuButton();
-                        mainMenuHandler.executeSendRationButtonMessage(chatId, messageId, inlineKeyboardMarkup);
-                    } else if (waitingForFeeling) {
-                        InlineKeyboardMarkup inlineKeyboardMarkup = catsMenuHandler.formInlineKeyboardForInfoMenuButton();
-                        mainMenuHandler.executeSendFeelingButtonMessage(chatId, messageId, inlineKeyboardMarkup);
-                    } else if (waitingForChanges) {
-                        InlineKeyboardMarkup inlineKeyboardMarkup = catsMenuHandler.formInlineKeyboardForInfoMenuButton();
-                        mainMenuHandler.executeSendChangesButtonMessage(chatId, messageId, inlineKeyboardMarkup);
-                    } else if (waitingForPhoto) {
-                        InlineKeyboardMarkup inlineKeyboardMarkup = catsMenuHandler.formInlineKeyboardForInfoMenuButton();
-                        mainMenuHandler.executeSendPhotoButtonMessage(chatId, messageId, inlineKeyboardMarkup);
-                    } else if (waitingForContacts) {
-                        InlineKeyboardMarkup inlineKeyboardMarkup = catsMenuHandler.formInlineKeyboardForInfoMenuButton();
-                        mainMenuHandler.executeSendContactsButtonMessage(chatId, messageId, inlineKeyboardMarkup);
-                    } else if (chatting) {
-                        if (message.equals("/Завершить")) {
-                            chatsCatsHandler.executeCloseButtonCommand(update);
-                            ownersCatsFlagsHandler.removeFlag(catFlag);
-                        } else if (message.equals("/Ответить")) {
-                            chatsCatsHandler.executeReplyButtonCommandForVolunteer(update);
-                            ownersCatsFlagsHandler.createChattingFlag(ownerCat, volunteerCat);
-                        } else {
-                            InlineKeyboardMarkup inlineKeyboardMarkup = catsMenuHandler.formPriutMainMenuButton();
-                            mainMenuHandler.executeCallVolunteerButtonMessage(chatId, messageId, inlineKeyboardMarkup);
-                        }
+        OwnersCatsFlagsDto catFlagDto;
+        if (catFlagDtoByOwner != null) {
+            catFlagDto = catFlagDtoByOwner;
+        } else catFlagDto = catFlagDtoByVolunteer;
+
+        OwnersDogsFlagsDto dogFlagDto;
+        if (dogFlagDtoByOwner != null) {
+            dogFlagDto = dogFlagDtoByOwner;
+        } else dogFlagDto = dogFlagDtoByVolunteer;
+
+            if (catFlagDto != null) {
+//                if (update.callbackQuery() == null && update.message() != null) {
+                if (catFlagDto.getIsChatting()) {
+                    if ("Завершить".equals(text)) {
+                        chatsCatsHandler.executeCloseButtonCommand(update);
+                        ownersCatsFlagsHandler.removeFlag(catFlagDto);
+                    } else if ("Ответить".equals(text)) {
+                        chatsCatsHandler.executeReplyButtonCommandForVolunteer(update);
+//                        OwnerCatDto ownerCatDto = catFlagDto.getOwnerDto();
+//                        OwnerCatDto volunteerCatDto = catFlagDto.getVolunteerDto();
+//                        ownersCatsFlagsHandler.createChattingFlag(ownerCatDto, volunteerCatDto);
+                    } else if (text != null && text.startsWith("/")) {
+                        processButton(update);
+                    } else {
+                        chatsCatsHandler.forwardMessageReceived(update);
                     }
                 }
-            } else if (ownerDog != null) {
-                OwnersDogsFlags dogFlag = ownersDogsFlagsHandler.findOwnersDogsFlagsByOwner(ownerDog);
-                if (dogFlag != null) {
-                    OwnerDog volunteerDog = dogFlag.getVolunteer();
-                    boolean waitingForPhoto = dogFlag.isWaitingForPhoto();
-                    boolean waitingForRation = dogFlag.isWaitingForRation();
-                    boolean waitingForFeeling = dogFlag.isWaitingForFeeling();
-                    boolean waitingForChanges = dogFlag.isWaitingForChanges();
-                    boolean waitingForContacts = dogFlag.isWaitingForContacts();
-                    boolean isChatting = dogFlag.isChatting();
-
-                    if (update.callbackQuery() == null && update.message() != null) {
-                        if (waitingForPhoto) {
-                            boolean photo = reportsDogsHandler.receivePhoto(update);
-                            if (photo) {
-                                ownersDogsFlagsHandler.removeFlag(dogFlag);
-                            }
-                        } else if (waitingForRation) {
-                            boolean ration = reportsDogsHandler.receiveRation(update);
-                            if (ration) {
-                                ownersDogsFlagsHandler.removeFlag(dogFlag);
-                            }
-                        } else if (waitingForFeeling) {
-                            boolean feeling = reportsDogsHandler.receiveFeeling(update);
-                            if (feeling) {
-                                ownersDogsFlagsHandler.removeFlag(dogFlag);
-                            }
-                        } else if (waitingForChanges) {
-                            boolean changes = reportsDogsHandler.receiveChanges(update);
-                            if (changes) {
-                                ownersDogsFlagsHandler.removeFlag(dogFlag);
-                            }
-                        } else if (waitingForContacts) {
-                            Contact contact = update.message().contact();
-                            if (contact != null) {
-                                InlineKeyboardMarkup inlineKeyboardMarkup = dogsMenuHandler.formInlineKeyboardForInfoMenuButton();
-                                mainMenuHandler.contactSavedOkMessage(chatId, inlineKeyboardMarkup);
-                                ownersDogsContactsHandler.savePhoneNumberFromContact(update);
-                                ownersDogsFlagsHandler.removeFlag(dogFlag);
-                            } else {
-                                InlineKeyboardMarkup inlineKeyboardMarkup = dogsMenuHandler.formInlineKeyboardForInfoMenuButton();
-                                mainMenuHandler.waitingForContactMessage(chatId, inlineKeyboardMarkup);
-                            }
-                        } else if (isChatting) {
-                            if (message.equals("/Завершить")) {
-                                chatsDogsHandler.executeCloseButtonCommand(update);
-                                ownersDogsFlagsHandler.removeFlag(dogFlag);
-                            } else if (message.equals("/Ответить")) {
-                                chatsDogsHandler.executeReplyButtonCommandForVolunteer(update);
-                                ownersDogsFlagsHandler.createChattingFlag(ownerDog, volunteerDog);
-                            } else {
-                                InlineKeyboardMarkup inlineKeyboardMarkup = catsMenuHandler.formPriutMainMenuButton();
-                                mainMenuHandler.executeCallVolunteerButtonMessage(chatId, messageId, inlineKeyboardMarkup);
-                            }
-                        }
-                    } else if (update.callbackQuery() != null) {
-                        if (waitingForRation) {
-                            InlineKeyboardMarkup inlineKeyboardMarkup = dogsMenuHandler.formInlineKeyboardForInfoMenuButton();
-                            mainMenuHandler.executeSendRationButtonMessage(chatId, messageId, inlineKeyboardMarkup);
-                        } else if (waitingForFeeling) {
-                            InlineKeyboardMarkup inlineKeyboardMarkup = dogsMenuHandler.formInlineKeyboardForInfoMenuButton();
-                            mainMenuHandler.executeSendFeelingButtonMessage(chatId, messageId, inlineKeyboardMarkup);
-                        } else if (waitingForChanges) {
-                            InlineKeyboardMarkup inlineKeyboardMarkup = dogsMenuHandler.formInlineKeyboardForInfoMenuButton();
-                            mainMenuHandler.executeSendChangesButtonMessage(chatId, messageId, inlineKeyboardMarkup);
-                        } else if (waitingForPhoto) {
-                            InlineKeyboardMarkup inlineKeyboardMarkup = dogsMenuHandler.formInlineKeyboardForInfoMenuButton();
-                            mainMenuHandler.executeSendPhotoButtonMessage(chatId, messageId, inlineKeyboardMarkup);
-                        } else if (waitingForContacts) {
-                            InlineKeyboardMarkup inlineKeyboardMarkup = dogsMenuHandler.formInlineKeyboardForInfoMenuButton();
-                            mainMenuHandler.executeSendContactsButtonMessage(chatId, messageId, inlineKeyboardMarkup);
-                        } else if (isChatting) {
-                            InlineKeyboardMarkup inlineKeyboardMarkup = dogsMenuHandler.formInlineKeyboardForInfoMenuButton();
-                            mainMenuHandler.executeCallVolunteerButtonMessage(chatId, messageId, inlineKeyboardMarkup);
-                        }
+                if (catFlagDto.getIsWaitingForPhoto()) {
+                    boolean photo = reportsCatsHandler.receivePhoto(update);
+                    if (photo) {
+                        ownersCatsFlagsHandler.removeFlag(catFlagDto);
+                    }
+                } else if (catFlagDto.getIsWaitingForRation()) {
+                    boolean ration = reportsCatsHandler.receiveRation(update);
+                    if (ration) {
+                        ownersCatsFlagsHandler.removeFlag(catFlagDto);
+                    }
+                } else if (catFlagDto.getIsWaitingForFeeling()) {
+                    boolean feeling = reportsCatsHandler.receiveFeeling(update);
+                    if (feeling) {
+                        ownersCatsFlagsHandler.removeFlag(catFlagDto);
+                    }
+                } else if (catFlagDto.getIsWaitingForChanges()) {
+                    boolean changes = reportsCatsHandler.receiveChanges(update);
+                    if (changes) {
+                        ownersCatsFlagsHandler.removeFlag(catFlagDto);
+                    }
+                } else if (catFlagDto.getIsWaitingForContacts()) {
+                    Contact contact = update.message().contact();
+                    if (contact != null) {
+                        InlineKeyboardMarkup inlineKeyboardMarkup = catsMenuHandler.formInlineKeyboardForInfoMenuButton();
+                        ownersCatsContactsHandler.savePhoneNumberFromContact(update);
+                        ownersCatsFlagsHandler.removeFlag(catFlagDto);
+                        mainMenuHandler.contactSavedOkMessage(chatId, inlineKeyboardMarkup);
+                    } else {
+                        InlineKeyboardMarkup inlineKeyboardMarkup = catsMenuHandler.formInlineKeyboardForInfoMenuButton();
+                        mainMenuHandler.waitingForContactMessage(chatId, inlineKeyboardMarkup);
                     }
                 }
-            } else if (update.callbackQuery() != null || (update.message().text() != null && update.message().text().startsWith("/"))) {
-                processButton(update);
+//                } else if (update.callbackQuery() != null) {
+//                    if (waitingForRation) {
+//                        InlineKeyboardMarkup inlineKeyboardMarkup = catsMenuHandler.formInlineKeyboardForInfoMenuButton();
+//                        mainMenuHandler.executeSendRationButtonMessage(chatId, messageId, inlineKeyboardMarkup);
+//                    } else if (waitingForFeeling) {
+//                        InlineKeyboardMarkup inlineKeyboardMarkup = catsMenuHandler.formInlineKeyboardForInfoMenuButton();
+//                        mainMenuHandler.executeSendFeelingButtonMessage(chatId, messageId, inlineKeyboardMarkup);
+//                    } else if (waitingForChanges) {
+//                        InlineKeyboardMarkup inlineKeyboardMarkup = catsMenuHandler.formInlineKeyboardForInfoMenuButton();
+//                        mainMenuHandler.executeSendChangesButtonMessage(chatId, messageId, inlineKeyboardMarkup);
+//                    } else if (waitingForPhoto) {
+//                        InlineKeyboardMarkup inlineKeyboardMarkup = catsMenuHandler.formInlineKeyboardForInfoMenuButton();
+//                        mainMenuHandler.executeSendPhotoButtonMessage(chatId, messageId, inlineKeyboardMarkup);
+//                    } else if (waitingForContacts) {
+//                        InlineKeyboardMarkup inlineKeyboardMarkup = catsMenuHandler.formInlineKeyboardForInfoMenuButton();
+//                        mainMenuHandler.executeSendContactsButtonMessage(chatId, messageId, inlineKeyboardMarkup);
+//                    } else if (chatting) {
+//                        if (message.equals("/Close")) {
+//                            chatsCatsHandler.executeCloseButtonCommand(update);
+//                            ownersCatsFlagsHandler.removeFlag(catFlagDto);
+//                        } else if (message.equals("/Reply")) {
+//                            chatsCatsHandler.executeReplyButtonCommandForVolunteer(update);
+//                            ownersCatsFlagsHandler.createChattingFlag(ownerCatDto, volunteerCat);
+//                        } else {
+//                            InlineKeyboardMarkup inlineKeyboardMarkup = catsMenuHandler.formPriutMainMenuButton();
+//                            mainMenuHandler.executeCallVolunteerButtonMessage(chatId, messageId, inlineKeyboardMarkup);
+//                        }
+//                    }
+            } else if (dogFlagDto != null) {
+//                    if (update.callbackQuery() == null && update.message() != null) {
+                if (dogFlagDto.getIsChatting()) {
+                    if ("Завершить".equals(text)) {
+                        chatsDogsHandler.executeCloseButtonCommand(update);
+                        ownersDogsFlagsHandler.removeFlag(dogFlagDto);
+                    } else if ("Ответить".equals(text)) {
+                        chatsDogsHandler.executeReplyButtonCommandForVolunteer(update);
+                        OwnerDogDto ownerDogDto = dogFlagDto.getOwnerDto();
+                        OwnerDogDto volunteerDogDto = dogFlagDto.getVolunteerDto();
+                        ownersDogsFlagsHandler.createChattingFlag(ownerDogDto, volunteerDogDto);
+                    } else if (!text.startsWith("/")) {
+                        chatsDogsHandler.forwardMessageReceived(update);
+                    }
+                }
+                if (dogFlagDto.getIsWaitingForPhoto()) {
+                    boolean photo = reportsDogsHandler.receivePhoto(update);
+                    if (photo) {
+                        ownersDogsFlagsHandler.removeFlag(dogFlagDto);
+                    }
+                } else if (dogFlagDto.getIsWaitingForRation()) {
+                    boolean ration = reportsDogsHandler.receiveRation(update);
+                    if (ration) {
+                        ownersDogsFlagsHandler.removeFlag(dogFlagDto);
+                    }
+                } else if (dogFlagDto.getIsWaitingForFeeling()) {
+                    boolean feeling = reportsDogsHandler.receiveFeeling(update);
+                    if (feeling) {
+                        ownersDogsFlagsHandler.removeFlag(dogFlagDto);
+                    }
+                } else if (dogFlagDto.getIsWaitingForChanges()) {
+                    boolean changes = reportsDogsHandler.receiveChanges(update);
+                    if (changes) {
+                        ownersDogsFlagsHandler.removeFlag(dogFlagDto);
+                    }
+                } else if (dogFlagDto.getIsWaitingForContacts()) {
+                    Contact contact = update.message().contact();
+                    if (contact != null) {
+                        InlineKeyboardMarkup inlineKeyboardMarkup = dogsMenuHandler.formInlineKeyboardForInfoMenuButton();
+                        mainMenuHandler.contactSavedOkMessage(chatId, inlineKeyboardMarkup);
+                        ownersDogsFlagsHandler.removeFlag(dogFlagDto);
+                        ownersDogsContactsHandler.savePhoneNumberFromContact(update);
+                    } else {
+                        InlineKeyboardMarkup inlineKeyboardMarkup = dogsMenuHandler.formInlineKeyboardForInfoMenuButton();
+                        mainMenuHandler.waitingForContactMessage(chatId, inlineKeyboardMarkup);
+                    }
+                }
+//                    } else if (update.callbackQuery() != null) {
+//                        if (waitingForRation) {
+//                            InlineKeyboardMarkup inlineKeyboardMarkup = dogsMenuHandler.formInlineKeyboardForInfoMenuButton();
+//                            mainMenuHandler.executeSendRationButtonMessage(chatId, messageId, inlineKeyboardMarkup);
+//                        } else if (waitingForFeeling) {
+//                            InlineKeyboardMarkup inlineKeyboardMarkup = dogsMenuHandler.formInlineKeyboardForInfoMenuButton();
+//                            mainMenuHandler.executeSendFeelingButtonMessage(chatId, messageId, inlineKeyboardMarkup);
+//                        } else if (waitingForChanges) {
+//                            InlineKeyboardMarkup inlineKeyboardMarkup = dogsMenuHandler.formInlineKeyboardForInfoMenuButton();
+//                            mainMenuHandler.executeSendChangesButtonMessage(chatId, messageId, inlineKeyboardMarkup);
+//                        } else if (waitingForPhoto) {
+//                            InlineKeyboardMarkup inlineKeyboardMarkup = dogsMenuHandler.formInlineKeyboardForInfoMenuButton();
+//                            mainMenuHandler.executeSendPhotoButtonMessage(chatId, messageId, inlineKeyboardMarkup);
+//                        } else if (waitingForContacts) {
+//                            InlineKeyboardMarkup inlineKeyboardMarkup = dogsMenuHandler.formInlineKeyboardForInfoMenuButton();
+//                            mainMenuHandler.executeSendContactsButtonMessage(chatId, messageId, inlineKeyboardMarkup);
+//                        } else if (isChatting) {
+//                            InlineKeyboardMarkup inlineKeyboardMarkup = dogsMenuHandler.formInlineKeyboardForInfoMenuButton();
+//                            mainMenuHandler.executeCallVolunteerButtonMessage(chatId, messageId, inlineKeyboardMarkup);
+//                        }
+//                    }
+//                }
+//            }
+//        }
             } else {
-                mainMenuHandler.noSuchCommandSendMessage(update);
+                if (update.callbackQuery() != null || (update.message().text() != null && update.message().text().startsWith("/"))) {
+                    processButton(update);
+                } else {
+                    mainMenuHandler.noSuchCommandSendMessage(update);
+                }
             }
         }
-    }
+
+
 
     private void processButton(Update update) {
 
-        Long chatId = ownUpdatesHandler.extractChatIdFromUpdate(update);
-        String command = ownUpdatesHandler.extractTextFromUpdate(update);
-        int messageId = ownUpdatesHandler.extractMessageIdFromUpdate(update);
+        Long chatId = ownUpdatesHandler.getChatId(update);
+        String command = ownUpdatesHandler.getText(update);
+        int messageId = ownUpdatesHandler.getMessageId(update);
 
         switch (command) {
             case "/start" -> {
@@ -353,10 +362,10 @@ public class TelegramBotUpdatesListener implements UpdatesListener {
             }
             case "/cat_send_report" -> {
                 // Check for report for today exist
-                ReportCat report = reportsCatsHandler.isReportExist(update);
-                if (report != null) {
+                ReportsCatsDto reportDto = reportsCatsHandler.isReportExist(update);
+                if (reportDto != null) {
                     // Check if existed report completed
-                    ReportCat reportCompleted = reportsCatsHandler.isReportCompleted(report);
+                    ReportsCatsDto reportCompleted = reportsCatsHandler.isReportCompleted(reportDto);
                     if (reportCompleted == null) {
                         // If report is completed send message that report already was sent
                         InlineKeyboardMarkup inlineKeyboardMarkup = catsMenuHandler.formPriutMainMenuButton();
@@ -373,15 +382,15 @@ public class TelegramBotUpdatesListener implements UpdatesListener {
                 }
             }
             case "/cat_send_photo" -> {
-                ReportCat report = reportsCatsHandler.returnReportFromUpdate(update);
-                if (report != null) {
-                    ReportCat photoReport = reportsCatsHandler.isPhoto(report);
-                    if (photoReport != null) {
+                ReportsCatsDto reportDto = reportsCatsHandler.returnReportDtoFromUpdate(update);
+                if (reportDto != null) {
+                    ReportsCatsDto photoReportDto = reportsCatsHandler.isPhoto(reportDto);
+                    if (photoReportDto != null) {
                         // If Report is exist get an OwnerCat and Cat from Report
-                        OwnerCat owner = report.getOwner();
-                        Cat cat = report.getCat();
+                        OwnerCatDto ownerDto = reportDto.getOwnerDto();
+                        CatDto catDto = reportDto.getPetDto();
                         // Create waiting for photo flag
-                        ownersCatsFlagsHandler.createWaitingForPhotoFlag(owner, cat);
+                        ownersCatsFlagsHandler.createWaitingForPhotoFlag(ownerDto, catDto);
                         InlineKeyboardMarkup inlineKeyboardMarkup = catsMenuHandler.formInlineKeyboardForSendReportButton();
                         catsMenuHandler.executeButtonOrCommand(update, inlineKeyboardMarkup);
                     } else {
@@ -391,15 +400,15 @@ public class TelegramBotUpdatesListener implements UpdatesListener {
                 }
             }
             case "/cat_send_ration" -> {
-                ReportCat report = reportsCatsHandler.returnReportFromUpdate(update);
-                if (report != null) {
-                    ReportCat rationReport = reportsCatsHandler.isRation(report);
-                    if (rationReport != null) {
+                ReportsCatsDto reportDto = reportsCatsHandler.returnReportDtoFromUpdate(update);
+                if (reportDto != null) {
+                    ReportsCatsDto rationReportDto = reportsCatsHandler.isRation(reportDto);
+                    if (rationReportDto != null) {
                         // If Report is exist get an OwnerCat and Cat from Report
-                        OwnerCat owner = report.getOwner();
-                        Cat cat = report.getCat();
+                        OwnerCatDto ownerDto = reportDto.getOwnerDto();
+                        CatDto catDto = reportDto.getPetDto();
                         // Create waiting for ration flag
-                        ownersCatsFlagsHandler.createWaitingForRationFlag(owner, cat);
+                        ownersCatsFlagsHandler.createWaitingForRationFlag(ownerDto, catDto);
                         InlineKeyboardMarkup inlineKeyboardMarkup = catsMenuHandler.formInlineKeyboardForSendReportButton();
                         catsMenuHandler.executeButtonOrCommand(update, inlineKeyboardMarkup);
                     } else {
@@ -409,15 +418,15 @@ public class TelegramBotUpdatesListener implements UpdatesListener {
                 }
             }
             case "/cat_send_feeling" -> {
-                ReportCat report = reportsCatsHandler.returnReportFromUpdate(update);
-                if (report != null) {
-                    ReportCat feelingReport = reportsCatsHandler.isFeeling(report);
-                    if (feelingReport != null) {
+                ReportsCatsDto reportDto = reportsCatsHandler.returnReportDtoFromUpdate(update);
+                if (reportDto != null) {
+                    ReportsCatsDto feelingReportDto = reportsCatsHandler.isFeeling(reportDto);
+                    if (feelingReportDto != null) {
                         // If Report is exist get an OwnerCat and Cat from Report
-                        OwnerCat owner = report.getOwner();
-                        Cat cat = report.getCat();
+                        OwnerCatDto ownerDto = reportDto.getOwnerDto();
+                        CatDto catDto = reportDto.getPetDto();
                         // Create waiting for ration flag
-                        ownersCatsFlagsHandler.createWaitingForFeelingFlag(owner, cat);
+                        ownersCatsFlagsHandler.createWaitingForFeelingFlag(ownerDto, catDto);
                         InlineKeyboardMarkup inlineKeyboardMarkup = catsMenuHandler.formInlineKeyboardForSendReportButton();
                         catsMenuHandler.executeButtonOrCommand(update, inlineKeyboardMarkup);
                     } else {
@@ -427,15 +436,15 @@ public class TelegramBotUpdatesListener implements UpdatesListener {
                 }
             }
             case "/cat_send_changes" -> {
-                ReportCat report = reportsCatsHandler.returnReportFromUpdate(update);
-                if (report != null) {
-                    ReportCat changesReport = reportsCatsHandler.isChanges(report);
-                    if (changesReport != null) {
+                ReportsCatsDto reportDto = reportsCatsHandler.returnReportDtoFromUpdate(update);
+                if (reportDto != null) {
+                    ReportsCatsDto changesReportDto = reportsCatsHandler.isChanges(reportDto);
+                    if (changesReportDto != null) {
                         // If Report is exist get an OwnerCat and Cat from Report
-                        OwnerCat owner = report.getOwner();
-                        Cat cat = report.getCat();
+                        OwnerCatDto ownerDto = reportDto.getOwnerDto();
+                        CatDto catDto = reportDto.getPetDto();
                         // Create waiting for ration flag
-                        ownersCatsFlagsHandler.createWaitingForChangesFlag(owner, cat);
+                        ownersCatsFlagsHandler.createWaitingForChangesFlag(ownerDto, catDto);
                         InlineKeyboardMarkup inlineKeyboardMarkup = catsMenuHandler.formInlineKeyboardForSendReportButton();
                         catsMenuHandler.executeButtonOrCommand(update, inlineKeyboardMarkup);
                     } else {
@@ -449,17 +458,19 @@ public class TelegramBotUpdatesListener implements UpdatesListener {
                 catsMenuHandler.executeButtonOrCommand(update, inlineKeyboardMarkup);
             }
             case "/cat_volunteer" -> {
-                ChatCatsDto chat = chatsCatsHandler.findByOwnerCatChatId(chatId);
-                if (chat != null) {
+                ChatCatsDto chatDto = chatsCatsHandler.findByOwnerCatChatId(chatId);
+                if (chatDto != null) {
                     InlineKeyboardMarkup inlineKeyboardMarkup = catsMenuHandler.formPriutMainMenuButton();
                     mainMenuHandler.chatAlreadySetMessage(chatId, messageId, inlineKeyboardMarkup);
                 } else {
-                    chatsCatsHandler.callVolunteer(update);
-                    ownersCatsFlagsHandler.createChattingFlag();
-                    OwnersCatsFlags flag = new OwnersCatsFlags();
-                    flag.setChatting(true);
-                    ownersCatsFlagStatus.put(chatId, flag);
-                    chatsCatsHandler.callVolunteer(update);
+                    OwnerCatDto volunteerCatDto = chatsCatsHandler.callVolunteer(update);
+                    if (volunteerCatDto != null) {
+                        OwnerCatDto ownerCatDto = ownersCatsHandler.returnOwnerCatDtoFromUpdate(update);
+                        ownersCatsFlagsHandler.createChattingFlag(ownerCatDto, volunteerCatDto);
+                    } else {
+                        mainMenuHandler.noFreeVolunteerAvailableMessage(chatId);
+                        catsMenuHandler.formPriutMainMenuButton();
+                    }
                 }
             }
             case "/cat_receive_contacts" -> {
@@ -470,10 +481,10 @@ public class TelegramBotUpdatesListener implements UpdatesListener {
                     mainMenuHandler.telephoneAlreadySetMessage(chatId, messageId, inlineKeyboardMarkup);
                 } else {
                     // If phone number absent in OwnerCat - return Report
-                    OwnerCat ownerCat = ownersCatsHandler.returnOwnerCatDtoFromUpdate(update);
+                    OwnerCatDto ownerCatDto = ownersCatsHandler.returnOwnerCatDtoFromUpdate(update);
                     // Create waiting for contacts flag and form inquery for contact
-                    ownersCatsFlagsHandler.createWaitingForContactsFlag(ownerCat);
                     contactsHandler.askForContact(update);
+                    ownersCatsFlagsHandler.createWaitingForContactsFlag(ownerCatDto);
                 }
             }
             case "/dog" -> {
@@ -492,10 +503,10 @@ public class TelegramBotUpdatesListener implements UpdatesListener {
             }
             case "/dog_send_report" -> {
                 // Check for report for today exist
-                ReportDog report = reportsDogsHandler.isReportExist(update);
-                if (report != null) {
+                ReportsDogsDto reportDto = reportsDogsHandler.isReportExist(update);
+                if (reportDto != null) {
                     // Check if existed report completed
-                    ReportDog reportCompleted = reportsDogsHandler.isReportCompleted(report);
+                    ReportsDogsDto reportCompleted = reportsDogsHandler.isReportCompleted(reportDto);
                     if (reportCompleted == null) {
                         // If report is completed send message that report already was sent
                         InlineKeyboardMarkup inlineKeyboardMarkup = dogsMenuHandler.formPriutMainMenuButton();
@@ -512,15 +523,15 @@ public class TelegramBotUpdatesListener implements UpdatesListener {
                 }
             }
             case "/dog_send_photo" -> {
-                ReportDog report = reportsDogsHandler.returnReportFromUpdate(update);
-                if (report != null) {
-                    ReportDog photoReport = reportsDogsHandler.isPhoto(report);
-                    if (photoReport != null) {
+                ReportsDogsDto reportDto = reportsDogsHandler.returnReportFromUpdate(update);
+                if (reportDto != null) {
+                    ReportsDogsDto photoReportDto = reportsDogsHandler.isPhoto(reportDto);
+                    if (photoReportDto != null) {
                         // If Report is exist get an OwnerCat and Cat from Report
-                        OwnerDog owner = report.getOwnerDog();
-                        Dog dog = report.getDog();
+                        OwnerDogDto ownerDto = reportDto.getOwnerDto();
+                        DogDto dogDto = reportDto.getPetDto();
                         // Create waiting for photo flag
-                        ownersDogsFlagsHandler.createWaitingForPhotoFlag(owner, dog);
+                        ownersDogsFlagsHandler.createWaitingForPhotoFlag(ownerDto, dogDto);
                         InlineKeyboardMarkup inlineKeyboardMarkup = dogsMenuHandler.formInlineKeyboardForSendReportButton();
                         dogsMenuHandler.executeButtonOrCommand(update, inlineKeyboardMarkup);
                     } else {
@@ -530,15 +541,15 @@ public class TelegramBotUpdatesListener implements UpdatesListener {
                 }
             }
             case "/dog_send_ration" -> {
-                ReportDog report = reportsDogsHandler.returnReportFromUpdate(update);
-                if (report != null) {
-                    ReportDog rationReport = reportsDogsHandler.isRation(report);
-                    if (rationReport != null) {
+                ReportsDogsDto reportsDto = reportsDogsHandler.returnReportFromUpdate(update);
+                if (reportsDto != null) {
+                    ReportsDogsDto rationReportDto = reportsDogsHandler.isRation(reportsDto);
+                    if (rationReportDto != null) {
                         // If Report is exist get an OwnerCat and Cat from Report
-                        OwnerDog owner = report.getOwnerDog();
-                        Dog dog = report.getDog();
+                        OwnerDogDto ownerDto = reportsDto.getOwnerDto();
+                        DogDto dogDto = reportsDto.getPetDto();
                         // Create waiting for ration flag
-                        ownersDogsFlagsHandler.createWaitingForRationFlag(owner, dog);
+                        ownersDogsFlagsHandler.createWaitingForRationFlag(ownerDto, dogDto);
                         InlineKeyboardMarkup inlineKeyboardMarkup = dogsMenuHandler.formInlineKeyboardForSendReportButton();
                         dogsMenuHandler.executeButtonOrCommand(update, inlineKeyboardMarkup);
                     } else {
@@ -548,15 +559,15 @@ public class TelegramBotUpdatesListener implements UpdatesListener {
                 }
             }
             case "/dog_send_feeling" -> {
-                ReportDog report = reportsDogsHandler.returnReportFromUpdate(update);
-                if (report != null) {
-                    ReportDog feelingReport = reportsDogsHandler.isFeeling(report);
-                    if (feelingReport != null) {
+                ReportsDogsDto reportDto = reportsDogsHandler.returnReportFromUpdate(update);
+                if (reportDto != null) {
+                    ReportsDogsDto feelingReportDto = reportsDogsHandler.isFeeling(reportDto);
+                    if (feelingReportDto != null) {
                         // If Report is exist get an OwnerCat and Cat from Report
-                        OwnerDog owner = report.getOwnerDog();
-                        Dog dog = report.getDog();
+                        OwnerDogDto ownerDto = reportDto.getOwnerDto();
+                        DogDto dogDto = reportDto.getPetDto();
                         // Create waiting for ration flag
-                        ownersDogsFlagsHandler.createWaitingForFeelingFlag(owner, dog);
+                        ownersDogsFlagsHandler.createWaitingForFeelingFlag(ownerDto, dogDto);
                         InlineKeyboardMarkup inlineKeyboardMarkup = dogsMenuHandler.formInlineKeyboardForSendReportButton();
                         dogsMenuHandler.executeButtonOrCommand(update, inlineKeyboardMarkup);
                     } else {
@@ -566,15 +577,15 @@ public class TelegramBotUpdatesListener implements UpdatesListener {
                 }
             }
             case "/dog_send_changes" -> {
-                ReportDog report = reportsDogsHandler.returnReportFromUpdate(update);
-                if (report != null) {
-                    ReportDog changesReport = reportsDogsHandler.isChanges(report);
-                    if (changesReport != null) {
+                ReportsDogsDto reportDto = reportsDogsHandler.returnReportFromUpdate(update);
+                if (reportDto != null) {
+                    ReportsDogsDto changesReportDto = reportsDogsHandler.isChanges(reportDto);
+                    if (changesReportDto != null) {
                         // If Report is exist get an OwnerCat and Cat from Report
-                        OwnerDog owner = report.getOwnerDog();
-                        Dog dog = report.getDog();
+                        OwnerDogDto ownerDto = reportDto.getOwnerDto();
+                        DogDto dogDto = reportDto.getPetDto();
                         // Create waiting for ration flag
-                        ownersDogsFlagsHandler.createWaitingForChangesFlag(owner, dog);
+                        ownersDogsFlagsHandler.createWaitingForChangesFlag(ownerDto, dogDto);
                         InlineKeyboardMarkup inlineKeyboardMarkup = dogsMenuHandler.formInlineKeyboardForSendReportButton();
                         dogsMenuHandler.executeButtonOrCommand(update, inlineKeyboardMarkup);
                     } else {
@@ -588,20 +599,34 @@ public class TelegramBotUpdatesListener implements UpdatesListener {
                 dogsMenuHandler.executeButtonOrCommand(update, inlineKeyboardMarkup);
             }
             case "/dog_volunteer" -> {
-                if (ownersDogsFlagStatus.containsKey(chatId) && ownersDogsFlagStatus.get(chatId).isChatting()) {
+                ChatDogsDto chatDto = chatsDogsHandler.findByOwnerDogChatId(chatId);
+                if (chatDto != null) {
                     InlineKeyboardMarkup inlineKeyboardMarkup = dogsMenuHandler.formPriutMainMenuButton();
                     mainMenuHandler.chatAlreadySetMessage(chatId, messageId, inlineKeyboardMarkup);
                 } else {
-                    Flags flag = new Flags();
-                    flag.setChatting(true);
-                    ownersDogsFlagStatus.put(chatId, flag);
-                    chatsDogsHandler.callVolunteer(update);
+                    OwnerDogDto volunteerDogDto = chatsDogsHandler.callVolunteer(update);
+                    if (volunteerDogDto != null) {
+                        OwnerDogDto ownerDogDto = ownersDogsHandler.returnOwnerDogDtoFromUpdate(update);
+                        ownersDogsFlagsHandler.createChattingFlag(ownerDogDto, volunteerDogDto);
+                    } else {
+                        mainMenuHandler.noFreeVolunteerAvailableMessage(chatId);
+                        dogsMenuHandler.formPriutMainMenuButton();
+                    }
                 }
             }
             case "/dog_receive_contacts" -> {
-                OwnerDog ownerDog = ownersDogsHandler.returnOwnerDogDtoFromUpdate(update);
-                ownersDogsFlagsHandler.createWaitingForContactsFlag(ownerDog);
-                contactsHandler.askForContact(update);
+                // Check if contacts already saved in OwnerCat
+                if (ownersDogsContactsHandler.isTelephone(update)) {
+                    // If phone number already saved in OwnerCat - send an appropriate message and show Form Main Menu buttons
+                    InlineKeyboardMarkup inlineKeyboardMarkup = dogsMenuHandler.formPriutMainMenuButton();
+                    mainMenuHandler.telephoneAlreadySetMessage(chatId, messageId, inlineKeyboardMarkup);
+                } else {
+                    // If phone number absent in OwnerCat - return Report
+                    OwnerDogDto ownerDogDto = ownersDogsHandler.returnOwnerDogDtoFromUpdate(update);
+                    // Create waiting for contacts flag and form inquery for contact
+                    contactsHandler.askForContact(update);
+                    ownersDogsFlagsHandler.createWaitingForContactsFlag(ownerDogDto);
+                }
             }
             default -> mainMenuHandler.noSuchCommandSendMessage(update);
         }

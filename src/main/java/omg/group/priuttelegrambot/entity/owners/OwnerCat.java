@@ -9,7 +9,6 @@ import java.util.List;
 
 @EqualsAndHashCode(callSuper = true)
 @Data
-@RequiredArgsConstructor
 @Entity
 @Table(name = "clients_cats")
 public class OwnerCat extends Owner {
@@ -21,8 +20,8 @@ public class OwnerCat extends Owner {
     @JoinColumn(name = "volunteer_id", referencedColumnName = "id")
     private OwnerCat volunteer;
 
-    @OneToMany(mappedBy = "owner", fetch = FetchType.EAGER)
-    @ToString.Exclude
+    @OneToMany(mappedBy = "owner", fetch = FetchType.EAGER, cascade = CascadeType.ALL)
+//    @ToString.Exclude
     private List<Cat> cats;
 
 

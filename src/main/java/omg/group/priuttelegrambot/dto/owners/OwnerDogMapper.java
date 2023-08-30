@@ -3,7 +3,6 @@ package omg.group.priuttelegrambot.dto.owners;
 import omg.group.priuttelegrambot.entity.owners.OwnerDog;
 
 public class OwnerDogMapper {
-
     public static OwnerDogDto toDto(OwnerDog owner) {
         OwnerDogDto dto = new OwnerDogDto();
         dto.setId(owner.getId());
@@ -21,7 +20,11 @@ public class OwnerDogMapper {
         dto.setBecameClient(owner.getBecameClient());
         dto.setIsVolunteer(owner.getIsVolunteer());
         dto.setChatId(owner.getChatId());
-        dto.setVolunteer(owner.getVolunteer());
+        if (owner.getVolunteer() != null) {
+            dto.setVolunteerDto(OwnerDogMapper.toDto(owner.getVolunteer()));
+        } else {
+            dto.setVolunteerDto(null);
+        }
         dto.setTelegramUserId(owner.getTelegramUserId());
         dto.setVolunteerChatOpened(owner.getVolunteerChatOpened());
 
@@ -45,7 +48,11 @@ public class OwnerDogMapper {
         owner.setBecameClient(dto.getBecameClient());
         owner.setIsVolunteer(dto.getIsVolunteer());
         owner.setChatId(dto.getChatId());
-        owner.setVolunteer(dto.getVolunteer());
+        if (dto.getVolunteerDto() != null) {
+            owner.setVolunteer(OwnerDogMapper.toEntity(dto.getVolunteerDto()));
+        } else {
+            owner.setVolunteer(null);
+        }
         owner.setTelegramUserId(dto.getTelegramUserId());
         owner.setVolunteerChatOpened(dto.getVolunteerChatOpened());
 

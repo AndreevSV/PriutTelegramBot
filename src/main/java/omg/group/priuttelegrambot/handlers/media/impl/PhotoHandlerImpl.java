@@ -1,4 +1,4 @@
-package omg.group.priuttelegrambot.handlers.photo;
+package omg.group.priuttelegrambot.handlers.media.impl;
 
 import com.pengrad.telegrambot.TelegramBot;
 import com.pengrad.telegrambot.model.File;
@@ -6,6 +6,7 @@ import com.pengrad.telegrambot.model.PhotoSize;
 import com.pengrad.telegrambot.model.Update;
 import com.pengrad.telegrambot.request.GetFile;
 import com.pengrad.telegrambot.response.GetFileResponse;
+import omg.group.priuttelegrambot.handlers.media.PhotoHandler;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
@@ -20,16 +21,17 @@ import java.util.Arrays;
 import java.util.Random;
 
 @Service
-public class PhotoHandler {
+public class PhotoHandlerImpl implements PhotoHandler {
     @Value("${file.download.path}")
     private String downloadPath;
 
     private final TelegramBot telegramBot;
 
-    public PhotoHandler(TelegramBot telegramBot) {
+    public PhotoHandlerImpl(TelegramBot telegramBot) {
         this.telegramBot = telegramBot;
     }
 
+    @Override
     public String getFileIdFromUpdate(Update update) {
         if (update.message() != null && update.message().photo() != null) {
             PhotoSize[] photos = update.message().photo();
@@ -39,6 +41,7 @@ public class PhotoHandler {
         return null;
     }
 
+    @Override
     public String getFilePathByFileId(String fileId) {
 
         GetFile request = new GetFile(fileId);
@@ -49,6 +52,7 @@ public class PhotoHandler {
         return telegramBot.getFullFilePath(file); // "get downloading link like https://api.telegram.org/file/" + token + "/" + file.filePath();
     }
 
+    @Override
     public String downloadFileByFileId(String fileId) {
 
         String fullPath = getFilePathByFileId(fileId);
@@ -82,6 +86,7 @@ public class PhotoHandler {
         return null;
     }
 
+    @Override
     public boolean isPhoto(String fileNameWithExtension) {
         return fileNameWithExtension.contains(".jpg") ||
                 fileNameWithExtension.contains(".jpeg") ||
@@ -93,6 +98,7 @@ public class PhotoHandler {
                 fileNameWithExtension.contains(".svg");
     }
 
+    @Override
     public byte[] getFileAsArray(String savePath) {
         Path path = Paths.get(savePath);
         byte[] bytes;
@@ -104,6 +110,7 @@ public class PhotoHandler {
         return bytes;
     }
 
+    @Override
     public int getHashOfFile(byte[] file) {
         return Arrays.hashCode(file);
     }

@@ -1,9 +1,11 @@
 package omg.group.priuttelegrambot.service.owners.impl;
 
 
-import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import omg.group.priuttelegrambot.dto.owners.OwnerDogDto;
+import omg.group.priuttelegrambot.dto.owners.OwnerDogMapper;
+import omg.group.priuttelegrambot.dto.pets.DogDto;
+import omg.group.priuttelegrambot.dto.pets.DogsMapper;
 import omg.group.priuttelegrambot.entity.pets.Dog;
 import omg.group.priuttelegrambot.entity.owners.OwnerDog;
 import omg.group.priuttelegrambot.repository.pets.DogsRepository;
@@ -11,8 +13,9 @@ import omg.group.priuttelegrambot.repository.owners.OwnersDogsRepository;
 import omg.group.priuttelegrambot.service.owners.OwnersDogsService;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.util.Collections;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -27,7 +30,7 @@ public class OwnersDogsServiceImpl implements OwnersDogsService {
     @Override
     public void add(OwnerDogDto ownerDto) {
 
-        OwnerDog owner = constructOwner(ownerDto);
+        OwnerDog owner = OwnerDogMapper.toEntity(ownerDto);
         owner.setCreatedAt(LocalDateTime.now());
 
         ownersDogsRepository.save(owner);
@@ -36,7 +39,7 @@ public class OwnersDogsServiceImpl implements OwnersDogsService {
     @Override
     public void updateById(Long id, OwnerDogDto ownerCatDto) {
 
-        OwnerDog owner = constructOwner(ownerCatDto);
+        OwnerDog owner = OwnerDogMapper.toEntity(ownerCatDto);
         owner.setUpdatedAt(LocalDateTime.now());
 
         if (ownersDogsRepository.existsById(id)) {
@@ -47,14 +50,13 @@ public class OwnersDogsServiceImpl implements OwnersDogsService {
     }
 
     @Override
-    public List<OwnerDogDto> findById(Long id) {
+    public OwnerDogDto findById(Long id) {
 
         Optional<OwnerDog> ownerDogOptional = ownersDogsRepository.findById(id);
 
         if (ownerDogOptional.isPresent()) {
             OwnerDog owner = ownerDogOptional.get();
-            OwnerDogDto ownerDto = constructOwnerDto(owner);
-            return Collections.singletonList(ownerDto);
+            return OwnerDogMapper.toDto(owner);
         } else {
             System.out.println((String.format("Клиент с id %d не найден", id)));
             return null;
@@ -73,7 +75,7 @@ public class OwnersDogsServiceImpl implements OwnersDogsService {
     public List<OwnerDogDto> findByUsername(String username) {
         List<OwnerDog> ownerCatList = ownersDogsRepository.findByUserNameContainingIgnoreCase(username);
         return ownerCatList.stream()
-                .map(this::constructOwnerDto)
+                .map(OwnerDogMapper::toDto)
                 .collect(Collectors.toList());
     }
 
@@ -81,7 +83,7 @@ public class OwnersDogsServiceImpl implements OwnersDogsService {
     public List<OwnerDogDto> findBySurname(String surname) {
         List<OwnerDog> ownerList = ownersDogsRepository.findBySurnameContainingIgnoreCase(surname);
         return ownerList.stream()
-                .map(this::constructOwnerDto)
+                .map(OwnerDogMapper::toDto)
                 .collect(Collectors.toList());
     }
 
@@ -89,7 +91,7 @@ public class OwnersDogsServiceImpl implements OwnersDogsService {
     public List<OwnerDogDto> findByTelephone(String telephone) {
         List<OwnerDog> ownerList = ownersDogsRepository.findByTelephoneContainingIgnoreCase(telephone);
         return ownerList.stream()
-                .map(this::constructOwnerDto)
+                .map(OwnerDogMapper::toDto)
                 .collect(Collectors.toList());
     }
 
@@ -97,7 +99,7 @@ public class OwnersDogsServiceImpl implements OwnersDogsService {
     public List<OwnerDogDto> getAll() {
         List<OwnerDog> ownerList = ownersDogsRepository.findAll();
         return ownerList.stream()
-                .map(this::constructOwnerDto)
+                .map(OwnerDogMapper::toDto)
                 .collect(Collectors.toList());
     }
 
@@ -117,29 +119,50 @@ public class OwnersDogsServiceImpl implements OwnersDogsService {
 
         if (ownerOptional.isPresent()) {
             OwnerDog owner = ownerOptional.get();
-            return constructOwnerDto(owner);
+            return OwnerDogMapper.toDto(owner);
         } else {
             return null;
         }
     }
 
+//    @Override
+//    public void setVolunteer(Long id, List<Long> dogsIds) {
+//
+//        OwnerDog owner = ownersDogsRepository.findById(id)
+//                .orElseThrow(() -> new EntityNotFoundException("Волонтер с таким id " + id + " не найден."));
+//        owner.setIsVolunteer(true);
+//        owner.setUpdatedAt(LocalDateTime.now());
+//        owner.setVolunteerChatOpened(false);
+//
+//        List<Dog> dogs = dogsRepository.findAllById(dogsIds);
+//        for (Dog dog : dogs) {
+//            dog.setOwner(owner);
+//        }
+//
+//        owner.setDogs(dogs);
+//        ownersDogsRepository.save(owner);
+//    }
+
     @Override
-    public void setVolunteer(Long id, List<Long> dogsIds) {
+    public void setPetsToOwnerAndSetStartOfProbationPeriod(Long id, List<Long> petsIds, LocalDate dateStart) {
 
-        OwnerDog owner = ownersDogsRepository.findById(id)
-                .orElseThrow(() -> new EntityNotFoundException("Волонтер с таким id " + id + " не найден."));
-        owner.setIsVolunteer(true);
-        owner.setUpdatedAt(LocalDateTime.now());
-        owner.setVolunteerChatOpened(false);
+        List<Dog> pets = dogsRepository.findAllById(petsIds);
+        List<DogDto> petsDto = new ArrayList<>();
 
-        List<Dog> dogs = dogsRepository.findAllById(dogsIds);
-        for (Dog dog : dogs) {
-            dog.setOwner(owner);
+        for (Dog pet : pets) {
+            DogDto petDto = DogsMapper.toDto(pet);
+            petsDto.add(petDto);
         }
 
-        owner.setDogs(dogs);
+        OwnerDogDto ownerDto = findById(id);
+        ownerDto.setDateIncome(dateStart);
+        ownerDto.setUpdatedAt(LocalDateTime.now());
+        ownerDto.setBecameClient(true);
+        ownerDto.setDogsDto(petsDto);
+        OwnerDog owner = OwnerDogMapper.toEntity(ownerDto);
         ownersDogsRepository.save(owner);
     }
+
 }
 
 

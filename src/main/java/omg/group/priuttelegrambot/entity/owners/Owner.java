@@ -1,12 +1,10 @@
 package omg.group.priuttelegrambot.entity.owners;
 
 import jakarta.persistence.*;
-import jakarta.validation.constraints.Email;
 import lombok.*;
-import org.springframework.format.annotation.DateTimeFormat;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.util.Date;
 
 @Data
 @MappedSuperclass
@@ -23,7 +21,7 @@ public abstract class Owner {
     @Column(name = "patronymic")
     private String patronymic;
     @Column(name = "birthday")
-    private Date birthday;
+    private LocalDate birthday;
     @Column(name = "telephone")
     private String telephone;
     @Column(name = "email")
@@ -33,9 +31,9 @@ public abstract class Owner {
     @Column(name = "updated_at")
     private LocalDateTime updatedAt;
     @Column(name = "date_income")
-    private LocalDateTime dateIncome;
+    private LocalDate dateIncome;
     @Column(name = "date_outcome")
-    private LocalDateTime dateOutcome;
+    private LocalDate dateOutcome;
     @Column(name = "became_client")
     private Boolean becameClient;
     @Column(name = "volunteer")

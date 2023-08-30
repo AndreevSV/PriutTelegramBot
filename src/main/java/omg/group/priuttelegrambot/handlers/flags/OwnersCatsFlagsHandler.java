@@ -1,29 +1,33 @@
 package omg.group.priuttelegrambot.handlers.flags;
 
-import omg.group.priuttelegrambot.entity.flags.OwnersCatsFlags;
-import omg.group.priuttelegrambot.entity.owners.OwnerCat;
-import omg.group.priuttelegrambot.entity.pets.Cat;
+import omg.group.priuttelegrambot.dto.flags.OwnersCatsFlagsDto;
+import omg.group.priuttelegrambot.dto.owners.OwnerCatDto;
+import omg.group.priuttelegrambot.dto.pets.CatDto;
 
 
 public interface OwnersCatsFlagsHandler {
 
-    void createWaitingForNewReportFlag(OwnerCat owner, Cat pet);
+    void createWaitingForNewReportFlag(OwnerCatDto ownerDto, CatDto petDto);
 
-    void createWaitingForPhotoFlag(OwnerCat owner, Cat pet);
+    void createWaitingForPhotoFlag(OwnerCatDto ownerDto, CatDto petDto);
 
-    void createWaitingForRationFlag(OwnerCat owner, Cat pet);
+    void createWaitingForRationFlag(OwnerCatDto ownerDto, CatDto petDto);
 
-    void createWaitingForFeelingFlag(OwnerCat owner, Cat pet);
+    void createWaitingForFeelingFlag(OwnerCatDto ownerDto, CatDto petDto);
 
-    void createWaitingForChangesFlag(OwnerCat owner, Cat pet);
+    void createWaitingForChangesFlag(OwnerCatDto ownerDto, CatDto petDto);
 
-    void createWaitingForContactsFlag(OwnerCat owner);
+    void createWaitingForContactsFlag(OwnerCatDto ownerDto);
 
-    void createChattingFlag(OwnerCat owner, OwnerCat volunteer);
+    void createChattingFlag(OwnerCatDto ownerDto, OwnerCatDto volunteerDto);
 
-    OwnersCatsFlags findOwnersCatsFlagsByOwner(OwnerCat owner);
+    OwnersCatsFlagsDto findFlagByOwner(OwnerCatDto ownerDto);
 
-    OwnersCatsFlags findOwnersCatsFlagsByVolunteer(OwnerCat owner);
+    OwnersCatsFlagsDto findFlagByOwnerAndIsWaitingForReportIsTrue(OwnerCatDto ownerDto);
 
-    void removeFlag(OwnersCatsFlags flag);
+    OwnersCatsFlagsDto findFlagByVolunteer(OwnerCatDto ownerDto);
+
+    OwnersCatsFlagsDto findFlagByOwnerAndIsChattingIsTrue(OwnerCatDto ownerDto);
+
+    void removeFlag(OwnersCatsFlagsDto flagDto);
 }

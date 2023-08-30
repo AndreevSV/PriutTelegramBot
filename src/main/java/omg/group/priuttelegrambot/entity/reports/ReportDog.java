@@ -8,21 +8,19 @@ import lombok.*;
 import omg.group.priuttelegrambot.entity.owners.OwnerDog;
 import omg.group.priuttelegrambot.entity.pets.Dog;
 
-@Getter
-@Setter
-@ToString
-@RequiredArgsConstructor
+@EqualsAndHashCode(callSuper = true)
+@Data
 @Entity
 @Table(name = "reports_dogs")
 public class ReportDog extends Report {
 
     @ManyToOne
     @JoinColumn(name = "id_client", referencedColumnName = "id")
-    private OwnerDog ownerDog;
+    private OwnerDog owner;
 
     @ManyToOne
     @JoinColumn(name = "id_animal", referencedColumnName = "id")
-    private Dog dog;
+    private Dog pet;
 
 
 

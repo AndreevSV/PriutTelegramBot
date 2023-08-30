@@ -10,4 +10,6 @@ public interface ChatsCatsHandler {
     Long executeCloseButtonCommand(Update update);
     void forwardMessageReceived(Update update);
     ChatCatsDto findByOwnerCatChatId(Long ownerCatChatId);
+
+    ChatCatsDto findByVolunteerCatChatId(Long volunteerCatChatId);
 }

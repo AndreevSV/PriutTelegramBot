@@ -112,23 +112,23 @@ public class CatsServiceImpl implements CatsService {
         }
     }
 
-    @Override
-    public void setOwnerAndFirstProbationPeriod(Long id, OwnerCat ownerCat, LocalDate date) {
-
-        final int PROBATION_PERIOD_DAYS = 14;
-
-        List<CatDto> byId = findById(id);
-
-
-        Cat cat = constructCatFromCatDto(catDto);
-        cat.setUpdatedAt(LocalDateTime.now());
-
-        if (catsRepository.existsById(id)) {
-            catsRepository.save(cat);
-        } else {
-            System.out.println((String.format("Кот/кошка с id %d не найден", id)));
-        }
-    }
+//    @Override
+//    public void setOwnerAndFirstProbationPeriod(Long id, OwnerCat ownerCat, LocalDate date) {
+//
+//        final int PROBATION_PERIOD_DAYS = 14;
+//
+//        List<CatDto> byId = findById(id);
+//
+//
+//        Cat cat = constructCatFromCatDto(catDto);
+//        cat.setUpdatedAt(LocalDateTime.now());
+//
+//        if (catsRepository.existsById(id)) {
+//            catsRepository.save(cat);
+//        } else {
+//            System.out.println((String.format("Кот/кошка с id %d не найден", id)));
+//        }
+//    }
 
 
 

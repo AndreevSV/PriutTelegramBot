@@ -11,12 +11,8 @@ import java.util.Optional;
 
 @Repository
 public interface ReportsDogsRepository extends JpaRepository<ReportDog, Long> {
-
-    Optional<ReportDog> findReportDogByOwnerDogAndDogAndDateReport(OwnerDog owner, Dog dog, LocalDate date);
-
-    Optional<ReportDog> findByDateReport(LocalDate date);
-
+    Optional<ReportDog> findByOwnerAndPetAndDateOfReport(OwnerDog owner, Dog dog, LocalDate date);
+    Optional<ReportDog> findByDateOfReport(LocalDate date);
     Optional<ReportDog>  findByFileId(String fileId);
-
-    Optional<ReportDog> findByHashOfPhoto(int hashOfPhoto);
+    Optional<ReportDog> findByHashCodeOfPhoto(int hashOfPhoto);
 }

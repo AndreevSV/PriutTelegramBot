@@ -1,5 +1,10 @@
 package omg.group.priuttelegrambot.handlers.flags;
 
+import omg.group.priuttelegrambot.dto.flags.OwnersCatsFlagsDto;
+import omg.group.priuttelegrambot.dto.flags.OwnersDogsFlagsDto;
+import omg.group.priuttelegrambot.dto.owners.OwnerCatDto;
+import omg.group.priuttelegrambot.dto.owners.OwnerDogDto;
+import omg.group.priuttelegrambot.dto.pets.DogDto;
 import omg.group.priuttelegrambot.entity.flags.OwnersDogsFlags;
 import omg.group.priuttelegrambot.entity.owners.OwnerDog;
 import omg.group.priuttelegrambot.entity.pets.Dog;
@@ -7,23 +12,27 @@ import omg.group.priuttelegrambot.entity.pets.Dog;
 public interface OwnersDogsFlagsHandler {
 
 
-    void createWaitingForNewReportFlag(OwnerDog owner, Dog pet);
+    void createWaitingForNewReportFlag(OwnerDogDto ownerDto, DogDto petDto);
 
-    void createWaitingForPhotoFlag(OwnerDog owner, Dog pet);
+    void createWaitingForPhotoFlag(OwnerDogDto ownerDto, DogDto petDto);
 
-    void createWaitingForRationFlag(OwnerDog owner, Dog pet);
+    void createWaitingForRationFlag(OwnerDogDto ownerDto, DogDto petDto);
 
-    void createWaitingForFeelingFlag(OwnerDog owner, Dog pet);
+    void createWaitingForFeelingFlag(OwnerDogDto owneDto, DogDto petDto);
 
-    void createWaitingForChangesFlag(OwnerDog owner, Dog pet);
+    void createWaitingForChangesFlag(OwnerDogDto ownerDto, DogDto petDto);
 
-    void createWaitingForContactsFlag(OwnerDog owner);
+    void createWaitingForContactsFlag(OwnerDogDto ownerDto);
 
-    void createChattingFlag(OwnerDog owner, OwnerDog volunteer);
+    void createChattingFlag(OwnerDogDto ownerDto, OwnerDogDto volunteerDto);
 
-    OwnersDogsFlags findOwnersDogsFlagsByOwner(OwnerDog owner);
+    OwnersDogsFlagsDto findFlagByOwner(OwnerDogDto ownerDto);
 
-    OwnersDogsFlags findOwnersDogsFlagsByVolunteer(OwnerDog owner);
+    OwnersDogsFlagsDto findFlagByOwnerAndIsWaitingForReportIsTrue(OwnerDogDto ownerDto);
 
-    void removeFlag(OwnersDogsFlags flag);
+    OwnersDogsFlagsDto findFlagByVolunteer(OwnerDogDto ownerDto);
+
+    OwnersDogsFlagsDto findFlagByOwnerAndIsChattingIsTrue(OwnerDogDto ownerDto);
+
+    void removeFlag(OwnersDogsFlagsDto flagDto);
 }

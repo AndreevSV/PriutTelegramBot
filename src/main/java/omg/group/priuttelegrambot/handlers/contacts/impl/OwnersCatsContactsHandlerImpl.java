@@ -1,6 +1,8 @@
 package omg.group.priuttelegrambot.handlers.contacts.impl;
 
 import com.pengrad.telegrambot.model.Update;
+import omg.group.priuttelegrambot.dto.owners.OwnerCatDto;
+import omg.group.priuttelegrambot.dto.owners.OwnerCatMapper;
 import omg.group.priuttelegrambot.entity.owners.OwnerCat;
 import omg.group.priuttelegrambot.handlers.contacts.OwnersCatsContactsHandler;
 import omg.group.priuttelegrambot.handlers.owners.OwnersCatsHandler;
@@ -27,17 +29,18 @@ public class OwnersCatsContactsHandlerImpl implements OwnersCatsContactsHandler 
 
     @Override
     public void savePhoneNumberFromContact(Update update) {
-        OwnerCat owner = ownersCatsHandler.returnOwnerCatDtoFromUpdate(update);
-        String telephone = ownUpdatesHandler.extractTelephoneFromUpdate(update);
+        OwnerCatDto ownerCatDto = ownersCatsHandler.returnOwnerCatDtoFromUpdate(update);
+        String telephone = ownUpdatesHandler.getPhoneNumber(update);
 
-        owner.setTelephone(telephone);
-        owner.setUpdatedAt(LocalDateTime.now());
+        ownerCatDto.setTelephone(telephone);
+        ownerCatDto.setUpdatedAt(LocalDateTime.now());
+        OwnerCat owner = OwnerCatMapper.toEntity(ownerCatDto);
         ownersCatsRepository.save(owner);
     }
 
     @Override
     public boolean isTelephone(Update update) {
-        OwnerCat owner = ownersCatsHandler.returnOwnerCatDtoFromUpdate(update);
-        return !owner.getTelephone().isEmpty();
+        OwnerCatDto ownerCatDto = ownersCatsHandler.returnOwnerCatDtoFromUpdate(update);
+        return !ownerCatDto.getTelephone().isEmpty();
     }
 }

@@ -10,8 +10,13 @@ import java.util.Optional;
 @Repository
 public interface OwnersDogsFlagsRepository extends JpaRepository<OwnersDogsFlags, Long> {
 
-    Optional<OwnersDogsFlags> findOwnersDogsFlagsByOwner(OwnerDog owner);
+    Optional<OwnersDogsFlags> findByOwner(OwnerDog owner);
 
-    Optional<OwnersDogsFlags> findOwnersDogsFlagsByVolunteer(OwnerDog owner);
+    Optional<OwnersDogsFlags> findByOwnerAndIsWaitingForPhotoIsTrueOrIsWaitingForFeelingIsTrueOrIsWaitingForRationIsTrueOrIsWaitingForChangesIsTrue(OwnerDog owner);
 
+    Optional<OwnersDogsFlags> findByOwnerAndIsChattingIsTrue(OwnerDog owner);
+
+    Optional<OwnersDogsFlags> findByOwnerAndIsWaitingForContactsIsTrue(OwnerDog owner);
+
+    Optional<OwnersDogsFlags> findByVolunteer(OwnerDog owner);
 }

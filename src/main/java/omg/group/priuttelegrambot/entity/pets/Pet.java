@@ -12,10 +12,7 @@ import java.time.LocalDateTime;
 import java.util.Date;
 import java.util.Objects;
 
-@Getter
-@Setter
-@ToString
-@RequiredArgsConstructor
+@Data
 @MappedSuperclass
 public abstract class Pet {
     @Id
@@ -74,19 +71,4 @@ public abstract class Pet {
     @Column(name = "passed_second_probation")
     private Boolean passedSecondProbation;
 
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null) return false;
-        Class<?> oEffectiveClass = o instanceof HibernateProxy ? ((HibernateProxy) o).getHibernateLazyInitializer().getPersistentClass() : o.getClass();
-        Class<?> thisEffectiveClass = this instanceof HibernateProxy ? ((HibernateProxy) this).getHibernateLazyInitializer().getPersistentClass() : this.getClass();
-        if (thisEffectiveClass != oEffectiveClass) return false;
-        Pet pet = (Pet) o;
-        return getId() != null && Objects.equals(getId(), pet.getId());
-    }
-
-    @Override
-    public int hashCode() {
-        return getClass().hashCode();
-    }
 }

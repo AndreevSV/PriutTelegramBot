@@ -9,7 +9,6 @@ import java.util.List;
 
 @EqualsAndHashCode(callSuper = true)
 @Data
-@RequiredArgsConstructor
 @Entity
 @Table(name = "clients_dogs")
 public class OwnerDog extends Owner {
@@ -23,7 +22,7 @@ public class OwnerDog extends Owner {
     private OwnerDog volunteer;
 
     @OneToMany(mappedBy = "owner", fetch = FetchType.EAGER)
-    @ToString.Exclude
+//    @ToString.Exclude
     private List<Dog> dogs;
 
 

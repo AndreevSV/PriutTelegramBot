@@ -1,14 +1,14 @@
 package omg.group.priuttelegrambot.dto.chats;
 
+import lombok.Data;
+import lombok.EqualsAndHashCode;
 import omg.group.priuttelegrambot.dto.owners.OwnerCatDto;
 
-import java.time.LocalDateTime;
+@Data
+@EqualsAndHashCode(callSuper = true)
+public class ChatCatsDto extends ChatsDto {
+    private OwnerCatDto ownerDto;
+    private OwnerCatDto volunteerDto;
+}
 
-public record ChatCatsDto(
-        Long id,
-        Boolean isChatting,
-        OwnerCatDto ownerDto,
-        OwnerCatDto volunteerDto,
-        LocalDateTime messageSentTime,
-        LocalDateTime answerSentTime,
-        LocalDateTime createdAt) {}
+

@@ -1,11 +1,11 @@
 package omg.group.priuttelegrambot.handlers.reports;
 
 import com.pengrad.telegrambot.model.Update;
-import omg.group.priuttelegrambot.entity.reports.ReportCat;
+import omg.group.priuttelegrambot.dto.reports.ReportsCatsDto;
 
 public interface ReportsCatsHandler {
 
-    ReportCat isReportExist(Update update);
+    ReportsCatsDto isReportExist(Update update);
 
     boolean receivePhoto(Update update);
 
@@ -15,15 +15,15 @@ public interface ReportsCatsHandler {
 
     boolean receiveChanges(Update update);
 
-    ReportCat isReportCompleted(ReportCat report);
+    ReportsCatsDto isReportCompleted(ReportsCatsDto reportDto);
 
-    ReportCat returnReportFromUpdate(Update update);
+    ReportsCatsDto returnReportDtoFromUpdate(Update update);
 
-    ReportCat isPhoto(ReportCat report);
+    ReportsCatsDto isPhoto(ReportsCatsDto reportDto);
 
-    ReportCat isRation(ReportCat report);
+    ReportsCatsDto isRation(ReportsCatsDto reportDto);
 
-    ReportCat isFeeling(ReportCat report);
+    ReportsCatsDto isFeeling(ReportsCatsDto reportDto);
 
-    ReportCat isChanges(ReportCat report);
+    ReportsCatsDto isChanges(ReportsCatsDto reportDto);
 }

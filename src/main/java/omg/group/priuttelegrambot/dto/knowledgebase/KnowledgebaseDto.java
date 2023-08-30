@@ -1,10 +1,8 @@
 package omg.group.priuttelegrambot.dto.knowledgebase;
 
 import lombok.Data;
-import lombok.RequiredArgsConstructor;
 
 @Data
-@RequiredArgsConstructor
 public class KnowledgebaseDto {
 
     private Long id;

@@ -1,157 +1,208 @@
 package omg.group.priuttelegrambot.handlers.flags.impl;
 
+import omg.group.priuttelegrambot.dto.flags.OwnersCatsFlagsDto;
+import omg.group.priuttelegrambot.dto.flags.OwnersCatsFlagsMapper;
+import omg.group.priuttelegrambot.dto.owners.OwnerCatDto;
+import omg.group.priuttelegrambot.dto.owners.OwnerCatMapper;
+import omg.group.priuttelegrambot.dto.pets.CatDto;
 import omg.group.priuttelegrambot.entity.flags.OwnersCatsFlags;
 import omg.group.priuttelegrambot.entity.owners.OwnerCat;
-import omg.group.priuttelegrambot.entity.pets.Cat;
 import omg.group.priuttelegrambot.handlers.flags.OwnersCatsFlagsHandler;
 import omg.group.priuttelegrambot.repository.flags.OwnersCatsFlagsRepository;
+import omg.group.priuttelegrambot.repository.owners.OwnersCatsRepository;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.Optional;
 
 
 @Service
 public class OwnersCatsFlagsHandlerImpl implements OwnersCatsFlagsHandler {
 
     private final OwnersCatsFlagsRepository ownersCatsFlagsRepository;
+    private final OwnersCatsRepository ownersCatsRepository;
 
-    public OwnersCatsFlagsHandlerImpl(OwnersCatsFlagsRepository ownersCatsFlagsRepository) {
+    public OwnersCatsFlagsHandlerImpl(OwnersCatsFlagsRepository ownersCatsFlagsRepository, OwnersCatsRepository ownersCatsRepository) {
         this.ownersCatsFlagsRepository = ownersCatsFlagsRepository;
+        this.ownersCatsRepository = ownersCatsRepository;
     }
 
     @Override
-    public void createWaitingForNewReportFlag(OwnerCat owner, Cat pet) {
+    public void createWaitingForNewReportFlag(OwnerCatDto ownerDto, CatDto petDto) {
 
-        OwnersCatsFlags flag = new OwnersCatsFlags();
-        flag.setOwner(owner);
-        flag.setCat(pet);
-        flag.setWaitingForPhoto(true);
-        flag.setWaitingForRation(true);
-        flag.setWaitingForFeeling(true);
-        flag.setWaitingForChanges(true);
-        flag.setWaitingForContacts(false);
-        flag.setChatting(false);
-        flag.setCreatedAt(LocalDateTime.now());
-        flag.setDate(LocalDate.now());
+        OwnersCatsFlagsDto flagDto = new OwnersCatsFlagsDto();
+        flagDto.setOwnerDto(ownerDto);
+        flagDto.setCatDto(petDto);
+        flagDto.setIsWaitingForPhoto(true);
+        flagDto.setIsWaitingForRation(true);
+        flagDto.setIsWaitingForFeeling(true);
+        flagDto.setIsWaitingForChanges(true);
+        flagDto.setIsWaitingForContacts(false);
+        flagDto.setIsChatting(false);
+        flagDto.setCreatedAt(LocalDateTime.now());
+        flagDto.setDate(LocalDate.now());
+        OwnersCatsFlags flag = OwnersCatsFlagsMapper.toEntity(flagDto);
         ownersCatsFlagsRepository.save(flag);
     }
 
     @Override
-    public void createWaitingForPhotoFlag(OwnerCat owner, Cat pet) {
+    public void createWaitingForPhotoFlag(OwnerCatDto ownerDto, CatDto petDto) {
 
-        OwnersCatsFlags flag = new OwnersCatsFlags();
-        flag.setOwner(owner);
-        flag.setCat(pet);
-        flag.setWaitingForPhoto(true);
-        flag.setWaitingForRation(false);
-        flag.setWaitingForFeeling(false);
-        flag.setWaitingForChanges(false);
-        flag.setWaitingForContacts(false);
-        flag.setChatting(false);
-        flag.setCreatedAt(LocalDateTime.now());
-        flag.setDate(LocalDate.now());
+        OwnersCatsFlagsDto flagDto = new OwnersCatsFlagsDto();
+        flagDto.setOwnerDto(ownerDto);
+        flagDto.setCatDto(petDto);
+        flagDto.setIsWaitingForPhoto(true);
+        flagDto.setIsWaitingForRation(false);
+        flagDto.setIsWaitingForFeeling(false);
+        flagDto.setIsWaitingForChanges(false);
+        flagDto.setIsWaitingForContacts(false);
+        flagDto.setIsChatting(false);
+        flagDto.setCreatedAt(LocalDateTime.now());
+        flagDto.setDate(LocalDate.now());
+        OwnersCatsFlags flag = OwnersCatsFlagsMapper.toEntity(flagDto);
         ownersCatsFlagsRepository.save(flag);
     }
 
     @Override
-    public void createWaitingForRationFlag(OwnerCat owner, Cat pet) {
+    public void createWaitingForRationFlag(OwnerCatDto ownerDto, CatDto petDto) {
 
-        OwnersCatsFlags flag = new OwnersCatsFlags();
-        flag.setOwner(owner);
-        flag.setCat(pet);
-        flag.setWaitingForPhoto(false);
-        flag.setWaitingForRation(true);
-        flag.setWaitingForFeeling(false);
-        flag.setWaitingForChanges(false);
-        flag.setWaitingForContacts(false);
-        flag.setChatting(false);
-        flag.setCreatedAt(LocalDateTime.now());
-        flag.setDate(LocalDate.now());
+        OwnersCatsFlagsDto flagDto = new OwnersCatsFlagsDto();
+        flagDto.setOwnerDto(ownerDto);
+        flagDto.setCatDto(petDto);
+        flagDto.setIsWaitingForPhoto(false);
+        flagDto.setIsWaitingForRation(true);
+        flagDto.setIsWaitingForFeeling(false);
+        flagDto.setIsWaitingForChanges(false);
+        flagDto.setIsWaitingForContacts(false);
+        flagDto.setIsChatting(false);
+        flagDto.setCreatedAt(LocalDateTime.now());
+        flagDto.setDate(LocalDate.now());
+        OwnersCatsFlags flag = OwnersCatsFlagsMapper.toEntity(flagDto);
         ownersCatsFlagsRepository.save(flag);
     }
 
     @Override
-    public void createWaitingForFeelingFlag(OwnerCat owner, Cat pet) {
+    public void createWaitingForFeelingFlag(OwnerCatDto ownerDto, CatDto petDto) {
 
-        OwnersCatsFlags flag = new OwnersCatsFlags();
-        flag.setOwner(owner);
-        flag.setCat(pet);
-        flag.setWaitingForPhoto(false);
-        flag.setWaitingForRation(false);
-        flag.setWaitingForFeeling(true);
-        flag.setWaitingForChanges(false);
-        flag.setWaitingForContacts(false);
-        flag.setChatting(false);
-        flag.setCreatedAt(LocalDateTime.now());
-        flag.setDate(LocalDate.now());
+        OwnersCatsFlagsDto flagDto = new OwnersCatsFlagsDto();
+        flagDto.setOwnerDto(ownerDto);
+        flagDto.setCatDto(petDto);
+        flagDto.setIsWaitingForPhoto(false);
+        flagDto.setIsWaitingForRation(false);
+        flagDto.setIsWaitingForFeeling(true);
+        flagDto.setIsWaitingForChanges(false);
+        flagDto.setIsWaitingForContacts(false);
+        flagDto.setIsChatting(false);
+        flagDto.setCreatedAt(LocalDateTime.now());
+        flagDto.setDate(LocalDate.now());
+        OwnersCatsFlags flag = OwnersCatsFlagsMapper.toEntity(flagDto);
         ownersCatsFlagsRepository.save(flag);
     }
 
     @Override
-    public void createWaitingForChangesFlag(OwnerCat owner, Cat pet) {
+    public void createWaitingForChangesFlag(OwnerCatDto ownerDto, CatDto petDto) {
 
-        OwnersCatsFlags flag = new OwnersCatsFlags();
-        flag.setOwner(owner);
-        flag.setCat(pet);
-        flag.setWaitingForPhoto(false);
-        flag.setWaitingForRation(false);
-        flag.setWaitingForFeeling(false);
-        flag.setWaitingForChanges(true);
-        flag.setWaitingForContacts(false);
-        flag.setChatting(false);
-        flag.setCreatedAt(LocalDateTime.now());
-        flag.setDate(LocalDate.now());
+        OwnersCatsFlagsDto flagDto = new OwnersCatsFlagsDto();
+        flagDto.setOwnerDto(ownerDto);
+        flagDto.setCatDto(petDto);
+        flagDto.setIsWaitingForPhoto(false);
+        flagDto.setIsWaitingForRation(false);
+        flagDto.setIsWaitingForFeeling(false);
+        flagDto.setIsWaitingForChanges(true);
+        flagDto.setIsWaitingForContacts(false);
+        flagDto.setIsChatting(false);
+        flagDto.setCreatedAt(LocalDateTime.now());
+        flagDto.setDate(LocalDate.now());
+        OwnersCatsFlags flag = OwnersCatsFlagsMapper.toEntity(flagDto);
         ownersCatsFlagsRepository.save(flag);
     }
 
     @Override
-    public void createWaitingForContactsFlag(OwnerCat owner) {
+    public void createWaitingForContactsFlag(OwnerCatDto ownerDto) {
 
-        OwnersCatsFlags flag = new OwnersCatsFlags();
-        flag.setOwner(owner);
-        flag.setVolunteer(null);
-        flag.setCat(null);
-        flag.setWaitingForPhoto(false);
-        flag.setWaitingForRation(false);
-        flag.setWaitingForFeeling(false);
-        flag.setWaitingForChanges(false);
-        flag.setWaitingForContacts(true);
-        flag.setChatting(false);
-        flag.setCreatedAt(LocalDateTime.now());
-        flag.setDate(LocalDate.now());
+        OwnersCatsFlagsDto flagDto = new OwnersCatsFlagsDto();
+        flagDto.setOwnerDto(ownerDto);
+        flagDto.setIsWaitingForPhoto(false);
+        flagDto.setIsWaitingForRation(false);
+        flagDto.setIsWaitingForFeeling(false);
+        flagDto.setIsWaitingForChanges(false);
+        flagDto.setIsWaitingForContacts(true);
+        flagDto.setIsChatting(false);
+        flagDto.setCreatedAt(LocalDateTime.now());
+        flagDto.setDate(LocalDate.now());
+        OwnersCatsFlags flag = OwnersCatsFlagsMapper.toEntity(flagDto);
         ownersCatsFlagsRepository.save(flag);
     }
 
     @Override
-    public void createChattingFlag(OwnerCat owner, OwnerCat volunteer) {
+    public void createChattingFlag(OwnerCatDto ownerDto, OwnerCatDto volunteerDto) {
 
-        OwnersCatsFlags flag = new OwnersCatsFlags();
-        flag.setOwner(owner);
-        flag.setVolunteer(volunteer);
-        flag.setWaitingForPhoto(false);
-        flag.setWaitingForRation(false);
-        flag.setWaitingForFeeling(false);
-        flag.setWaitingForChanges(false);
-        flag.setWaitingForContacts(false);
-        flag.setChatting(true);
-        flag.setCreatedAt(LocalDateTime.now());
-        flag.setDate(LocalDate.now());
+        OwnersCatsFlagsDto flagDto = new OwnersCatsFlagsDto();
+        flagDto.setOwnerDto(ownerDto);
+        flagDto.setVolunteerDto(volunteerDto);
+        flagDto.setIsWaitingForPhoto(false);
+        flagDto.setIsWaitingForRation(false);
+        flagDto.setIsWaitingForFeeling(false);
+        flagDto.setIsWaitingForChanges(false);
+        flagDto.setIsWaitingForContacts(false);
+        flagDto.setIsChatting(true);
+        flagDto.setCreatedAt(LocalDateTime.now());
+        flagDto.setDate(LocalDate.now());
+        OwnersCatsFlags flag = OwnersCatsFlagsMapper.toEntity(flagDto);
         ownersCatsFlagsRepository.save(flag);
     }
 
     @Override
-    public OwnersCatsFlags findOwnersCatsFlagsByOwner(OwnerCat owner) {
-        return ownersCatsFlagsRepository.findOwnersCatsFlagsByOwner(owner).orElse(null);
+    public OwnersCatsFlagsDto findFlagByOwner(OwnerCatDto ownerDto) {
+        OwnerCat owner = OwnerCatMapper.toEntity(ownerDto);
+        Optional<OwnersCatsFlags> ownersCatsFlagOptional = ownersCatsFlagsRepository.findByOwner(owner);
+        if (ownersCatsFlagOptional.isPresent()) {
+            OwnersCatsFlags flag = ownersCatsFlagOptional.get();
+            return OwnersCatsFlagsMapper.toDto(flag);
+        } else {
+            return null;
+        }
     }
 
     @Override
-    public OwnersCatsFlags findOwnersCatsFlagsByVolunteer(OwnerCat owner) {
-        return ownersCatsFlagsRepository.findOwnersCatsFlagsByVolunteer(owner).orElse(null);
+    public OwnersCatsFlagsDto findFlagByVolunteer(OwnerCatDto ownerDto) {
+        OwnerCat volunteer = OwnerCatMapper.toEntity(ownerDto);
+        Optional<OwnersCatsFlags> volunteerCatsFlagOptional = ownersCatsFlagsRepository.findByVolunteer(volunteer);
+        if (volunteerCatsFlagOptional.isPresent()) {
+            OwnersCatsFlags flag = volunteerCatsFlagOptional.get();
+            return OwnersCatsFlagsMapper.toDto(flag);
+        } else {
+            return null;
+        }
+    }
+    @Override
+    public OwnersCatsFlagsDto findFlagByOwnerAndIsWaitingForReportIsTrue(OwnerCatDto ownerDto) {
+        OwnerCat owner = OwnerCatMapper.toEntity(ownerDto);
+        Optional<OwnersCatsFlags> volunteerCatsFlagOptional = ownersCatsFlagsRepository.findByOwnerAndIsWaitingForPhotoIsTrueOrIsWaitingForFeelingIsTrueOrIsWaitingForRationIsTrueOrIsWaitingForChangesIsTrue(owner);
+        if (volunteerCatsFlagOptional.isPresent()) {
+            OwnersCatsFlags flag = volunteerCatsFlagOptional.get();
+            return OwnersCatsFlagsMapper.toDto(flag);
+        } else {
+            return null;
+        }
     }
 
     @Override
-    public void removeFlag(OwnersCatsFlags flag) {
+    public OwnersCatsFlagsDto findFlagByOwnerAndIsChattingIsTrue(OwnerCatDto ownerDto) {
+        OwnerCat owner = OwnerCatMapper.toEntity(ownerDto);
+        Optional<OwnersCatsFlags> flagOptional = ownersCatsFlagsRepository.findByOwnerAndIsChattingIsTrue(owner);
+        if (flagOptional.isPresent()) {
+            OwnersCatsFlags flag = flagOptional.get();
+            return OwnersCatsFlagsMapper.toDto(flag);
+        } else {
+            return null;
+        }
+    }
+
+    @Override
+    public void removeFlag(OwnersCatsFlagsDto flagDto) {
+        OwnersCatsFlags flag = OwnersCatsFlagsMapper.toEntity(flagDto);
         ownersCatsFlagsRepository.delete(flag);
     }
 

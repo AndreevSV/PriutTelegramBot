@@ -8,7 +8,7 @@ import org.springframework.stereotype.Service;
 public class OwnUpdatesHandlerImpl implements OwnUpdatesHandler {
 
     @Override
-    public Long extractChatIdFromUpdate(Update update) {
+    public Long getChatId(Update update) {
         if (update.callbackQuery() != null) {
             return update.callbackQuery().message().chat().id();
         } else if (update.message() != null) {
@@ -18,7 +18,17 @@ public class OwnUpdatesHandlerImpl implements OwnUpdatesHandler {
     }
 
     @Override
-    public String extractTextFromUpdate(Update update) {
+    public String getFirstName(Update update) {
+        if (update.message() != null) {
+            return update.message().from().firstName();
+        } else if (update.callbackQuery() != null) {
+            return update.callbackQuery().from().firstName();
+        }
+        return null;
+    }
+
+    @Override
+    public String getText(Update update) {
         if (update.callbackQuery() != null) {
             return update.callbackQuery().data();
         } else if (update.message() != null) {
@@ -28,7 +38,7 @@ public class OwnUpdatesHandlerImpl implements OwnUpdatesHandler {
     }
 
     @Override
-    public int extractMessageIdFromUpdate(Update update) {
+    public int getMessageId(Update update) {
         if (update.callbackQuery() != null) {
             return update.callbackQuery().message().messageId();
         } else if (update.message() != null) {
@@ -38,7 +48,7 @@ public class OwnUpdatesHandlerImpl implements OwnUpdatesHandler {
     }
 
     @Override
-    public long extractUserIdFromUpdate(Update update) {
+    public long getUserId(Update update) {
         if (update.callbackQuery() != null) {
             return update.callbackQuery().message().from().id();
         } else if (update.message() != null) {
@@ -48,7 +58,7 @@ public class OwnUpdatesHandlerImpl implements OwnUpdatesHandler {
     }
 
     @Override
-    public String extractTelephoneFromUpdate(Update update) {
+    public String getPhoneNumber(Update update) {
         if (update.message().contact() != null) {
             return update.message().contact().phoneNumber();
         }
@@ -56,7 +66,7 @@ public class OwnUpdatesHandlerImpl implements OwnUpdatesHandler {
     }
 
     @Override
-    public int extractDateFromUpdate(Update update) {
+    public int getDate(Update update) {
         if (update.callbackQuery() != null) {
             return update.callbackQuery().message().date();
         } else if (update.message() != null) {

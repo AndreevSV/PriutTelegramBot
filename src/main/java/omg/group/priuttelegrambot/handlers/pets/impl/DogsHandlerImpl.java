@@ -3,10 +3,11 @@ package omg.group.priuttelegrambot.handlers.pets.impl;
 import com.pengrad.telegrambot.TelegramBot;
 import com.pengrad.telegrambot.model.Update;
 import com.pengrad.telegrambot.request.SendMessage;
-import omg.group.priuttelegrambot.entity.owners.OwnerDog;
-import omg.group.priuttelegrambot.entity.pets.Dog;
+import omg.group.priuttelegrambot.dto.owners.OwnerDogDto;
+import omg.group.priuttelegrambot.dto.pets.DogDto;
 import omg.group.priuttelegrambot.handlers.owners.OwnersDogsHandler;
 import omg.group.priuttelegrambot.handlers.pets.DogsHandler;
+import omg.group.priuttelegrambot.handlers.updates.OwnUpdatesHandler;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
@@ -17,39 +18,43 @@ public class DogsHandlerImpl implements DogsHandler {
 
     private final TelegramBot telegramBot;
     private final OwnersDogsHandler ownersDogsHandler;
+    private final OwnUpdatesHandler ownUpdatesHandler;
 
-    public DogsHandlerImpl(TelegramBot telegramBot, OwnersDogsHandler ownersDogsHandler) {
+    public DogsHandlerImpl(TelegramBot telegramBot,
+                           OwnersDogsHandler ownersDogsHandler,
+                           OwnUpdatesHandler ownUpdatesHandler) {
         this.telegramBot = telegramBot;
         this.ownersDogsHandler = ownersDogsHandler;
+        this.ownUpdatesHandler = ownUpdatesHandler;
     }
 
     /**
      * Method checks if Dog(s) on the probation period
      */
     @Override
-    public List<Dog> checkForDogsOnProbation(List<Dog> dogs) {
+    public List<DogDto> checkForDogsOnProbation(List<DogDto> dogsDto) {
 
-        if (!dogs.isEmpty()) {
+        if (!dogsDto.isEmpty()) {
 
-            List<Dog> dogsOnProbation = new ArrayList<>();
+            List<DogDto> dogsOnProbationDto = new ArrayList<>();
 
-            for (Dog dog : dogs) {
-                if ((dog.getFirstProbation() != null && dog.getFirstProbation().equals(true)) ||
-                        (dog.getSecondProbation() != null && dog.getSecondProbation().equals(true))) {
-                    dogsOnProbation.add(dog);
+            for (DogDto dogDto : dogsDto) {
+                if ((dogDto.getFirstProbation() != null && dogDto.getFirstProbation().equals(true)) ||
+                        (dogDto.getSecondProbation() != null && dogDto.getSecondProbation().equals(true))) {
+                    dogsOnProbationDto.add(dogDto);
                 }
             }
-            return dogsOnProbation;
+            return dogsOnProbationDto;
         }
-        return new ArrayList<>();
+        return null;
     }
 
     /**
      * Method checks if quantity Dog(s) in the probation period more than 1, then - true
      */
     @Override
-    public boolean checkForDogsOnProbationMoreThanOne(List<Dog> dogs) {
-        return dogs.size() > 1;
+    public boolean checkForDogsOnProbationMoreThanOne(List<DogDto> dogsDto) {
+        return dogsDto.size() > 1;
     }
 
     /**
@@ -57,45 +62,37 @@ public class DogsHandlerImpl implements DogsHandler {
      * list of dogs on a probation
      */
     @Override
-    public List<Dog> returnDogsOnProbation(Update update) {
+    public List<DogDto> returnDogsOnProbation(Update update) {
 
-        OwnerDog ownerDog = ownersDogsHandler.checkForOwnerExist(update);
+        OwnerDogDto ownerDogDto = ownersDogsHandler.checkForOwnerExist(update);
 
-        if (ownerDog != null) {
-            List<Dog> dogs = ownersDogsHandler.checkForOwnerHasDog(ownerDog);
-            if (!dogs.isEmpty()) {
-                List<Dog> dogsInProbation = checkForDogsOnProbation(dogs);
-                if (!dogsInProbation.isEmpty()) {
-                    return dogsInProbation;
+        if (ownerDogDto != null) {
+            List<DogDto> dogsDto = ownersDogsHandler.checkForOwnerHasDog(ownerDogDto);
+            if (!dogsDto.isEmpty()) {
+                List<DogDto> dogsInProbationDto = checkForDogsOnProbation(dogsDto);
+                if (!dogsInProbationDto.isEmpty()) {
+                    return dogsInProbationDto;
                 }
             }
         }
-        return new ArrayList<>();
+        return null;
     }
 
     /**
      * Method returns one animal on probation
      */
     @Override
-    public Dog returnOneDogOnProbation(Update update) {
+    public DogDto returnOneDogOnProbation(Update update) {
+        Long chatId = ownUpdatesHandler.getChatId(update);
+        String text = ownUpdatesHandler.getText(update);
 
-        Long chatId = 0L;
-        String text = "";
+        List<DogDto> dogsDto = returnDogsOnProbation(update);
 
-        if (update.message() != null) {
-            chatId = update.message().chat().id();
-            text = update.message().text();
-        } else if (update.callbackQuery() != null) {
-            chatId = update.callbackQuery().message().chat().id();
-        }
+        if (!checkForDogsOnProbationMoreThanOne(dogsDto) && !dogsDto.isEmpty()) {
 
-        List<Dog> dogs = returnDogsOnProbation(update);
+            return dogsDto.get(0);
 
-        if (!checkForDogsOnProbationMoreThanOne(dogs) && !dogs.isEmpty()) {
-
-            return dogs.get(0);
-
-        } else if (checkForDogsOnProbationMoreThanOne(dogs) && update.message().text().isEmpty()) {
+        } else if (checkForDogsOnProbationMoreThanOne(dogsDto) && update.message().text().isEmpty()) {
 
             Long id;
             String nickName;
@@ -103,15 +100,14 @@ public class DogsHandlerImpl implements DogsHandler {
             StringBuilder stringBuilder = new StringBuilder();
 
             String startMessage = """
-                    Вы на испытательном сроке
-                    со следующими собаками:
+                    Вы на испытательном сроке со следующими собаками:
                     """;
 
-            for (Dog dog : dogs) {
-                id = dog.getId();
-                nickName = dog.getNickName();
+            for (DogDto dogDto : dogsDto) {
+                id = dogDto.getId();
+                nickName = dogDto.getNickName();
                 String string = String.format("""
-                        Номер %d, кличка %s
+                        Номер: %d, кличка: %s
                         """, id, nickName);
                 stringBuilder.append(string);
             }
@@ -122,30 +118,28 @@ public class DogsHandlerImpl implements DogsHandler {
                             "отчет по которой вы хотите отправить:");
             telegramBot.execute(message);
 
-        } else if (checkForDogsOnProbationMoreThanOne(dogs) && !update.message().text().isEmpty()) {
+        } else if (checkForDogsOnProbationMoreThanOne(dogsDto) && !update.message().text().isEmpty()) {
 
             Long idDog = Long.valueOf(text);
 
             boolean found = false;
 
-            for (Dog dog : dogs) {
-                if (dog.getId().equals(idDog) || dog.getNickName().equals(text)) {
-                    return dog;
+            for (DogDto dogDto : dogsDto) {
+                if (dogDto.getId().equals(idDog) || dogDto.getNickName().equals(text)) {
+                    return dogDto;
                 }
             }
 
             if (!found) {
                 SendMessage message = new SendMessage(chatId, """
-                        Введенный вами номер животного
-                        или кличка не верны. Попробуйте
-                        ввести снова ЛИБО номер ЛИБО кличку.
+                        Введенный вами номер животного или кличка не верны.
+                        Попробуйте ввести снова ЛИБО номер ЛИБО кличку.
                         """);
                 telegramBot.execute(message);
             }
         } else {
             SendMessage message = new SendMessage(chatId, """
-                    У вас нет животного на испытательном
-                    сроке, вы не можете ничего отправить.
+                    У вас нет животного на испытательном сроке, вы не можете ничего отправить.
                     """);
             telegramBot.execute(message);
         }

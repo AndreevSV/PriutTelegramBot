@@ -66,4 +66,10 @@ public interface MainMenuHandler {
     void inquiryToVolunteerForChat(Long volunteerChatId, Long ownerChatId);
 
     void chatAlreadySetToOwnerMessage(Long ownerChatId);
+
+    void chatForwardMessageWithCloseButton(Long chatId, Update update);
+
+    void noPetMessage(Long ownerChatId, InlineKeyboardMarkup inlineKeyboardMarkup);
+
+    void noOwnOfPetRegisteredMessage(Long ownerChatId, InlineKeyboardMarkup inlineKeyboardMarkup);
 }

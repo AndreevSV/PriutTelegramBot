@@ -7,7 +7,6 @@ import lombok.RequiredArgsConstructor;
 import java.time.LocalDateTime;
 
 @Data
-@RequiredArgsConstructor
 @MappedSuperclass
 public abstract class Chat {
     @Id

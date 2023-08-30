@@ -1,47 +1,44 @@
 package omg.group.priuttelegrambot.handlers.owners.impl;
 
-import com.pengrad.telegrambot.TelegramBot;
 import com.pengrad.telegrambot.model.Update;
 import com.pengrad.telegrambot.model.request.InlineKeyboardMarkup;
-import com.pengrad.telegrambot.model.request.ParseMode;
-import com.pengrad.telegrambot.request.SendMessage;
 import omg.group.priuttelegrambot.dto.owners.OwnerCatDto;
 import omg.group.priuttelegrambot.dto.owners.OwnerCatMapper;
+import omg.group.priuttelegrambot.dto.pets.CatDto;
 import omg.group.priuttelegrambot.entity.owners.OwnerCat;
-import omg.group.priuttelegrambot.entity.pets.Cat;
 import omg.group.priuttelegrambot.handlers.menu.CatsMenuHandler;
+import omg.group.priuttelegrambot.handlers.menu.MainMenuHandler;
 import omg.group.priuttelegrambot.handlers.owners.OwnersCatsHandler;
 import omg.group.priuttelegrambot.handlers.updates.OwnUpdatesHandler;
 import omg.group.priuttelegrambot.repository.owners.OwnersCatsRepository;
 import omg.group.priuttelegrambot.service.owners.OwnersCatsService;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
 import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
 @Service
 public class OwnersCatsHandlerImpl implements OwnersCatsHandler {
 
-    private final TelegramBot telegramBot;
     private final CatsMenuHandler catsMenuHandler;
     private final OwnersCatsRepository ownersCatsRepository;
     private final OwnersCatsService ownersCatsService;
     private final OwnUpdatesHandler ownUpdatesHandler;
+    private final MainMenuHandler mainMenuHandler;
 
-    public OwnersCatsHandlerImpl(TelegramBot telegramBot,
-                                 CatsMenuHandler catsMenuHandler,
+    public OwnersCatsHandlerImpl(CatsMenuHandler catsMenuHandler,
                                  OwnersCatsRepository ownersCatsRepository,
-                                 OwnersCatsService ownersCatsService, OwnUpdatesHandler ownUpdatesHandler) {
-        this.telegramBot = telegramBot;
+                                 OwnersCatsService ownersCatsService,
+                                 OwnUpdatesHandler ownUpdatesHandler,
+                                 MainMenuHandler mainMenuHandler) {
         this.catsMenuHandler = catsMenuHandler;
         this.ownersCatsRepository = ownersCatsRepository;
         this.ownersCatsService = ownersCatsService;
         this.ownUpdatesHandler = ownUpdatesHandler;
+        this.mainMenuHandler = mainMenuHandler;
     }
 
     /**
@@ -98,7 +95,7 @@ public class OwnersCatsHandlerImpl implements OwnersCatsHandler {
     @Override
     public OwnerCatDto checkForOwnerExist(Update update) {
 
-        Long chatId = ownUpdatesHandler.extractChatIdFromUpdate(update);
+        Long chatId = ownUpdatesHandler.getChatId(update);
         Optional<OwnerCat> ownerCat = ownersCatsRepository.findByChatId(chatId);
 
         if (ownerCat.isPresent()) {
@@ -106,11 +103,7 @@ public class OwnersCatsHandlerImpl implements OwnersCatsHandler {
             return OwnerCatMapper.toDto(owner);
         } else {
             InlineKeyboardMarkup inlineKeyboardMarkup = catsMenuHandler.formInlineKeyboardForTakeMenuButton();
-            telegramBot.execute(new SendMessage(chatId, """
-                    Вы еще не зарегистрированы как владелец животного. Просмотрите информацию, как взять себе питомца.
-                    Для этого нажмите соответствующу кнопку ниже""")
-                    .parseMode(ParseMode.Markdown)
-                    .replyMarkup(inlineKeyboardMarkup));
+            mainMenuHandler.noOwnOfPetRegisteredMessage(chatId, inlineKeyboardMarkup);
             return null;
         }
     }
@@ -119,29 +112,24 @@ public class OwnersCatsHandlerImpl implements OwnersCatsHandler {
      * Method checks if Owner has a Cat(s)
      */
     @Override
-    @Transactional
-    public List<Cat> checkForOwnerHasCat(OwnerCat ownerCat) {
+    public List<CatDto> checkForOwnerHasCat(OwnerCatDto ownerDto) {
 
-        Long chatId = ownerCat.getChatId();
+        Long chatId = ownerDto.getChatId();
 
-        if (!ownerCat.getCats().isEmpty()) {
-            return ownerCat.getCats();
+        if (!ownerDto.getCatsDto().isEmpty()) {
+            return ownerDto.getCatsDto();
         } else {
             InlineKeyboardMarkup inlineKeyboardMarkup = catsMenuHandler.formInlineKeyboardForTakeMenuButton();
-            telegramBot.execute(new SendMessage(chatId, """
-                    У Вас еще нет домашнего питомца и Вы не можете отправлять отчет. Просмотрите информацию, как взять себе питомца. 
-                    Для этого нажмите соответствующу кнопку ниже
-                    """)
-                    .parseMode(ParseMode.Markdown)
-                    .replyMarkup(inlineKeyboardMarkup));
-            return new ArrayList<>();
+            mainMenuHandler.noPetMessage(chatId, inlineKeyboardMarkup);
+            return null;
         }
     }
 
     @Override
     public OwnerCatDto returnOwnerCatDtoFromUpdate(Update update) {
-        Long ownerChatId = ownUpdatesHandler.extractChatIdFromUpdate(update);
+        Long ownerChatId = ownUpdatesHandler.getChatId(update);
         Optional<OwnerCat> ownerCat = ownersCatsRepository.findByIsVolunteerIsFalseAndChatId(ownerChatId);
+
         if (ownerCat.isPresent()) {
             OwnerCat owner = ownerCat.get();
             return OwnerCatMapper.toDto(owner);
@@ -152,11 +140,23 @@ public class OwnersCatsHandlerImpl implements OwnersCatsHandler {
 
     @Override
     public OwnerCatDto returnVolunteerCatDtoFromUpdate(Update update) {
-        Long volunteerChatId = ownUpdatesHandler.extractChatIdFromUpdate(update);
+        Long volunteerChatId = ownUpdatesHandler.getChatId(update);
         Optional<OwnerCat> volunteerCat = ownersCatsRepository.findByIsVolunteerIsTrueAndChatId(volunteerChatId);
+
         if (volunteerCat.isPresent()) {
             OwnerCat volunteer = volunteerCat.get();
             return OwnerCatMapper.toDto(volunteer);
+        } else {
+            return null;
+        }
+    }
+
+    @Override
+    public OwnerCatDto returnOwnerOrVolunteerCatDtoByChatId(Long chatId) {
+        Optional<OwnerCat> ownerOptional = ownersCatsRepository.findByChatId(chatId);
+        if (ownerOptional.isPresent()) {
+            OwnerCat owner = ownerOptional.get();
+            return OwnerCatMapper.toDto(owner);
         } else {
             return null;
         }

@@ -7,7 +7,6 @@ import lombok.RequiredArgsConstructor;
 
 @EqualsAndHashCode(callSuper = true)
 @Data
-@RequiredArgsConstructor
 @Entity
 @Table(name = "knowledge_base_dogs")
 public class KnowledgebaseDogs extends Knowledgebase{
