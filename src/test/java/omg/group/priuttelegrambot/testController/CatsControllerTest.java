@@ -5,7 +5,8 @@ import omg.group.priuttelegrambot.dto.animals.CatDto;
 import omg.group.priuttelegrambot.entity.animals.enimalsenum.CatsBreed;
 import omg.group.priuttelegrambot.entity.animals.enimalsenum.Sex;
 import omg.group.priuttelegrambot.service.CatsService;
-import org.junit.Test;
+
+import org.junit.jupiter.api.Test;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 
@@ -17,7 +18,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.*;
 
-public class CatsControllerTest {
+ public class CatsControllerTest {
     CatsService catsService = mock(CatsService.class);
     CatDto catDto = new CatDto();
     CatsController catsController = new CatsController(catsService);

@@ -72,8 +72,6 @@ public class TelegramBotUpdatesListener implements UpdatesListener {
     }
 
     private void processText(Update update) {
-        // текст сообщения от пользователя
-
 
         LOG.info("Получен следующий апдэйт {}", update);
 
@@ -148,28 +146,17 @@ public class TelegramBotUpdatesListener implements UpdatesListener {
                                         Что вы хотите сделать?""")
                                 .replyMarkup(inlineKeyboardMarkup));
             }
-            case "/cat_about" -> executeCommandAndShowMenuCatAbout(chatId, text);
-            case "/cat_timetable" -> executeCommandAndShowMenuCatAbout(chatId, text);
-            case "/cat_admission" -> executeCommandAndShowMenuCatAbout(chatId, text);
-            case "/cat_safety_measures" -> executeCommandAndShowMenuCatAbout(chatId, text);
+            case "/cat_about", "/cat_timetable", "/cat_admission", "/cat_safety_measures"
+                    -> executeCommandAndShowMenuCatAbout(chatId, text);
 
-            case "/cat_take" -> executeCommandAndShowMenuCatTake(chatId, text);
-            case "/cat_connection_rules" -> executeCommandAndShowMenuCatTake(chatId, text);
-            case "/cat_documents" -> executeCommandAndShowMenuCatTake(chatId, text);
-            case "/cat_transportation" -> executeCommandAndShowMenuCatTake(chatId, text);
-            case "/cat_kitty_at_home" -> executeCommandAndShowMenuCatTake(chatId, text);
-            case "/cat_at_home" -> executeCommandAndShowMenuCatTake(chatId, text);
-            case "/cat_disability" -> executeCommandAndShowMenuCatTake(chatId, text);
-            case "/cat_refusal_reasons" -> executeCommandAndShowMenuCatTake(chatId, text);
+            case "/cat_take", "/cat_connection_rules", "/cat_documents", "/cat_transportation",
+                    "/cat_kitty_at_home", "/cat_at_home", "/cat_disability", "/cat_refusal_reasons"
+                    -> executeCommandAndShowMenuCatTake(chatId, text);
 
-            case "/cat_send_report" -> executeCommandAndShowMenuCatSendReport(chatId, text);
-            case "/cat_send_photo" -> executeCommandAndShowMenuCatSendReport(chatId, text);
-            case "/cat_send_ration" -> executeCommandAndShowMenuCatSendReport(chatId, text);
-            case "/cat_send_feeling" -> executeCommandAndShowMenuCatSendReport(chatId, text);
-            case "/cat_send_changes" -> executeCommandAndShowMenuCatSendReport(chatId, text);
+            case "/cat_send_report", "/cat_send_photo", "/cat_send_ration", "/cat_send_feeling",
+                    "/cat_send_changes", "/cat_back", "/cat_volunteer"
+                    -> executeCommandAndShowMenuCatSendReport(chatId, text);
 
-            case "/cat_back" -> executeCommandAndShowMenuCatSendReport(chatId, text);
-            case "/cat_volunteer" -> executeCommandAndShowMenuCatSendReport(chatId, text);
             case "/cat_receive_contacts" -> executeCommandAndShowMenuCatTake(chatId, text); ///!!!!!!!!!!!!!!!!!!!
 
 
@@ -193,35 +180,22 @@ public class TelegramBotUpdatesListener implements UpdatesListener {
                 newOwnerDogsRegister(chatId, userName, firstName, lastName);
             }
 
-            case "/dog_about" -> executeCommandAndshowMenuDogAbout(chatId, text);
-            case "/dog_timetable" -> executeCommandAndshowMenuDogAbout(chatId, text);
-            case "/dog_admission" -> executeCommandAndshowMenuDogAbout(chatId, text);
-            case "/dog_safety_measures" -> executeCommandAndshowMenuDogAbout(chatId, text);
+            case "/dog_about", "/dog_timetable", "/dog_admission", "/dog_safety_measures"
+                    -> executeCommandAndShowMenuDogAbout(chatId, text);
 
-            case "/dog_take" -> executeCommandAndshowMenuDogTake(chatId, text);
-            case "/dog_connection_rules" -> executeCommandAndshowMenuDogTake(chatId, text);
-            case "/dog_documents" -> executeCommandAndshowMenuDogTake(chatId, text);
-            case "/dog_transportation" -> executeCommandAndshowMenuDogTake(chatId, text);
-            case "/dog_puppy_at_home" -> executeCommandAndshowMenuDogTake(chatId, text);
-            case "/dog_at_home" -> executeCommandAndshowMenuDogTake(chatId, text);
-            case "/dog_disability" -> executeCommandAndshowMenuDogTake(chatId, text);
-            case "/dog_refusal_reasons" -> executeCommandAndshowMenuDogTake(chatId, text);
+            case "/dog_take", "/dog_connection_rules", "/dog_documents", "/dog_transportation",
+                    "/dog_puppy_at_home", "/dog_at_home", "/dog_disability", "/dog_refusal_reasons",
+                    "/dog_receive_contacts" -> executeCommandAndShowMenuDogTake(chatId, text);
 
-            case "/dog_send_report" -> executeCommandAndShowMenuDogSendReport(chatId, text);
-            case "/dog_send_photo" -> executeCommandAndShowMenuDogSendReport(chatId, text);
-            case "/dog_send_ration" -> executeCommandAndShowMenuDogSendReport(chatId, text);
-            case "/dog_send_feeling" -> executeCommandAndShowMenuDogSendReport(chatId, text);
-            case "/dog_send_changes" -> executeCommandAndShowMenuDogSendReport(chatId, text);
+            case "/dog_send_report", "/dog_send_photo", "/dog_send_ration", "/dog_send_feeling",
+                    "/dog_send_changes", "/dog_back", "/dog_volunteer"
+                    -> executeCommandAndShowMenuDogSendReport(chatId, text);
 
-            case "/dog_back" -> executeCommandAndShowMenuDogSendReport(chatId, text);
-            case "/dog_volunteer" -> executeCommandAndShowMenuDogSendReport(chatId, text);
-            case "/dog_receive_contacts" -> executeCommandAndshowMenuDogTake(chatId, text);
-
-            default -> sendMessage(chatId, "Нет такой команды");
+            default -> sendMessage(chatId, "Нет такой команды, нажмите /start");
         }
     }
 
-    private void executeCommandAndshowMenuDogAbout(Long chatId, String text) {
+    private void executeCommandAndShowMenuDogAbout(Long chatId, String text) {
 
         String message = knowledgebaseDogsService.findMessageByCommand(text);
 
@@ -238,7 +212,7 @@ public class TelegramBotUpdatesListener implements UpdatesListener {
         telegramBot.execute(new SendMessage(chatId, message + "\n Выберете команду:").replyMarkup(inlineKeyboardMarkup));
     }
 
-    private void executeCommandAndshowMenuDogTake(Long chatId, String text) {
+    private void executeCommandAndShowMenuDogTake(Long chatId, String text) {
 
         String message = knowledgebaseDogsService.findMessageByCommand(text);
 
@@ -385,7 +359,7 @@ public class TelegramBotUpdatesListener implements UpdatesListener {
         }
     }
 
-    private void newOwnerDogsRegister(Long chatId, String userName, String firstName, String lastName) {
+    public void newOwnerDogsRegister(Long chatId, String userName, String firstName, String lastName) {
 
         if (!ownersDogsService.findByChatId(chatId)) {
             OwnerDogDto ownerDogDto = new OwnerDogDto();
