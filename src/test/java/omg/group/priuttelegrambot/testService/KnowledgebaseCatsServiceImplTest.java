@@ -22,7 +22,7 @@ class KnowledgebaseCatsServiceImplTest {
     @InjectMocks
     private KnowledgebaseCatsServiceImpl knowledgebaseCatsService;
     /**
-     * Тест метода findMessageByCommand (передаётся сужествующая команда)класса CatsController.
+     * Тест метода findMessageByCommand (передаётся существующая команда)класса CatsController.
      */
     @Test
     void findMessageByCommand_existingCommand_returnsMessage() {
