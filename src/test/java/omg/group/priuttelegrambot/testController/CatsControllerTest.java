@@ -2,7 +2,6 @@ package omg.group.priuttelegrambot.testController;
 
 import omg.group.priuttelegrambot.controller.animals.impl.CatsController;
 import omg.group.priuttelegrambot.dto.animals.CatDto;
-import omg.group.priuttelegrambot.dto.owners.OwnerCatDto;
 import omg.group.priuttelegrambot.entity.animals.enimalsenum.CatsBreed;
 import omg.group.priuttelegrambot.entity.animals.enimalsenum.Sex;
 import omg.group.priuttelegrambot.service.CatsService;
@@ -10,7 +9,6 @@ import org.junit.Test;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
 import java.util.List;
