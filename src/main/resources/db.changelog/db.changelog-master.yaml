@@ -1,0 +1,348 @@
+databaseChangeLog:
+  - include:
+      file: db.changelog/init.sql
+
+  - changeSet:
+      id: 1
+      author: AndreevSV
+      changes:
+        - sqlFile:
+            path: db.changelog/init2.sql
+
+  - changeSet:
+      id: 2
+      author: AndreevSV
+      changes:
+        - sqlFile:
+            path: db.changelog/init3.sql
+
+  - changeSet:
+      id: 3
+      author: AndreevSV
+      changes:
+        - renameTable:
+            catalogName: priut_telegrambot
+            newTableName: reports_cats
+            oldTableName: photo_table_cats
+            schemaName: public
+        - renameTable:
+            catalogName: priut_telegrambot
+            newTableName: reports_dogs
+            oldTableName: photo_table_dogs
+            schemaName: public
+        - addColumn:
+            tableName: reports_cats
+            columns:
+              - column:
+                  name: updated_at
+                  type: TIMESTAMP
+              - column:
+                  name: ration
+                  type: text
+              - column:
+                  name: feeling
+                  type: text
+              - column:
+                  name: changes
+                  type: text
+        - addColumn:
+            tableName: reports_dogs
+            columns:
+              - column:
+                  name: updated_at
+                  type: TIMESTAMP
+              - column:
+                  name: ration
+                  type: text
+              - column:
+                  name: feeling
+                  type: text
+              - column:
+                  name: changes
+                  type: text
+  - changeSet:
+      id: 4
+      author: AndreevSV
+      changes:
+        - addColumn:
+            tableName: clients_cats
+            columns:
+              column:
+                name: chat_id
+                type: BIGINT
+        - addColumn:
+            tableName: clients_dogs
+            columns:
+              column:
+                name: chat_id
+                type: BIGINT
+  - changeSet:
+      id: 5
+      author: AndreevSV
+      changes:
+        - addColumn:
+            tableName: reports_cats
+            columns:
+              - column:
+                  name: date_of_report
+                  type: DATE
+              - column:
+                  name: date_of_last_report
+                  type: DATE
+        - addColumn:
+            tableName: reports_dogs
+            columns:
+              - column:
+                  name: date_of_report
+                  type: DATE
+              - column:
+                  name: date_of_last_report
+                  type: DATE
+  - changeSet:
+      id: 6
+      author: AndreevVS
+      changes:
+        - dropColumn:
+            tableName: clients_cats
+            columnName: cat_id
+        - dropColumn:
+            tableName: clients_dogs
+            columnName: dog_id
+        - addColumn:
+            tableName: clients_cats
+            columns:
+              - column:
+                  name: volunteer_id
+                  type: BIGINT
+                  constraints:
+                    nullable: true
+                    foreignKeyName: fk_volunteer_id
+                    references:
+                      tableName: clients_cats
+                      columnNames: id
+        - addColumn:
+            tableName: clients_dogs
+            columns:
+              - column:
+                  name: volunteer_id
+                  type: BIGINT
+                  constraints:
+                    nullable: true
+                    foreignKeyName: fk_volunteer_id
+                    references:
+                      tableName: clients_dogs
+                      columnNames: id
+        - sqlFile:
+            path: db.changelog/init4.sql
+
+  - changeSet:
+      id: 7
+      author: AndreevSV
+      changes:
+        - sqlFile:
+            path: db.changelog/init5.sql
+
+  - changeSet:
+      id: 8
+      author: AndreevSV
+      changes:
+        - addColumn:
+            tableName: clients_cats
+            columns:
+              - column:
+                  name: chats_opened
+                  type: INTEGER
+        - addColumn:
+            tableName: clients_dogs
+            columns:
+              - column:
+                  name: chats_opened
+                  type: INTEGER
+  - changeSet:
+      id: 9
+      author: AndreevSV
+      changes:
+        - addColumn:
+            tableName: chat_cats
+            columns:
+              - column:
+                  name: answer_text
+                  type: TEXT
+              - column:
+                  name: answer_sent
+                  type: BOOLEAN
+        - addColumn:
+            tableName: chat_dogs
+            columns:
+              - column:
+                    name: answer_text
+                    type: TEXT
+              - column:
+                  name: answer_sent
+                  type: BOOLEAN
+  - changeSet:
+      id: 10
+      author: AndreevSV
+      changes:
+        - addColumn:
+            tableName: chat_cats
+            columns:
+              - column:
+                  name: message_sent_time
+                  type: TIMESTAMP
+        - renameColumn:
+            tableName: chat_cats
+            oldColumnName: answer_sent
+            newColumnName: answer_sent_time
+            columnDataType: TIMESTAMP
+        - addColumn:
+            tableName: chat_dogs
+            columns:
+              - column:
+                  name: message_sent_time
+                  type: TIMESTAMP
+        - renameColumn:
+            tableName: chat_dogs
+            oldColumnName: answer_sent
+            newColumnName: answer_sent_time
+            columnDataType: TIMESTAMP
+  - changeSet:
+      id: 11
+      author: AndreevSV
+      changes:
+        - addColumn:
+            tableName: chat_cats
+            columns:
+              - column:
+                  name: created_at
+                  type: TIMESTAMP
+        - addColumn:
+            tableName: chat_dogs
+            columns:
+              - column:
+                  name: created_at
+                  type: TIMESTAMP
+  - changeSet:
+      id: 12
+      author: AndreevSV
+      changes:
+        - dropColumn:
+            tableName: chat_cats
+            columnName: answer_sent_time
+        - dropColumn:
+            tableName: chat_dogs
+            columnName: answer_sent_time
+        - addColumn:
+            tableName: chat_cats
+            columns:
+              - column:
+                  name: answer_sent_time
+                  type: TIMESTAMP
+        - addColumn:
+            tableName: chat_dogs
+            columns:
+              - column:
+                  name: answer_sent_time
+                  type: TIMESTAMP
+  - changeSet:
+      id: 13
+      author: AndreevSV
+      changes:
+        - sqlFile:
+            path: db.changelog/init6.sql
+  - changeSet:
+      id: 14
+      author: AndreevSV
+      changes:
+        - addColumn:
+            tableName: chat_cats
+            columns:
+              - column:
+                  name: chat_id
+                  type: BIGINT
+        - addColumn:
+            tableName: chat_dogs
+            columns:
+              - column:
+                  name: chat_id
+                  type: BIGINT
+  - changeSet:
+      id: 15
+      author: AndreevSV
+      changes:
+        - addColumn:
+            tableName: clients_cats
+            columns:
+              - column:
+                  name: telegram_user_id
+                  type: BIGINT
+        - addColumn:
+            tableName: clients_dogs
+            columns:
+              - column:
+                  name: telegram_user_id
+                  type: BIGINT
+  - changeSet:
+      id: 16
+      author: AndreevSV
+      changes:
+        - addColumn:
+            tableName: clients_cats
+            columns:
+              - column:
+                  name: volunteer_chat_opened
+                  type: BOOLEAN
+        - addColumn:
+            tableName: clients_dogs
+            columns:
+              - column:
+                  name: volunteer_chat_opened
+                  type: BOOLEAN
+  - changeSet:
+      id: 17
+      author: AndreevSV
+      changes:
+        - addColumn:
+            tableName: reports_cats
+            columns:
+              - column:
+                  name: hash_code
+                  type: INTEGER
+        - addColumn:
+            tableName: reports_dogs
+            columns:
+              - column:
+                  name: hash_code
+                  type: INTEGER
+  - changeSet:
+      id: 18
+      author: AndreevSV
+      changes:
+        - renameColumn:
+            tableName: reports_cats
+            oldColumnName: path
+            newColumnName: file_id
+            columnDataType: VARCHAR(255)
+        - renameColumn:
+            tableName: reports_dogs
+            oldColumnName: path
+            newColumnName: file_id
+            columnDataType: VARCHAR(255)
+  - changeSet:
+      id: 19
+      author: AndreevSV
+      changes:
+        - sqlFile:
+            path: db.changelog/init7.sql
+  - changeSet:
+      id: 20
+      author: AndreevSV
+      changes:
+        - sqlFile:
+            path: db.changelog/init8.sql
+  - changeSet:
+      id: 21
+      author: AndreevSV
+      changes:
+        - sqlFile:
+            path: db.changelog/init9.sql
