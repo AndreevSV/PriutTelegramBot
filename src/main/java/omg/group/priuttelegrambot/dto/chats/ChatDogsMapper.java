@@ -8,7 +8,7 @@ public class ChatDogsMapper {
     public static ChatDogsDto toDto(ChatDogs chat) {
         ChatDogsDto dto = new ChatDogsDto();
         dto.setId(chat.getId());
-        dto.setIsChatting(chat.getIsChatting());
+        dto.setChatting(chat.getIsChatting());
         dto.setOwnerDto(OwnerDogMapper.toDto(chat.getOwner()));
         dto.setVolunteerDto(OwnerDogMapper.toDto(chat.getVolunteer()));
         dto.setMessageSentTime(chat.getMessageSentTime());
@@ -20,7 +20,7 @@ public class ChatDogsMapper {
     public static ChatDogs toEntity(ChatDogsDto dto) {
         ChatDogs chat = new ChatDogs();
         chat.setId(dto.getId());
-        chat.setIsChatting(dto.getIsChatting());
+        chat.setIsChatting(dto.getChatting());
         chat.setOwner(OwnerDogMapper.toEntity(dto.getOwnerDto()));
         chat.setVolunteer(OwnerDogMapper.toEntity(dto.getVolunteerDto()));
         chat.setMessageSentTime(dto.getMessageSentTime());

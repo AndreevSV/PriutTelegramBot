@@ -6,52 +6,35 @@ import omg.group.priuttelegrambot.entity.flags.OwnersCatsFlags;
 
 public class OwnersCatsFlagsMapper {
     public static OwnersCatsFlagsDto toDto(OwnersCatsFlags flag) {
-        OwnersCatsFlagsDto dto = new OwnersCatsFlagsDto();
-        dto.setId(flag.getId());
-        dto.setOwnerDto(OwnerCatMapper.toDto(flag.getOwner()));
-        if (flag.getVolunteer() != null) {
-            dto.setVolunteerDto(OwnerCatMapper.toDto(flag.getVolunteer()));
-        } else {
-            dto.setVolunteerDto(null);
-        }
-        if (flag.getCat() != null) {
-            dto.setCatDto(CatsMapper.toDto(flag.getCat()));
-        } else {
-            dto.setCatDto(null);
-        }
-        dto.setIsWaitingForPhoto(flag.getIsWaitingForPhoto());
-        dto.setIsWaitingForRation(flag.getIsWaitingForRation());
-        dto.setIsWaitingForFeeling(flag.getIsWaitingForFeeling());
-        dto.setIsWaitingForChanges(flag.getIsWaitingForChanges());
-        dto.setIsWaitingForContacts(flag.getIsWaitingForContacts());
-        dto.setIsChatting(flag.getIsChatting());
-        dto.setCreatedAt(flag.getCreatedAt());
-        dto.setUpdatedAt(flag.getUpdatedAt());
-        dto.setDate(flag.getDate());
-
-        return dto;
+        return OwnersCatsFlagsDto.builder()
+                .id(flag.getId())
+                .ownerDto(OwnerCatMapper.toDto(flag.getOwner()))
+                .volunteerDto(flag.getVolunteer() != null ? OwnerCatMapper.toDto(flag.getVolunteer()) : null)
+                .catDto(flag.getCat() != null ? CatsMapper.toDto(flag.getCat()) : null)
+                .waitingForPhoto(flag.getIsWaitingForPhoto())
+                .waitingForRation(flag.getIsWaitingForRation())
+                .waitingForFeeling(flag.getIsWaitingForFeeling())
+                .waitingForChanges(flag.getIsWaitingForChanges())
+                .waitingForContacts(flag.getIsWaitingForContacts())
+                .chatting(flag.getIsChatting())
+                .createdAt(flag.getCreatedAt())
+                .updatedAt(flag.getUpdatedAt())
+                .date(flag.getDate())
+                .build();
     }
 
     public static OwnersCatsFlags toEntity(OwnersCatsFlagsDto dto) {
         OwnersCatsFlags flag = new OwnersCatsFlags();
         flag.setId(dto.getId());
         flag.setOwner(OwnerCatMapper.toEntity(dto.getOwnerDto()));
-        if (dto.getVolunteerDto() != null) {
-            flag.setVolunteer(OwnerCatMapper.toEntity(dto.getVolunteerDto()));
-        } else {
-            flag.setVolunteer(null);
-        }
-        if (dto.getCatDto() != null) {
-            flag.setCat(CatsMapper.toEntity(dto.getCatDto()));
-        } else {
-            flag.setCat(null);
-        }
-        flag.setIsWaitingForPhoto(dto.getIsWaitingForPhoto());
-        flag.setIsWaitingForRation(dto.getIsWaitingForRation());
-        flag.setIsWaitingForFeeling(dto.getIsWaitingForFeeling());
-        flag.setIsWaitingForChanges(dto.getIsWaitingForChanges());
-        flag.setIsWaitingForContacts(dto.getIsWaitingForContacts());
-        flag.setIsChatting(dto.getIsChatting());
+        flag.setVolunteer(dto.getVolunteerDto() != null ? OwnerCatMapper.toEntity(dto.getVolunteerDto()) : null);
+        flag.setCat(dto.getCatDto() != null ? CatsMapper.toEntity(dto.getCatDto()) : null);
+        flag.setIsWaitingForPhoto(dto.isWaitingForPhoto());
+        flag.setIsWaitingForRation(dto.isWaitingForRation());
+        flag.setIsWaitingForFeeling(dto.isWaitingForFeeling());
+        flag.setIsWaitingForChanges(dto.isWaitingForChanges());
+        flag.setIsWaitingForContacts(dto.isWaitingForContacts());
+        flag.setIsChatting(dto.isChatting());
         flag.setCreatedAt(dto.getCreatedAt());
         flag.setUpdatedAt(dto.getUpdatedAt());
         flag.setDate(dto.getDate());

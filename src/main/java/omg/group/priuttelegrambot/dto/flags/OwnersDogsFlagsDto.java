@@ -1,11 +1,12 @@
 package omg.group.priuttelegrambot.dto.flags;
 
-import lombok.Data;
-import lombok.EqualsAndHashCode;
+import lombok.*;
+import lombok.experimental.SuperBuilder;
 import omg.group.priuttelegrambot.dto.owners.OwnerDogDto;
 import omg.group.priuttelegrambot.dto.pets.DogDto;
 
-@Data
+@Getter
+@SuperBuilder(toBuilder = true)
 @EqualsAndHashCode(callSuper = true)
 public class OwnersDogsFlagsDto extends FlagsDto {
     private OwnerDogDto ownerDto;

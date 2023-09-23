@@ -179,7 +179,7 @@ public class TelegramBotUpdatesListener implements UpdatesListener {
 
             if (catFlagDto != null) {
 //                if (update.callbackQuery() == null && update.message() != null) {
-                if (catFlagDto.getIsChatting()) {
+                if (catFlagDto.isChatting()) {
                     if ("Завершить".equals(text)) {
                         chatsCatsHandler.executeCloseButtonCommand(update);
                         ownersCatsFlagsHandler.removeFlag(catFlagDto);
@@ -194,27 +194,27 @@ public class TelegramBotUpdatesListener implements UpdatesListener {
                         chatsCatsHandler.forwardMessageReceived(update);
                     }
                 }
-                if (catFlagDto.getIsWaitingForPhoto()) {
+                if (catFlagDto.isWaitingForPhoto()) {
                     boolean photo = reportsCatsHandler.receivePhoto(update);
                     if (photo) {
                         ownersCatsFlagsHandler.removeFlag(catFlagDto);
                     }
-                } else if (catFlagDto.getIsWaitingForRation()) {
+                } else if (catFlagDto.isWaitingForRation()) {
                     boolean ration = reportsCatsHandler.receiveRation(update);
                     if (ration) {
                         ownersCatsFlagsHandler.removeFlag(catFlagDto);
                     }
-                } else if (catFlagDto.getIsWaitingForFeeling()) {
+                } else if (catFlagDto.isWaitingForFeeling()) {
                     boolean feeling = reportsCatsHandler.receiveFeeling(update);
                     if (feeling) {
                         ownersCatsFlagsHandler.removeFlag(catFlagDto);
                     }
-                } else if (catFlagDto.getIsWaitingForChanges()) {
+                } else if (catFlagDto.isWaitingForChanges()) {
                     boolean changes = reportsCatsHandler.receiveChanges(update);
                     if (changes) {
                         ownersCatsFlagsHandler.removeFlag(catFlagDto);
                     }
-                } else if (catFlagDto.getIsWaitingForContacts()) {
+                } else if (catFlagDto.isWaitingForContacts()) {
                     Contact contact = update.message().contact();
                     if (contact != null) {
                         InlineKeyboardMarkup inlineKeyboardMarkup = catsMenuHandler.formInlineKeyboardForInfoMenuButton();
@@ -256,7 +256,7 @@ public class TelegramBotUpdatesListener implements UpdatesListener {
 //                    }
             } else if (dogFlagDto != null) {
 //                    if (update.callbackQuery() == null && update.message() != null) {
-                if (dogFlagDto.getIsChatting()) {
+                if (dogFlagDto.isChatting()) {
                     if ("Завершить".equals(text)) {
                         chatsDogsHandler.executeCloseButtonCommand(update);
                         ownersDogsFlagsHandler.removeFlag(dogFlagDto);
@@ -269,27 +269,27 @@ public class TelegramBotUpdatesListener implements UpdatesListener {
                         chatsDogsHandler.forwardMessageReceived(update);
                     }
                 }
-                if (dogFlagDto.getIsWaitingForPhoto()) {
+                if (dogFlagDto.isWaitingForPhoto()) {
                     boolean photo = reportsDogsHandler.receivePhoto(update);
                     if (photo) {
                         ownersDogsFlagsHandler.removeFlag(dogFlagDto);
                     }
-                } else if (dogFlagDto.getIsWaitingForRation()) {
+                } else if (dogFlagDto.isWaitingForRation()) {
                     boolean ration = reportsDogsHandler.receiveRation(update);
                     if (ration) {
                         ownersDogsFlagsHandler.removeFlag(dogFlagDto);
                     }
-                } else if (dogFlagDto.getIsWaitingForFeeling()) {
+                } else if (dogFlagDto.isWaitingForFeeling()) {
                     boolean feeling = reportsDogsHandler.receiveFeeling(update);
                     if (feeling) {
                         ownersDogsFlagsHandler.removeFlag(dogFlagDto);
                     }
-                } else if (dogFlagDto.getIsWaitingForChanges()) {
+                } else if (dogFlagDto.isWaitingForChanges()) {
                     boolean changes = reportsDogsHandler.receiveChanges(update);
                     if (changes) {
                         ownersDogsFlagsHandler.removeFlag(dogFlagDto);
                     }
-                } else if (dogFlagDto.getIsWaitingForContacts()) {
+                } else if (dogFlagDto.isWaitingForContacts()) {
                     Contact contact = update.message().contact();
                     if (contact != null) {
                         InlineKeyboardMarkup inlineKeyboardMarkup = dogsMenuHandler.formInlineKeyboardForInfoMenuButton();

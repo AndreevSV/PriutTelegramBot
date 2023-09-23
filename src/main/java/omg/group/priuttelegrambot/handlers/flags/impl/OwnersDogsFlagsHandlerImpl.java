@@ -10,6 +10,7 @@ import omg.group.priuttelegrambot.entity.owners.OwnerDog;
 import omg.group.priuttelegrambot.handlers.flags.OwnersDogsFlagsHandler;
 import omg.group.priuttelegrambot.repository.flags.OwnersDogsFlagsRepository;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -25,119 +26,101 @@ public class OwnersDogsFlagsHandlerImpl implements OwnersDogsFlagsHandler {
     }
 
     @Override
+    @Transactional
     public void createWaitingForNewReportFlag(OwnerDogDto ownerDto, DogDto petDto) {
-        OwnersDogsFlagsDto flagDto = new OwnersDogsFlagsDto();
-        flagDto.setOwnerDto(ownerDto);
-        flagDto.setDogDto(petDto);
-        flagDto.setIsWaitingForPhoto(true);
-        flagDto.setIsWaitingForRation(true);
-        flagDto.setIsWaitingForFeeling(true);
-        flagDto.setIsWaitingForChanges(true);
-        flagDto.setIsWaitingForContacts(false);
-        flagDto.setIsChatting(false);
-        flagDto.setCreatedAt(LocalDateTime.now());
-        flagDto.setDate(LocalDate.now());
+        OwnersDogsFlagsDto flagDto = OwnersDogsFlagsDto.builder()
+                .ownerDto(ownerDto)
+                .dogDto(petDto)
+                .waitingForPhoto(true)
+                .waitingForRation(true)
+                .waitingForFeeling(true)
+                .waitingForChanges(true)
+                .createdAt(LocalDateTime.now())
+                .date(LocalDate.now())
+                .build();
         OwnersDogsFlags flag = OwnersDogsFlagsMapper.toEntity(flagDto);
         ownersDogsFlagsRepository.save(flag);
     }
 
     @Override
+    @Transactional
     public void createWaitingForPhotoFlag(OwnerDogDto ownerDto, DogDto petDto) {
-        OwnersDogsFlagsDto flagDto = new OwnersDogsFlagsDto();
-        flagDto.setOwnerDto(ownerDto);
-        flagDto.setDogDto(petDto);
-        flagDto.setIsWaitingForPhoto(true);
-        flagDto.setIsWaitingForRation(false);
-        flagDto.setIsWaitingForFeeling(false);
-        flagDto.setIsWaitingForChanges(false);
-        flagDto.setIsWaitingForContacts(false);
-        flagDto.setIsChatting(false);
-        flagDto.setCreatedAt(LocalDateTime.now());
-        flagDto.setDate(LocalDate.now());
+        OwnersDogsFlagsDto flagDto = OwnersDogsFlagsDto.builder()
+                .ownerDto(ownerDto)
+                .dogDto(petDto)
+                .waitingForPhoto(true)
+                .createdAt(LocalDateTime.now())
+                .date(LocalDate.now())
+                .build();
         OwnersDogsFlags flag = OwnersDogsFlagsMapper.toEntity(flagDto);
         ownersDogsFlagsRepository.save(flag);
     }
 
     @Override
+    @Transactional
     public void createWaitingForRationFlag(OwnerDogDto ownerDto, DogDto petDto) {
-        OwnersDogsFlagsDto flagDto = new OwnersDogsFlagsDto();
-        flagDto.setOwnerDto(ownerDto);
-        flagDto.setDogDto(petDto);
-        flagDto.setIsWaitingForPhoto(false);
-        flagDto.setIsWaitingForRation(true);
-        flagDto.setIsWaitingForFeeling(false);
-        flagDto.setIsWaitingForChanges(false);
-        flagDto.setIsWaitingForContacts(false);
-        flagDto.setIsChatting(false);
-        flagDto.setCreatedAt(LocalDateTime.now());
-        flagDto.setDate(LocalDate.now());
+        OwnersDogsFlagsDto flagDto = OwnersDogsFlagsDto.builder()
+                .ownerDto(ownerDto)
+                .dogDto(petDto)
+                .waitingForRation(true)
+                .createdAt(LocalDateTime.now())
+                .date(LocalDate.now())
+                .build();
         OwnersDogsFlags flag = OwnersDogsFlagsMapper.toEntity(flagDto);
         ownersDogsFlagsRepository.save(flag);
     }
 
     @Override
+    @Transactional
     public void createWaitingForFeelingFlag(OwnerDogDto ownerDto, DogDto petDto) {
-        OwnersDogsFlagsDto flagDto = new OwnersDogsFlagsDto();
-        flagDto.setOwnerDto(ownerDto);
-        flagDto.setDogDto(petDto);
-        flagDto.setIsWaitingForPhoto(false);
-        flagDto.setIsWaitingForRation(false);
-        flagDto.setIsWaitingForFeeling(true);
-        flagDto.setIsWaitingForChanges(false);
-        flagDto.setIsWaitingForContacts(false);
-        flagDto.setIsChatting(false);
-        flagDto.setCreatedAt(LocalDateTime.now());
-        flagDto.setDate(LocalDate.now());
+        OwnersDogsFlagsDto flagDto = OwnersDogsFlagsDto.builder()
+                .ownerDto(ownerDto)
+                .dogDto(petDto)
+                .waitingForFeeling(true)
+                .createdAt(LocalDateTime.now())
+                .date(LocalDate.now())
+                .build();
         OwnersDogsFlags flag = OwnersDogsFlagsMapper.toEntity(flagDto);
         ownersDogsFlagsRepository.save(flag);
     }
 
     @Override
+    @Transactional
     public void createWaitingForChangesFlag(OwnerDogDto ownerDto, DogDto petDto) {
-        OwnersDogsFlagsDto flagDto = new OwnersDogsFlagsDto();
-        flagDto.setOwnerDto(ownerDto);
-        flagDto.setDogDto(petDto);
-        flagDto.setIsWaitingForPhoto(false);
-        flagDto.setIsWaitingForRation(false);
-        flagDto.setIsWaitingForFeeling(false);
-        flagDto.setIsWaitingForChanges(true);
-        flagDto.setIsWaitingForContacts(false);
-        flagDto.setIsChatting(false);
-        flagDto.setCreatedAt(LocalDateTime.now());
-        flagDto.setDate(LocalDate.now());
+        OwnersDogsFlagsDto flagDto = OwnersDogsFlagsDto.builder()
+                .ownerDto(ownerDto)
+                .dogDto(petDto)
+                .waitingForChanges(true)
+                .createdAt(LocalDateTime.now())
+                .date(LocalDate.now())
+                .build();
         OwnersDogsFlags flag = OwnersDogsFlagsMapper.toEntity(flagDto);
         ownersDogsFlagsRepository.save(flag);
     }
 
     @Override
+    @Transactional
     public void createWaitingForContactsFlag(OwnerDogDto ownerDto) {
-        OwnersDogsFlagsDto flagDto = new OwnersDogsFlagsDto();
-        flagDto.setOwnerDto(ownerDto);
-        flagDto.setIsWaitingForPhoto(false);
-        flagDto.setIsWaitingForRation(false);
-        flagDto.setIsWaitingForFeeling(false);
-        flagDto.setIsWaitingForChanges(false);
-        flagDto.setIsWaitingForContacts(true);
-        flagDto.setIsChatting(false);
-        flagDto.setCreatedAt(LocalDateTime.now());
-        flagDto.setDate(LocalDate.now());
+        OwnersDogsFlagsDto flagDto = OwnersDogsFlagsDto.builder()
+                .ownerDto(ownerDto)
+                .waitingForContacts(true)
+                .createdAt(LocalDateTime.now())
+                .date(LocalDate.now())
+                .build();
         OwnersDogsFlags flag = OwnersDogsFlagsMapper.toEntity(flagDto);
         ownersDogsFlagsRepository.save(flag);
     }
 
     @Override
+    @Transactional
     public void createChattingFlag(OwnerDogDto ownerDto, OwnerDogDto volunteerDto) {
-        OwnersDogsFlagsDto flagDto = new OwnersDogsFlagsDto();
-        flagDto.setOwnerDto(ownerDto);
-        flagDto.setVolunteerDto(volunteerDto);
-        flagDto.setIsWaitingForPhoto(false);
-        flagDto.setIsWaitingForRation(false);
-        flagDto.setIsWaitingForFeeling(false);
-        flagDto.setIsWaitingForChanges(false);
-        flagDto.setIsWaitingForContacts(false);
-        flagDto.setIsChatting(true);
-        flagDto.setCreatedAt(LocalDateTime.now());
-        flagDto.setDate(LocalDate.now());
+        OwnersDogsFlagsDto flagDto = OwnersDogsFlagsDto.builder()
+                .ownerDto(ownerDto)
+                .volunteerDto(volunteerDto)
+                .chatting(true)
+                .createdAt(LocalDateTime.now())
+                .date(LocalDate.now())
+                .build();
         OwnersDogsFlags flag = OwnersDogsFlagsMapper.toEntity(flagDto);
         ownersDogsFlagsRepository.save(flag);
     }
@@ -192,6 +175,7 @@ public class OwnersDogsFlagsHandlerImpl implements OwnersDogsFlagsHandler {
 
 
     @Override
+    @Transactional
     public void removeFlag(OwnersDogsFlagsDto flagDto) {
         OwnersDogsFlags flag = OwnersDogsFlagsMapper.toEntity(flagDto);
         ownersDogsFlagsRepository.delete(flag);

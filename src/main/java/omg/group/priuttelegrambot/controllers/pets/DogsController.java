@@ -1,4 +1,4 @@
-package omg.group.priuttelegrambot.controller.pets.impl;
+package omg.group.priuttelegrambot.controllers.pets;
 
 import io.swagger.v3.oas.annotations.tags.Tag;
 import omg.group.priuttelegrambot.dto.pets.DogDto;
