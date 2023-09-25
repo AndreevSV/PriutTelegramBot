@@ -147,7 +147,7 @@ public class TelegramBotUpdatesListener implements UpdatesListener {
         return CONFIRMED_UPDATES_ALL;
     }
 
-//    private void handleUpdate(Update update) {}
+
 
     private void handleUpdate(Update update) {
 
