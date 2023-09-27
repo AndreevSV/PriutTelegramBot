@@ -2,8 +2,6 @@ package omg.group.priuttelegrambot.handlers.reports.impl;
 
 import com.pengrad.telegrambot.model.Update;
 import com.pengrad.telegrambot.model.request.*;
-import omg.group.priuttelegrambot.dto.owners.OwnerCatDto;
-import omg.group.priuttelegrambot.dto.owners.OwnerCatMapper;
 import omg.group.priuttelegrambot.dto.pets.CatDto;
 import omg.group.priuttelegrambot.dto.pets.CatsMapper;
 import omg.group.priuttelegrambot.dto.reports.ReportsCatsDto;
@@ -13,7 +11,6 @@ import omg.group.priuttelegrambot.entity.owners.OwnerCat;
 import omg.group.priuttelegrambot.entity.reports.ReportCat;
 import omg.group.priuttelegrambot.handlers.menu.CatsMenuHandler;
 import omg.group.priuttelegrambot.handlers.menu.MainMenuHandler;
-import omg.group.priuttelegrambot.handlers.owners.OwnersCatsHandler;
 import omg.group.priuttelegrambot.handlers.pets.CatsHandler;
 import omg.group.priuttelegrambot.handlers.media.impl.PhotoHandlerImpl;
 import omg.group.priuttelegrambot.handlers.reports.ReportsCatsHandler;
@@ -36,22 +33,20 @@ public class ReportsCatsHandlerImpl implements ReportsCatsHandler {
     private final PhotoHandlerImpl photoHandler;
     private final MainMenuHandler mainMenuHandler;
     private final OwnUpdatesHandler ownUpdatesHandler;
-    private final OwnersCatsHandler ownersCatsHandler;
 
     public ReportsCatsHandlerImpl(CatsHandler catsHandler,
                                   ReportsCatsRepository reportsCatsRepository,
                                   CatsMenuHandler catsMenuHandler,
                                   PhotoHandlerImpl photoHandler,
                                   MainMenuHandler mainMenuHandler,
-                                  OwnUpdatesHandler ownUpdatesHandler,
-                                  OwnersCatsHandler ownersCatsHandler) {
+                                  OwnUpdatesHandler ownUpdatesHandler
+    ) {
         this.catsHandler = catsHandler;
         this.catsMenuHandler = catsMenuHandler;
         this.reportsCatsRepository = reportsCatsRepository;
         this.photoHandler = photoHandler;
         this.mainMenuHandler = mainMenuHandler;
         this.ownUpdatesHandler = ownUpdatesHandler;
-        this.ownersCatsHandler = ownersCatsHandler;
     }
 
     /**
@@ -78,27 +73,6 @@ public class ReportsCatsHandlerImpl implements ReportsCatsHandler {
         }
     }
 
-//    @Override
-//    public ReportsCatsDto isReportExist(Update update) {
-//
-//        CatDto catDto = catsHandler.returnOneCatOnProbation(update);
-//        if (catDto != null) {
-//            Cat cat = CatsMapper.toEntity(catDto);
-//            OwnerCat owner = cat.getOwner();
-//
-//            Optional<ReportCat> reportOptional = reportsCatsRepository.findByOwnerAndPetAndDateOfReport(owner, cat, LocalDate.now());
-//
-//            if (reportOptional.isPresent()) {
-//                ReportCat report = reportOptional.get();
-//                return ReportsCatsMapper.toDto(report);
-//            } else {
-//                return null;
-//            }
-//        } else {
-//            return null;
-//        }
-//    }
-
     @Override
     public ReportsCatsDto isReportCompleted(ReportsCatsDto reportDto) {
 
@@ -120,10 +94,7 @@ public class ReportsCatsHandlerImpl implements ReportsCatsHandler {
     public ReportsCatsDto returnReportDtoFromUpdate(Update update) {
         ReportsCatsDto reportDto = isReportExist(update);
         if (reportDto != null) {
-            ReportsCatsDto reportCompletedDto = isReportCompleted(reportDto);
-            if (reportCompletedDto != null) {
-                return reportCompletedDto;
-            }
+            return isReportCompleted(reportDto);
         }
         return null;
     }

@@ -1,25 +1,25 @@
 package omg.group.priuttelegrambot.service.owners;
 
 import omg.group.priuttelegrambot.dto.owners.OwnerDogDto;
-import omg.group.priuttelegrambot.entity.owners.OwnerDog;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
 import java.util.List;
-import java.util.Optional;
 
 public interface OwnersDogsService {
     void add(OwnerDogDto ownerDto);
     void updateById(Long id, OwnerDogDto ownerDto);
-    OwnerDogDto findById(Long id);
+    OwnerDogDto findById(Long ownerId);
     Boolean findByChatId(Long chatId);
     List<OwnerDogDto> findByUsername(String username);
     List<OwnerDogDto> findBySurname(String surname);
-    List<OwnerDogDto> findByTelephone(String telephone);
+    List<OwnerDogDto> findByPhoneNumber(String telephone);
     List<OwnerDogDto> getAll();
-    void deleteById(Long id);
+    void deleteById(Long ownerId);
     OwnerDogDto findDogsVolunteer();
-//    void setVolunteer(Long id, List<Long> dogsIds);
+    void setPetsToOwnerAndDateIncome(Long ownerId, List<Long> petsIds, LocalDate dateStart);
 
-    void setPetsToOwnerAndSetStartOfProbationPeriod(Long id, List<Long> petsIds, LocalDate dateStart);
+    @Transactional
+    void setOwnerDateOfOutcome(Long ownerId, LocalDate dateEnds);
 }
 

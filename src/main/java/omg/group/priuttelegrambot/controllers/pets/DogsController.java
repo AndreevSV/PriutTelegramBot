@@ -37,7 +37,7 @@ public class DogsController {
 
 
     @GetMapping("/{id}")
-    public ResponseEntity<List<DogDto>> findById(@PathVariable Long id) {
+    public ResponseEntity<DogDto> findById(@PathVariable Long id) {
         return ResponseEntity.ok().body(dogsService.findById(id));
     }
 
@@ -51,7 +51,7 @@ public class DogsController {
     ) {
 
         if (id != null) {
-            return ResponseEntity.ok().body(dogsService.findById(id));
+            return ResponseEntity.ok().body(dogsService.findByIdContaining(id));
         }
         if (sex != null) {
             return ResponseEntity.ok(dogsService.findBySex(sex));

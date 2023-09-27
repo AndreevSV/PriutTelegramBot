@@ -36,7 +36,7 @@ public class CatsController {
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<List<CatDto>> findById(@PathVariable Long id) {
+    public ResponseEntity<CatDto> findById(@PathVariable Long id) {
         return ResponseEntity.ok().body(catsService.findById(id));
     }
 
@@ -47,7 +47,7 @@ public class CatsController {
             @RequestParam(required = false) String nickname,
             @RequestParam(required = false) CatsBreed breed) {
         if (id != null) {
-            return ResponseEntity.ok().body(catsService.findById(id));
+            return ResponseEntity.ok().body(catsService.findByIdContaining(id));
         }
         if (sex != null) {
             return ResponseEntity.ok(catsService.findBySex(sex));
@@ -63,7 +63,10 @@ public class CatsController {
     }
 
     @GetMapping("/findbybirthday")
-    public ResponseEntity<List<CatDto>> findByBirthdayBetweenStartDateAndEndDate(@RequestParam Date startDate, @RequestParam Date endDate) {
+    public ResponseEntity<List<CatDto>> findByBirthdayBetweenStartDateAndEndDate(
+            @RequestParam Date startDate,
+            @RequestParam Date endDate
+    ) {
         if (startDate != null && endDate != null) {
             return ResponseEntity.ok().body(catsService.findByBirthdayBetweenDates(startDate, endDate));
         } else {
@@ -75,7 +78,6 @@ public class CatsController {
     public ResponseEntity<List<CatDto>> getAll() {
         return ResponseEntity.ok(catsService.getAll());
     }
-
 
     @DeleteMapping("/{id}")
     public ResponseEntity<HttpStatus> deleteById(@PathVariable Long id) {

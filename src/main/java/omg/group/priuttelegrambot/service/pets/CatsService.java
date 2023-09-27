@@ -4,7 +4,9 @@ import omg.group.priuttelegrambot.dto.pets.CatDto;
 import omg.group.priuttelegrambot.entity.pets.Cat;
 import omg.group.priuttelegrambot.entity.pets.petsenum.CatsBreed;
 import omg.group.priuttelegrambot.entity.pets.petsenum.Sex;
+import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDate;
 import java.util.Date;
 import java.util.List;
 
@@ -14,7 +16,9 @@ public interface CatsService {
 
     void updateById(Long id, CatDto catDto);
 
-    List<CatDto> findById(Long id);
+    CatDto findById(Long id);
+
+    List<CatDto> findByIdContaining(Long id);
 
     List<CatDto> findBySex(Sex sex);
 
@@ -28,7 +32,7 @@ public interface CatsService {
 
     void deleteById(Long id);
 
-    default Cat constructCatFromCatDto(CatDto catDto) {
+    default Cat mapCatFromCatDto(CatDto catDto) {
 
         Cat cat = new Cat();
 
@@ -49,7 +53,7 @@ public interface CatsService {
         return cat;
     }
 
-    default CatDto constructCatDtoFromCat(Cat cat) {
+    default CatDto mapCatDtoFromCat(Cat cat) {
 
         CatDto catDto = new CatDto();
 
@@ -68,5 +72,13 @@ public interface CatsService {
         return catDto;
     }
 
+    void setFirstProbationPeriod(Long petId, LocalDate date);
 
+    @Transactional
+    LocalDate setSecondProbationPeriod(Long petId);
+
+    @Transactional
+    void setProbationPassed(Long petId);
+
+    List<CatDto> getAllPetsOnProbationToday();
 }

@@ -4,7 +4,9 @@ import omg.group.priuttelegrambot.dto.pets.DogDto;
 import omg.group.priuttelegrambot.entity.pets.Dog;
 import omg.group.priuttelegrambot.entity.pets.petsenum.DogsBreed;
 import omg.group.priuttelegrambot.entity.pets.petsenum.Sex;
+import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDate;
 import java.util.Date;
 import java.util.List;
 
@@ -14,7 +16,9 @@ public interface DogsService {
 
     void updateById(Long id, DogDto dogDto);
 
-    List<DogDto> findById(Long id);
+    DogDto findById(Long id);
+
+    List<DogDto> findByIdContaining(Long id);
 
     List<DogDto> findBySex(Sex sex);
 
@@ -28,7 +32,7 @@ public interface DogsService {
 
     void deleteById(Long id);
 
-    default Dog constructDogFromDogDto(DogDto dogDto) {
+    default Dog mapDogFromDogDto(DogDto dogDto) {
 
         Dog dog = new Dog();
 
@@ -49,7 +53,7 @@ public interface DogsService {
         return dog;
     }
 
-    default DogDto constructDogDtoFromCat(Dog dog) {
+    default DogDto mapDogDtoFromDog(Dog dog) {
 
         DogDto dogDto = new DogDto();
 
@@ -67,4 +71,18 @@ public interface DogsService {
 
         return dogDto;
     }
+
+    @Transactional
+    void setFirstProbationPeriod(Long petId, LocalDate date);
+
+    @Transactional
+    LocalDate setSecondProbationPeriod(Long petId);
+
+    @Transactional
+    void setSecondProbationPassed(Long petId);
+
+    @Transactional
+    void setProbationPassed(Long petId);
+
+    List<DogDto> getAllPetsOnProbationToday();
 }

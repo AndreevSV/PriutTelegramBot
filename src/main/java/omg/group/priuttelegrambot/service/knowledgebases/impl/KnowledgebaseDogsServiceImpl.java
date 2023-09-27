@@ -2,8 +2,10 @@ package omg.group.priuttelegrambot.service.knowledgebases.impl;
 
 import lombok.Data;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import omg.group.priuttelegrambot.dto.knowledgebase.KnowledgebaseDto;
 import omg.group.priuttelegrambot.entity.knowledgebases.KnowledgebaseDogs;
+import omg.group.priuttelegrambot.exception.NotFoundException;
 import omg.group.priuttelegrambot.repository.knowledgebases.KnowledgebaseDogsRepository;
 import omg.group.priuttelegrambot.service.knowledgebases.KnowledgebaseDogsService;
 import org.springframework.stereotype.Service;
@@ -11,7 +13,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Optional;
 
-
+@Slf4j
 @Data
 @Service
 @RequiredArgsConstructor
@@ -31,11 +33,10 @@ public class KnowledgebaseDogsServiceImpl implements KnowledgebaseDogsService {
             knowledgebaseDto.setCommand(knowledge.get().getCommand());
             knowledgebaseDto.setMessage(knowledge.get().getMessage());
             knowledgebaseDto.setCommandDescription(knowledge.get().getCommandDescription());
-
+            log.info("Message from knowledgebase was found {}", knowledgebaseDto);
             return knowledgebaseDto;
         } else {
-            System.out.println("Такая команда не найдена");
-            return null;
+            throw new NotFoundException("Message from knowledgebase was not found");
         }
     }
 
