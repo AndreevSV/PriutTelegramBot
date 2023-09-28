@@ -11,8 +11,7 @@ import omg.group.priuttelegrambot.service.reports.ReportsDogsService;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
-import java.time.LocalDateTime;
-import java.time.temporal.ChronoUnit;
+import java.time.LocalDate;
 import java.util.List;
 
 @Component
@@ -46,7 +45,7 @@ public class OwnersDogsNotificationTimer {
     @Scheduled(cron = "0 0 14 * * *")
     @Scheduled(cron = "0 0 18 * * *")
     public void sendReportMessages() {
-        List<ReportDog> reports = reportsDogsRepository.findAllReportsThatNotFullfilled(LocalDateTime.now().truncatedTo(ChronoUnit.DAYS));
+        List<ReportDog> reports = reportsDogsRepository.findAllReportsThatNotFullfilled(LocalDate.now());
         reports.forEach(reportDog -> {
             Long chatId = reportDog.getOwner().getChatId();
             if (reportDog.getFileId() == null &&

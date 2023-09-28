@@ -18,7 +18,6 @@ public class ReportsDogsMapper {
         dto.setFeeling(report.getFeeling());
         dto.setChanges(report.getChanges());
         dto.setDateOfReport(report.getDateOfReport());
-        dto.setDateOfLastReport(report.getDateOfLastReport());
         dto.setHashCodeOfPhoto(report.getHashCodeOfPhoto());
         return dto;
     }
@@ -35,7 +34,6 @@ public class ReportsDogsMapper {
         report.setFeeling(dto.getFeeling());
         report.setChanges(dto.getChanges());
         report.setDateOfReport(dto.getDateOfReport());
-        report.setDateOfLastReport(dto.getDateOfLastReport());
         report.setHashCodeOfPhoto(dto.getHashCodeOfPhoto());
         return report;
     }

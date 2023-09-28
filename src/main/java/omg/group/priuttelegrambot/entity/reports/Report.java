@@ -39,9 +39,6 @@ public abstract class Report {
     @Column(name = "date_of_report")
     private LocalDate dateOfReport;
 
-    @Column(name = "date_of_last_report")
-    private LocalDate dateOfLastReport;
-
     @Column(name = "hash_code")
     private int hashCodeOfPhoto;
 

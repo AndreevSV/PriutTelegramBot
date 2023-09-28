@@ -3,7 +3,7 @@ package omg.group.priuttelegrambot.dto.owners;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import omg.group.priuttelegrambot.dto.pets.DogDto;
-import omg.group.priuttelegrambot.entity.addresses.AddressesOwnersDogs;
+import omg.group.priuttelegrambot.entity.addresses.AddressOwnerDog;
 
 import java.util.List;
 
@@ -11,7 +11,7 @@ import java.util.List;
 @Data
 public class OwnerDogDto extends OwnerDto {
     private OwnerDogDto volunteerDto;
-    private AddressesOwnersDogs address; //TODO: переделать на Dto
+    private AddressOwnerDog address;
     private List<DogDto> dogsDto;
 
 }

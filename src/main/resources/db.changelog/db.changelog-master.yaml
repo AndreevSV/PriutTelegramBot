@@ -346,3 +346,14 @@ databaseChangeLog:
       changes:
         - sqlFile:
             path: db.changelog/init9.sql
+
+  - changeSet:
+      id: 22
+      author: AndreevSV
+      changes:
+        - dropColumn:
+            tableName: reports_cats
+            columnName: date_of_last_report
+        - dropColumn:
+            tableName: reports_dogs
+            columnName: date_of_last_report

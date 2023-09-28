@@ -1,15 +1,18 @@
 package omg.group.priuttelegrambot.dto.addresses;
 
 import jakarta.validation.constraints.Pattern;
-import lombok.Data;
+import lombok.Getter;
+import lombok.RequiredArgsConstructor;
+import lombok.experimental.SuperBuilder;
 
-@Data
-public class AddressDto {
+@SuperBuilder(toBuilder = true)
+@Getter
+@RequiredArgsConstructor
+public abstract class AddressDto {
 
     private Long id;
 
-    @Pattern(regexp = "\\d{3}")
-
+    @Pattern(regexp = "\\d{6}")
     private int index;
 
     private String country;
@@ -27,5 +30,4 @@ public class AddressDto {
     private int building;
 
     private int flat;
-
 }

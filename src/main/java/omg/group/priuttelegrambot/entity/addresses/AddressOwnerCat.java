@@ -1,34 +1,29 @@
-package omg.group.priuttelegrambot.entity.owners;
+package omg.group.priuttelegrambot.entity.addresses;
 
-import jakarta.persistence.*;
-import lombok.*;
-import omg.group.priuttelegrambot.entity.addresses.AddressOwnerDog;
-import omg.group.priuttelegrambot.entity.pets.Dog;
+
+import jakarta.persistence.Entity;
+import jakarta.persistence.OneToMany;
+import jakarta.persistence.Table;
+import lombok.Getter;
+import lombok.RequiredArgsConstructor;
+import lombok.Setter;
+import lombok.experimental.SuperBuilder;
+import omg.group.priuttelegrambot.entity.owners.OwnerCat;
 import org.hibernate.proxy.HibernateProxy;
 
 import java.util.List;
 import java.util.Objects;
 
+@Entity
+@SuperBuilder(toBuilder = true)
+@RequiredArgsConstructor
 @Getter
 @Setter
-@ToString
-@RequiredArgsConstructor
-@Entity
-@Table(name = "clients_dogs")
-public class OwnerDog extends Owner {
+@Table(name = "addresses_clients_cats")
+public class AddressOwnerCat extends Address {
 
-    @ManyToOne
-    @JoinColumn(name = "address", referencedColumnName = "id")
-    private AddressOwnerDog address;
-
-    @ManyToOne
-    @JoinColumn(name = "volunteer_id", referencedColumnName = "id")
-    private OwnerDog volunteer;
-
-    @OneToMany(mappedBy = "owner", fetch = FetchType.EAGER)
-//    @ToString.Exclude
-    private List<Dog> dogs;
-
+    @OneToMany(mappedBy = "address")
+    private List<OwnerCat> clientsCats;
 
     @Override
     public final boolean equals(Object o) {
@@ -37,8 +32,8 @@ public class OwnerDog extends Owner {
         Class<?> oEffectiveClass = o instanceof HibernateProxy ? ((HibernateProxy) o).getHibernateLazyInitializer().getPersistentClass() : o.getClass();
         Class<?> thisEffectiveClass = this instanceof HibernateProxy ? ((HibernateProxy) this).getHibernateLazyInitializer().getPersistentClass() : this.getClass();
         if (thisEffectiveClass != oEffectiveClass) return false;
-        OwnerDog ownerDog = (OwnerDog) o;
-        return getId() != null && Objects.equals(getId(), ownerDog.getId());
+        AddressOwnerCat that = (AddressOwnerCat) o;
+        return getId() != null && Objects.equals(getId(), that.getId());
     }
 
     @Override

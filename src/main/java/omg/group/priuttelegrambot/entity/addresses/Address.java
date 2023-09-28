@@ -1,13 +1,17 @@
 package omg.group.priuttelegrambot.entity.addresses;
 
 import jakarta.persistence.*;
-import lombok.Data;
+import lombok.Getter;
 import lombok.RequiredArgsConstructor;
+import lombok.Setter;
+import lombok.experimental.SuperBuilder;
 
-@Data
-@RequiredArgsConstructor
 @MappedSuperclass
-public abstract class Addresses {
+@SuperBuilder(toBuilder = true)
+@Getter
+@Setter
+@RequiredArgsConstructor
+public abstract class Address {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id")

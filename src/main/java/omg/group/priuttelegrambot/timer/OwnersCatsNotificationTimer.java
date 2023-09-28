@@ -11,8 +11,7 @@ import omg.group.priuttelegrambot.service.reports.ReportsCatsService;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
-import java.time.LocalDateTime;
-import java.time.temporal.ChronoUnit;
+import java.time.LocalDate;
 import java.util.List;
 
 @Slf4j
@@ -49,7 +48,7 @@ public class OwnersCatsNotificationTimer {
     @Scheduled(cron = "0 0 18 * * *")
     public void sendReportMessages() {
         log.info("Method sendReport started successfully");
-        List<ReportCat> reports = reportsCatsRepository.findAllReportsThatNotFullfilled(LocalDateTime.now().truncatedTo(ChronoUnit.DAYS));
+        List<ReportCat> reports = reportsCatsRepository.findAllReportsThatNotFullfilled(LocalDate.now());
         log.info("Reports got successfully {}", reports);
         reports.forEach(reportCat -> {
             Long chatId = reportCat.getOwner().getChatId();

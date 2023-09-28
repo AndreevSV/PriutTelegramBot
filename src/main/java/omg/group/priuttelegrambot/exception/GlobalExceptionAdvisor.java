@@ -31,9 +31,9 @@ public class GlobalExceptionAdvisor {
         return exception.getMessage();
     }
 
-    @ExceptionHandler(MyServerExceptions.class)
+    @ExceptionHandler(UnexpectedExceptions.class)
     @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
-    public ResponseEntity<Map<String, Object>> handleMyServerException(Exception exception) {
+    public ResponseEntity<Map<String, Object>> handleUnexpectedException(Exception exception) {
         Map<String, Object> body = new HashMap<>();
         body.put("timestamp", LocalDateTime.now());
         body.put("message", "Internal error.");

@@ -15,6 +15,5 @@ public abstract class ReportsDto {
     private String feeling;
     private String changes;
     private LocalDate dateOfReport;
-    private LocalDate dateOfLastReport;
     private Integer hashCodeOfPhoto;
 }
